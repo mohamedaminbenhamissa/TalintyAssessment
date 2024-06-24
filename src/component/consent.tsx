@@ -3,6 +3,8 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { Checkbox, FormControlLabel, TextField, Stack } from "@mui/material";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useEffect } from "react";
 
 function formatDate(date: Date) {
   const options: Intl.DateTimeFormatOptions = {
@@ -20,6 +22,11 @@ export default function CONSENT({
   name: string;
   setName: (value: string) => void;
 }) {
+  const { t, i18n } = useTranslation("consent");
+  console.log(i18n.language);
+  useEffect(() => {
+    document.dir = i18n.language === "ar" ? "rtl" : "ltr";
+  }, [i18n.language]);
   const currentDate = formatDate(new Date());
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,24 +52,39 @@ export default function CONSENT({
               textAlign: "justify",
             }}
           >
-            Le lorem ipsum est, en imprimerie, une suite de mots sans
-            signification utilisée à titre provisoire pour calibrer une mise en
-            page, le texte définitif venant remplacer le faux-texte dès qu'il
-            est prêt ou que la mise en page est achevée. Généralement, on
-            utilise un texte en faux latin, le Lorem ipsum ou Lipsum. Le lorem
-            ipsum est, en imprimerie, une suite de mots sans signification
-            utilisée à titre provisoire pour calibrer une mise en page, le texte
-            définitif venant remplacer le faux-texte dès qu'il est prêt ou que
-            la mise en page est achevée. Généralement, on utilise un texte en
-            faux latin, le Lorem ipsum ou Lipsum. Le lorem ipsum est, en
-            imprimerie, une suite de mots sans signification utilisée à titre
-            provisoire pour calibrer une mise en page, le texte définitif venant
-            remplacer le faux-texte dès qu'il est prêt ou que la mise en page
-            est achevée. Généralement, on utilise un texte en faux latin, le
-            Lorem ipsum ou Lipsum.
+            {t("text1")}
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: 14,
+              textAlign: "justify",
+              mt: 2, // Add margin top for separation
+            }}
+          >
+            {t("text2")}
           </Typography>
         </Box>
 
+        <hr style={{ margin: "20px 0" }} />
+
+        <Box
+          sx={{
+            width: "100%",
+            mt: 3,
+            display: "flex",
+            justifyContent: "flex-start",
+          }}
+        >
+          {/* Third Part */}
+          <Typography
+            sx={{
+              fontSize: 14,
+              textAlign: "justify",
+            }}
+          >
+            {t("text3")}
+          </Typography>
+        </Box>
         <Box
           sx={{
             width: "100%",
@@ -73,10 +95,9 @@ export default function CONSENT({
         >
           <FormControlLabel
             control={<Checkbox name="agree" />}
-            label="Lorem ipsum dolor sit amet consectetur. Ullamcorper sed molestie tempus scelerisque. "
+            label={t("agreepolicy")}
           />
         </Box>
-
         <Box
           sx={{
             width: "100%",

@@ -3,10 +3,11 @@ import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 import Happy from "../assets/happy.png";
 import Normal from "../assets/normal.png";
 import Sad from "../assets/sad.png";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Feedback() {
   const [value, setValue] = React.useState("");
-
+  const { t } = useTranslation("feedback");
   const handleSelect = (newValue: string) => {
     setValue(newValue);
   };
@@ -31,21 +32,7 @@ export default function Feedback() {
               textAlign: "justify",
             }}
           >
-            Le lorem ipsum est, en imprimerie, une suite de mots sans
-            signification utilisée à titre provisoire pour calibrer une mise en
-            page, le texte définitif venant remplacer le faux-texte dès qu'il
-            est prêt ou que la mise en page est achevée. Généralement, on
-            utilise un texte en faux latin, le Lorem ipsum ou Lipsum. Le lorem
-            ipsum est, en imprimerie, une suite de mots sans signification
-            utilisée à titre provisoire pour calibrer une mise en page, le texte
-            définitif venant remplacer le faux-texte dès qu'il est prêt ou que
-            la mise en page est achevée. Généralement, on utilise un texte en
-            faux latin, le Lorem ipsum ou Lipsum. Le lorem ipsum est, en
-            imprimerie, une suite de mots sans signification utilisée à titre
-            provisoire pour calibrer une mise en page, le texte définitif venant
-            remplacer le faux-texte dès qu'il est prêt ou que la mise en page
-            est achevée. Généralement, on utilise un texte en faux latin, le
-            Lorem ipsum ou Lipsum.
+            {t("text1")}
           </Typography>
         </Box>
 
@@ -58,7 +45,7 @@ export default function Feedback() {
               color: "#1A1A20",
             }}
           >
-            We would love to hear from you how was your experience?
+            {t("text2")}
           </Typography>
         </Box>
 

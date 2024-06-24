@@ -3,7 +3,8 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { FormControlLabel, RadioGroup, Radio } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function EXTRA_TIME() {
   const [selectedValue, setSelectedValue] = useState("nottosay");
@@ -11,7 +12,11 @@ export default function EXTRA_TIME() {
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedValue(event.target.value);
   };
-
+  const { t, i18n } = useTranslation("extratime");
+  console.log(i18n.language);
+  useEffect(() => {
+    document.dir = i18n.language === "ar" ? "rtl" : "ltr";
+  }, [i18n.language]);
   return (
     <Card
       sx={{
@@ -27,39 +32,27 @@ export default function EXTRA_TIME() {
         <Box sx={{ width: "100%", mt: 2 }}>
           <Typography
             sx={{
-              fontSize: 14,
+              fontSize: { xs: 14, sm: 16 },
               textAlign: "justify",
+              width: "100%",
+              mt: 2,
             }}
           >
-            Le lorem ipsum est, en imprimerie, une suite de mots sans
-            signification utilisée à titre provisoire pour calibrer une mise en
-            page, le texte définitif venant remplacer le faux-texte dès qu'il
-            est prêt ou que la mise en page est achevée. Généralement, on
-            utilise un texte en faux latin, le Lorem ipsum ou Lipsum. Le lorem
-            ipsum est, en imprimerie, une suite de mots sans signification
-            utilisée à titre provisoire pour calibrer une mise en page, le texte
-            définitif venant remplacer le faux-texte dès qu'il est prêt ou que
-            la mise en page est achevée. Généralement, on utilise un texte en
-            faux latin, le Lorem ipsum ou Lipsum. Le lorem ipsum est, en
-            imprimerie, une suite de mots sans signification utilisée à titre
-            provisoire pour calibrer une mise en page, le texte définitif venant
-            remplacer le faux-texte dès qu'il est prêt ou que la mise en page
-            est achevée. Généralement, on utilise un texte en faux latin, le
-            Lorem ipsum ou Lipsum.
+            {t("text1")}
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: { xs: 14, sm: 16 },
+              textAlign: "justify",
+              width: "100%",
+              mt: 1,
+            }}
+          >
+            {t("text2")}
           </Typography>
         </Box>
 
         <Box sx={{ width: "100%", mt: 2 }}>
-          <Typography
-            sx={{
-              fontSize: 14,
-              textAlign: "justify",
-              fontWeight: 600,
-              color: "#1A1A20",
-            }}
-          >
-            Do you have a disability?
-          </Typography>
           <RadioGroup
             row
             aria-labelledby="demo-row-radio-buttons-group-label"
@@ -72,19 +65,19 @@ export default function EXTRA_TIME() {
               value="yes"
               sx={{ mr: 8 }}
               control={<Radio />}
-              label="Yes"
+              label={t("yes")}
             />
             <FormControlLabel
               value="no"
               sx={{ mr: 8 }}
               control={<Radio />}
-              label="No"
+              label={t("no")}
             />
             <FormControlLabel
               value="nottosay"
               sx={{ mr: 2 }}
               control={<Radio />}
-              label="I prefer not to say"
+              label={t("prefernot")}
             />
           </RadioGroup>
         </Box>

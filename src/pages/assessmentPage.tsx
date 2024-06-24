@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMachine } from "@xstate/react";
 import { stepsMachine } from "./Evaluation/stepsMachine";
 import Init from "../component/init";
@@ -21,12 +21,32 @@ import CONGRATS from "../component/congratulations";
 import START from "../component/start";
 import RESULT from "../component/result";
 
+import { LangSelect } from "../component/languageSwitcher";
+import { useTranslation } from "../hooks/useTranslation";
+
 const InProgress = () => <div>In Progress</div>;
 const Break = () => <div>Break</div>;
 
 const StepsPage: React.FC = () => {
-  const [state, send] = useMachine(stepsMachine);
+  const { t, i18n } = useTranslation("button");
+  console.log(i18n.language);
+  useEffect(() => {
+    document.dir = i18n.language === "ar" ? "rtl" : "ltr";
+  }, [i18n.language]);
+
+  // const savedState = localStorage.getItem("stepsMachineState");
+  const [state, send] = useMachine(
+    stepsMachine
+    //   , {
+    //   state: savedState ? JSON.parse(savedState) : undefined,
+    // }
+  );
   const [name, setName] = useState("");
+
+  // useEffect(() => {
+  //   localStorage.setItem("stepsMachineState", JSON.stringify(state));
+  // }, [state]);
+
   const renderStep = () => {
     switch (state.value) {
       case "INIT":
@@ -55,7 +75,7 @@ const StepsPage: React.FC = () => {
   };
 
   const renderHeaderContent = () => {
-    if (state.matches("START")) {
+    if (state.value === "START") {
       return (
         <Box
           sx={{
@@ -91,22 +111,22 @@ const StepsPage: React.FC = () => {
     let title;
     switch (state.value) {
       case "CONFIG_WEBCAM":
-        title = "Configuration";
+        title = t("Configuration");
         break;
       case "FEEDBACK":
-        title = "How’s it Going ?";
+        title = t("feedback");
         break;
       case "CONSENT":
-        title = "Trust commitment";
+        title = t("consent");
         break;
       case "EXTRA_TIME":
-        title = "Extra Time";
+        title = t("extratime");
         break;
       case "RESULTS":
-        title = "Performence report";
+        title = t("result");
         break;
       default:
-        title = "Recruitment process";
+        title = t("init");
     }
 
     return (
@@ -117,18 +137,20 @@ const StepsPage: React.FC = () => {
           flexDirection: "column",
           fontWeight: "bold",
           color: "#fff",
+          alignItems: i18n.language === "ar" ? "flex-end" : "flex-start",
         }}
       >
         {title}
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-start",
+            justifyContent: i18n.language === "ar" ? "flex-end" : "flex-start",
             width: "20%",
             height: "1px",
             background: "linear-gradient(to right,#000, #fff, #000)",
             marginTop: "4px",
             marginLeft: 2,
+            marginRight: i18n.language === "ar" ? 2 : 0,
           }}
         />
       </Typography>
@@ -163,6 +185,8 @@ const StepsPage: React.FC = () => {
         sx={{
           width: "100vw",
           display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           height: 70,
           marginBottom: 2,
           position: "fixed",
@@ -191,9 +215,12 @@ const StepsPage: React.FC = () => {
             Evaluation for UX/UI Designer position
           </Typography>
         </Box>
+        <Box sx={{ p: 4 }}>
+          <LangSelect />
+        </Box>
       </Box>
       <Card sx={{ marginTop: "30px" }}>
-        {!state.matches("LOCKED") && (
+        {state.value !== "LOCKED" && (
           <Box
             sx={{
               display: "flex",
@@ -231,6 +258,7 @@ const StepsPage: React.FC = () => {
               zIndex: 1,
               width: "100%",
             }}
+            dir="ltr"
           >
             <Button
               sx={{
@@ -239,10 +267,10 @@ const StepsPage: React.FC = () => {
                 px: 6,
                 py: 1,
                 display:
-                  state.matches("RESULTS") ||
-                  state.matches("INIT") ||
-                  state.matches("LOCKED") ||
-                  state.matches("START")
+                  state.value === "RESULTS" ||
+                  state.value === "INIT" ||
+                  state.value === "LOCKED" ||
+                  state.value === "START"
                     ? "none"
                     : "inline-block",
 
@@ -255,7 +283,7 @@ const StepsPage: React.FC = () => {
               size="small"
               style={{ borderRadius: "10px" }}
             >
-              Previous
+              {t("btnPrivious")}
             </Button>
             <Button
               sx={{
@@ -265,7 +293,7 @@ const StepsPage: React.FC = () => {
                 py: 1,
                 borderRadius: "10px",
                 display:
-                  state.matches("BREAK") || state.matches("LOCKED")
+                  state.value === "BREAK" || state.value === "LOCKED"
                     ? "none"
                     : "inline-block",
                 ":hover": {
@@ -277,7 +305,7 @@ const StepsPage: React.FC = () => {
               disabled={state.value === "CONSENT" && name === ""}
               onClick={() => send({ type: "next" })}
             >
-              {state.matches("START") ? "Get Started" : "Next"}
+              {state.value === "START" ? t("btnstart") : t("btnNext")}
             </Button>
           </Box>
         </CardContent>

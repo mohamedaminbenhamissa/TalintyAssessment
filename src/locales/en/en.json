@@ -1,0 +1,48 @@
+{
+    "button": {
+        "btnNext" : "Next",
+        "btnPrivious" : "Privious",
+         "btnstart":"Get Started",
+        "Configuration":"Configuration",
+        "feedback":"How’s it Going ?",
+        "consent":" Trust commitment",
+        "extratime":"Extra Time ",
+        "result":"Performance report",
+        "init":" Recruitment process"
+                
+       
+      
+    },
+    "language":{
+        "language":"Language",
+        "english":"English",
+        "arabic":"العربية"
+    },
+    "extratime":{
+        "yes":"Yes",
+        "no":"No",
+        "prefernot":"I prefer not to say",
+     "text1": "As part of our commitment to ensuring an inclusive and accommodating recruitment process, we would like to know if you require any special accommodations or support due to a disability. This information will help us to provide you with the best possible experience during our selection process.",
+        "text2":"We look forward to assisting you and ensuring you have the best possible experience."
+    },
+    "init":{
+        "welcome":"We are excited to welcome you to the next stage of our selection process. Your qualifications have impressed us, and we are eager to see your skills in action through this assessment. This assessment is designed to give us a deeper understanding of your abilities and how you might fit within our team. We encourage you to approach it with confidence and showcase your best work.",
+          "beforestarting":"Before starting your assessment, please note the following important details:",
+          "important":"Important Instructions:",
+          "dear":"Dear"
+    },
+    "consent":{
+        "text1":"We strives to create a fair test-taking experience for all. We use advanced methods to detect dishonesty and to protect the integrity of your assessment. Instances of dishonesty may lead to disqualification from the assessment and our platform, and may be reported to the employer who requested the assessment.",
+        "text2":"The use of AI tools, taking an assessment multiple times, and other behaviors outlined in the full policy are not allowed unless instructed otherwise.",
+        "text3":"I acknowledge that I have read and understood the Candidate Honesty Policy, and I agree to abide by it. I understand the importance of upholding honesty and integrity in assessments.",
+        "agreepolicy":"I agree with this policy by entering my name as my signature."
+    },
+    "configuration":{
+        "note":"For the upcoming assessment, we kindly request access to your camera and microphone. These tools may be necessary to ensure a smooth and effective evaluation process."
+    },
+    "feedback":{
+        "text1":"Evaluating the current assessment will provide valuable insights and feedback, enabling us to enhance the quality and effectiveness of future assessments.",
+        "text2":"We would love to hear from you how was your experience?"
+    }
+    
+}
