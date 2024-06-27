@@ -27,6 +27,7 @@ export default function EXTRA_TIME() {
         minHeight: 500,
         border: "ActiveBorder",
       }}
+      tabIndex={0}
     >
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ width: "100%", mt: 2 }}>
@@ -37,6 +38,8 @@ export default function EXTRA_TIME() {
               width: "100%",
               mt: 2,
             }}
+            tabIndex={0}
+            aria-label={t("text1")}
           >
             {t("text1")}
           </Typography>
@@ -47,6 +50,8 @@ export default function EXTRA_TIME() {
               width: "100%",
               mt: 1,
             }}
+            tabIndex={0}
+            aria-label={t("text1")}
           >
             {t("text2")}
           </Typography>
@@ -60,24 +65,31 @@ export default function EXTRA_TIME() {
             value={selectedValue}
             onChange={handleRadioChange}
             sx={{ mt: 2 }}
+            tabIndex={0}
           >
             <FormControlLabel
               value="yes"
               sx={{ mr: 8 }}
               control={<Radio />}
               label={t("yes")}
+              tabIndex={0}
+              aria-label={t("yes")}
             />
             <FormControlLabel
               value="no"
               sx={{ mr: 8 }}
               control={<Radio />}
               label={t("no")}
+              tabIndex={0}
+              aria-label={t("no")}
             />
             <FormControlLabel
               value="nottosay"
               sx={{ mr: 2 }}
               control={<Radio />}
               label={t("prefernot")}
+              tabIndex={0}
+              aria-label={t("prefernot")}
             />
           </RadioGroup>
         </Box>

@@ -1,0 +1,29 @@
+{
+    "id": "1955210f-9c1c-4ef6-9805-122e658c9506",
+    "hasNext": true,
+    "enableFeedback": true,
+    "finished": false,
+    "feedback": [],
+    "currentPackCount": 0,
+    "currentQuestionCount": 0,
+    "introVideo": "",
+    "outroVideo": "",
+    "enableExtraTime": true,
+    "disableCopyPaste": true,
+    "webcamScreenshots": true,
+    "estimatedTime": 2400,
+    "numberOfQuestions": 41,
+    "numberOfTests": 1,
+    "numberOfVideoQuestions": 0,
+    "numberOfCodeQuestions": 0,
+    "packs": [
+        {
+            "id": "629dfb317ad326b86f13d2a2",
+            "name": "Test de logique",
+            "allowedTime": 2400
+        }
+    ],
+    "packsStarted": [],
+    "jobName": "Stage d'été",
+    "firstName": "Mohamed Amine"
+}

@@ -2,9 +2,16 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { Checkbox, FormControlLabel, TextField, Stack } from "@mui/material";
+import {
+  Checkbox,
+  FormControlLabel,
+  TextField,
+  Stack,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function formatDate(date: Date) {
   const options: Intl.DateTimeFormatOptions = {
@@ -22,6 +29,33 @@ export default function CONSENT({
   name: string;
   setName: (value: string) => void;
 }) {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+  useEffect(() => {
+    const handleContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+    };
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, []);
+
+  const handleCopy = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    setSnackbarMessage("Copying is disabled!");
+    setSnackbarOpen(true);
+  };
+
+  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    setSnackbarMessage("Pasting is disabled!");
+    setSnackbarOpen(true);
+  };
+
   const { t, i18n } = useTranslation("consent");
   console.log(i18n.language);
   useEffect(() => {
@@ -42,6 +76,7 @@ export default function CONSENT({
         boxShadow: 0,
         minHeight: 500,
         border: "ActiveBorder",
+        userSelect: "none",
       }}
     >
       <CardContent sx={{ flex: 1 }}>
@@ -51,6 +86,8 @@ export default function CONSENT({
               fontSize: 14,
               textAlign: "justify",
             }}
+            tabIndex={0}
+            aria-label={t("text1")}
           >
             {t("text1")}
           </Typography>
@@ -58,8 +95,10 @@ export default function CONSENT({
             sx={{
               fontSize: 14,
               textAlign: "justify",
-              mt: 2, // Add margin top for separation
+              mt: 2,
             }}
+            tabIndex={0}
+            aria-label={t("text2")}
           >
             {t("text2")}
           </Typography>
@@ -81,6 +120,8 @@ export default function CONSENT({
               fontSize: 14,
               textAlign: "justify",
             }}
+            tabIndex={0}
+            aria-label={t("text3")}
           >
             {t("text3")}
           </Typography>
@@ -96,6 +137,8 @@ export default function CONSENT({
           <FormControlLabel
             control={<Checkbox name="agree" />}
             label={t("agreepolicy")}
+            tabIndex={0}
+            aria-label={t("agreepolicy")}
           />
         </Box>
         <Box
@@ -114,6 +157,8 @@ export default function CONSENT({
               display: "flex",
               alignItems: "flex-start",
             }}
+            tabIndex={0}
+            aria-label="Your signature"
           >
             Your signature
           </Typography>
@@ -129,6 +174,8 @@ export default function CONSENT({
               value={name}
               onChange={handleNameChange}
               sx={{ flex: 1 }}
+              onCopy={handleCopy}
+              onPaste={handlePaste}
             />
             <Typography
               variant="body1"
@@ -137,12 +184,24 @@ export default function CONSENT({
                 textAlign: "center",
                 minWidth: "fit-content",
               }}
+              tabIndex={0}
+              aria-label={currentDate}
             >
               Date: {currentDate}
             </Typography>
           </Stack>
         </Box>
       </CardContent>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="warning">
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 }

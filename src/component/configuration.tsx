@@ -14,6 +14,7 @@ export default function CONFIG_WEBCAM() {
   const [cameraState, setCameraState] = useState(true);
   const [microphoneState, setMicrophoneState] = useState(true);
   const { t } = useTranslation("configuration");
+
   const handleCameraToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCameraState(event.target.checked);
   };
@@ -37,7 +38,7 @@ export default function CONFIG_WEBCAM() {
     >
       <CardContent sx={{ flex: 1 }}>
         <Grid container spacing={1}>
-          <Grid item xs={12}>
+          <Grid item xs={12} tabIndex={0}>
             <Box
               sx={{
                 display: "flex",
@@ -55,10 +56,76 @@ export default function CONFIG_WEBCAM() {
                   textAlign: "justify",
                   width: "100%",
                 }}
+                tabIndex={0}
+                aria-label={t("note")}
               >
                 {t("note")}
               </Typography>
               <Divider sx={{ my: 2, borderColor: "#E3D9C8", width: "100%" }} />
+
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <RecordCamera width={24} height={24} />
+                  <Typography
+                    sx={{
+                      fontSize: "16px",
+                      lineHeight: "21px",
+                      color: "#1A1A20",
+                    }}
+                    tabIndex={0}
+                    aria-label="Camera"
+                  >
+                    Camera
+                  </Typography>
+                </Box>
+                <Switch
+                  checked={cameraState}
+                  onChange={handleCameraToggle}
+                  color="warning"
+                  inputProps={{ "aria-label": "camera toggle" }}
+                />
+              </Box>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <KeyboardVoiceOutlinedIcon
+                    width={24}
+                    height={24}
+                    sx={{ color: "#C1976B" }}
+                  />
+                  <Typography
+                    sx={{
+                      fontSize: "16px",
+                      lineHeight: "21px",
+                      color: "#1A1A20",
+                    }}
+                    tabIndex={0}
+                    aria-label="Microphone"
+                  >
+                    Microphone
+                  </Typography>
+                </Box>
+                <Switch
+                  checked={microphoneState}
+                  onChange={handleMicrophoneToggle}
+                  color="warning"
+                  inputProps={{ "aria-label": "microphone toggle" }}
+                />
+              </Box>
             </Box>
           </Grid>
 
@@ -74,63 +141,7 @@ export default function CONFIG_WEBCAM() {
               width: "100%", // Ensure the controls take full width
             }}
           >
-            {/* Camera Control */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                width: "100%", // Ensure the control takes full width
-              }}
-            >
-              <RecordCamera width={24} height={24} />
-              <Typography
-                sx={{
-                  fontSize: "16px",
-                  lineHeight: "21px",
-                  color: "#1A1A20",
-                }}
-              >
-                Camera
-              </Typography>
-              <Switch
-                checked={cameraState}
-                onChange={handleCameraToggle}
-                color="warning"
-                inputProps={{ "aria-label": "camera toggle" }}
-              />
-            </Box>
-
-            {/* Microphone Control */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                width: "100%",
-              }}
-            >
-              <KeyboardVoiceOutlinedIcon
-                width={24}
-                height={24}
-                sx={{ color: "#C1976B" }}
-              />
-              <Typography
-                sx={{
-                  fontSize: "16px",
-                  lineHeight: "21px",
-                  color: "#1A1A20",
-                }}
-              >
-                Microphone
-              </Typography>
-              <Switch
-                checked={microphoneState}
-                onChange={handleMicrophoneToggle}
-                color="warning"
-                inputProps={{ "aria-label": "microphone toggle" }}
-              />
-            </Box>
+            {/* Camera and Microphone Control */}
           </Box>
 
           <Grid item xs={12}>

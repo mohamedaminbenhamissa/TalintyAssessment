@@ -1,7 +1,7 @@
 {
     "button": {
         "btnNext" : "Next",
-        "btnPrivious" : "Privious",
+        "btnPrivious" : "Previous",
          "btnstart":"Get Started",
         "Configuration":"Configuration",
         "feedback":"How’s it Going ?",

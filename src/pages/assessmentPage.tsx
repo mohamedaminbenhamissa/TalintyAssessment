@@ -23,29 +23,64 @@ import RESULT from "../component/result";
 
 import { LangSelect } from "../component/languageSwitcher";
 import { useTranslation } from "../hooks/useTranslation";
+import IN_PROGRESS from "@/component/questions/chorttextQuestion";
+import assessmentData from "../../assessment.json";
 
-const InProgress = () => <div>In Progress</div>;
 const Break = () => <div>Break</div>;
 
 const StepsPage: React.FC = () => {
+  const [jobName, setJobName] = useState("");
+  const [testName, setTestkName] = useState("");
+  const [estimatedTime, setEstimatedTime] = useState(0);
+  const [numberOfQuestions, setNumberOfQuestions] = useState(0);
+  const [state, send] = useMachine(stepsMachine);
+  const [name, setName] = useState("");
   const { t, i18n } = useTranslation("button");
   console.log(i18n.language);
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
+
+    const fetchAssessmentData = async () => {
+      // If the JSON is imported directly:
+      const data = assessmentData;
+
+      setJobName(data.jobName);
+      setTestkName(data.packs[0]?.name ?? "");
+      setEstimatedTime(data.estimatedTime);
+      setNumberOfQuestions(data.numberOfQuestions);
+    };
+    fetchAssessmentData();
   }, [i18n.language]);
 
-  // const savedState = localStorage.getItem("stepsMachineState");
-  const [state, send] = useMachine(
-    stepsMachine
-    //   , {
-    //   state: savedState ? JSON.parse(savedState) : undefined,
-    // }
-  );
-  const [name, setName] = useState("");
+  useEffect(() => {
+    const handleFullScreen = () => {
+      if (document.fullscreenElement) {
+        console.log("Entered full-screen mode");
+      } else {
+        console.log("Exited full-screen mode");
+      }
+    };
 
-  // useEffect(() => {
-  //   localStorage.setItem("stepsMachineState", JSON.stringify(state));
-  // }, [state]);
+    document.addEventListener("fullscreenchange", handleFullScreen);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullScreen);
+    };
+  }, []);
+
+  const handleStartClick = () => {
+    const docElm = document.documentElement;
+    if (docElm.requestFullscreen) {
+      docElm.requestFullscreen();
+    } else if (docElm.requestFullscreen) {
+      docElm.requestFullscreen();
+    } else if (docElm.requestFullscreen) {
+      docElm.requestFullscreen();
+    } else if (docElm.requestFullscreen) {
+      docElm.requestFullscreen();
+    }
+    send({ type: "next" });
+  };
 
   const renderStep = () => {
     switch (state.value) {
@@ -60,7 +95,7 @@ const StepsPage: React.FC = () => {
       case "START":
         return <START />;
       case "IN_PROGRESS":
-        return <InProgress />;
+        return <IN_PROGRESS />;
       case "FEEDBACK":
         return <FEEDBACK />;
       case "RESULTS":
@@ -91,16 +126,16 @@ const StepsPage: React.FC = () => {
               color: "#fff",
             }}
           >
-            Lorem ipsum dolor sit amet consectetur.
+            {testName}
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             <Chip
               icon={<AccessAlarmOutlinedIcon />}
-              label="Duration: 30 mins"
+              label={`Duration: ${estimatedTime / 60} mins`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
             <Chip
-              label="N° questions: 10"
+              label={`N° questions: ${numberOfQuestions}`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
           </Box>
@@ -124,6 +159,9 @@ const StepsPage: React.FC = () => {
         break;
       case "RESULTS":
         title = t("result");
+        break;
+      case "IN_PROGRESS":
+        title = "IN PROGRESS";
         break;
       default:
         title = t("init");
@@ -205,15 +243,30 @@ const StepsPage: React.FC = () => {
           />
           <Box
             sx={{
-              width: "1px",
-              height: "50px",
-              backgroundColor: "#000",
-              marginLeft: 2,
+              display: "flex",
+              alignItems: "center",
+              flexDirection: { xs: "column", sm: "row" },
+              padding: { xs: 1, sm: 2 },
             }}
-          />
-          <Typography sx={{ color: "#023651", padding: 2 }}>
-            Evaluation for UX/UI Designer position
-          </Typography>
+          >
+            <Box
+              sx={{
+                width: { xs: "100%", sm: "1px" },
+                height: { xs: "1px", sm: "50px" },
+                backgroundColor: "#000",
+                margin: { xs: "8px 0", sm: 2 },
+              }}
+            />
+            <Typography
+              sx={{
+                color: "#023651",
+                padding: { xs: 1, sm: 2 },
+                textAlign: { xs: "center", sm: "left" },
+              }}
+            >
+              Evaluation {jobName}
+            </Typography>
+          </Box>
         </Box>
         <Box sx={{ p: 4 }}>
           <LangSelect />
@@ -270,7 +323,8 @@ const StepsPage: React.FC = () => {
                   state.value === "RESULTS" ||
                   state.value === "INIT" ||
                   state.value === "LOCKED" ||
-                  state.value === "START"
+                  state.value === "START" ||
+                  state.value == "IN_PROGRESS"
                     ? "none"
                     : "inline-block",
 
@@ -287,7 +341,11 @@ const StepsPage: React.FC = () => {
             </Button>
             <Button
               sx={{
-                background: "#023651",
+                background:
+                  state.value === "CONSENT" && name === ""
+                    ? "#E8E8F0"
+                    : "#023651",
+
                 color: "#fff",
                 px: 6,
                 py: 1,
@@ -303,7 +361,11 @@ const StepsPage: React.FC = () => {
               }}
               size="small"
               disabled={state.value === "CONSENT" && name === ""}
-              onClick={() => send({ type: "next" })}
+              onClick={
+                state.value === "START"
+                  ? handleStartClick
+                  : () => send({ type: "next" })
+              }
             >
               {state.value === "START" ? t("btnstart") : t("btnNext")}
             </Button>
