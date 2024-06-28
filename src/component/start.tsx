@@ -8,11 +8,10 @@ export default function START() {
     <Card
       sx={{
         display: "flex",
-        boxShadow: 0,
         flexDirection: "column",
-        minWidth: { xs: "100%", sm: 400, md: 500 },
-        minHeight: 500,
-        margin: "auto",
+        minWidth: { xs: 280, sm: 320 },
+        minHeight: { xs: 450, sm: 500 },
+        boxShadow: 0,
       }}
     >
       <CardContent sx={{ flex: 1 }}>

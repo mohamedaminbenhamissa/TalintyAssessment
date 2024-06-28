@@ -20,10 +20,9 @@ import FEEDBACK from "../component/feedback";
 import CONGRATS from "../component/congratulations";
 import START from "../component/start";
 import RESULT from "../component/result";
-
 import { LangSelect } from "../component/languageSwitcher";
 import { useTranslation } from "../hooks/useTranslation";
-import IN_PROGRESS from "@/component/questions/chorttextQuestion";
+import IN_PROGRESS from "@/component/inProgress";
 import assessmentData from "../../assessment.json";
 
 const Break = () => <div>Break</div>;
@@ -61,24 +60,37 @@ const StepsPage: React.FC = () => {
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (document.fullscreenElement) {
+          event.preventDefault();
+        }
+      }
+    };
+
     document.addEventListener("fullscreenchange", handleFullScreen);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.removeEventListener("fullscreenchange", handleFullScreen);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
-  const handleStartClick = () => {
-    const docElm = document.documentElement;
-    if (docElm.requestFullscreen) {
-      docElm.requestFullscreen();
-    } else if (docElm.requestFullscreen) {
-      docElm.requestFullscreen();
-    } else if (docElm.requestFullscreen) {
-      docElm.requestFullscreen();
-    } else if (docElm.requestFullscreen) {
-      docElm.requestFullscreen();
+  useEffect(() => {
+    if (state.value === "IN_PROGRESS") {
+      const docElm = document.documentElement;
+      if (docElm.requestFullscreen) {
+        docElm.requestFullscreen();
+      }
+    } else if (state.value === "FEEDBACK") {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
     }
+  }, [state.value]);
+
+  const handleStartClick = () => {
     send({ type: "next" });
   };
 
@@ -115,13 +127,15 @@ const StepsPage: React.FC = () => {
         <Box
           sx={{
             display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
             justifyContent: "space-between",
-            alignItems: "end",
+            alignItems: { xs: "start", sm: "end" },
+            gap: { xs: 2, sm: 0 },
           }}
         >
           <Typography
             sx={{
-              fontSize: 25,
+              fontSize: { xs: 20, sm: 25 },
               fontWeight: 500,
               color: "#fff",
             }}
@@ -245,16 +259,16 @@ const StepsPage: React.FC = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-              flexDirection: { xs: "column", sm: "row" },
-              padding: { xs: 1, sm: 2 },
+              flexDirection: { xs: "row", sm: "row" },
+              padding: { xs: 2, sm: 2 },
             }}
           >
             <Box
               sx={{
-                width: { xs: "100%", sm: "1px" },
-                height: { xs: "1px", sm: "50px" },
+                width: { xs: "1%", sm: "1px" },
+                height: { xs: "50px", sm: "50px" },
                 backgroundColor: "#000",
-                margin: { xs: "8px 0", sm: 2 },
+                margin: { xs: 2, sm: 2 },
               }}
             />
             <Typography
@@ -262,6 +276,7 @@ const StepsPage: React.FC = () => {
                 color: "#023651",
                 padding: { xs: 1, sm: 2 },
                 textAlign: { xs: "center", sm: "left" },
+                fontSize: { xs: 12, sm: 20 },
               }}
             >
               Evaluation {jobName}

@@ -8,7 +8,7 @@ import PlayCircleOutlinedIcon from "@mui/icons-material/PlayCircleOutlined";
 import StopCircleOutlinedIcon from "@mui/icons-material/StopCircleOutlined";
 import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 
-const ok = () => {
+const videoQuestion = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   return (
@@ -136,4 +136,4 @@ const ok = () => {
   );
 };
 
-export default ok;
+export default videoQuestion;

@@ -8,6 +8,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 export default function Feedback() {
   const [value, setValue] = React.useState("");
   const { t } = useTranslation("feedback");
+
   const handleSelect = (newValue: string) => {
     setValue(newValue);
   };
@@ -69,7 +70,7 @@ export default function Feedback() {
               }}
             >
               <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <img src={Sad} alt="Sad" />
+                <img src={Sad} alt="Sad" style={{ maxWidth: "80px" }} />
               </Box>
               <Typography sx={{ textAlign: "center", mt: 2 }}>
                 Not So Great
@@ -89,7 +90,7 @@ export default function Feedback() {
               }}
             >
               <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <img src={Normal} alt="Normal" />
+                <img src={Normal} alt="Normal" style={{ maxWidth: "80px" }} />
               </Box>
               <Typography sx={{ textAlign: "center", mt: 2 }}>
                 Just Fine
@@ -108,7 +109,7 @@ export default function Feedback() {
               }}
             >
               <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <img src={Happy} alt="Happy" />
+                <img src={Happy} alt="Happy" style={{ maxWidth: "80px" }} />
               </Box>
               <Typography sx={{ textAlign: "center", mt: 2, mb: 4 }}>
                 Fantastic

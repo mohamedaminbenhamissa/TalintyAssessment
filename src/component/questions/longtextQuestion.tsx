@@ -5,7 +5,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 
-const dd = () => {
+const longtextQuestion = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -161,4 +161,4 @@ const dd = () => {
   );
 };
 
-export default dd;
+export default longtextQuestion;

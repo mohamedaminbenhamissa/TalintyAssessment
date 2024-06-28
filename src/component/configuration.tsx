@@ -30,10 +30,9 @@ export default function CONFIG_WEBCAM() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        minWidth: 320,
-        minHeight: 500,
+        minWidth: { xs: 280, sm: 320 },
+        minHeight: { xs: 450, sm: 500 },
         boxShadow: 0,
-        border: "ActiveBorder",
       }}
     >
       <CardContent sx={{ flex: 1 }}>
@@ -129,7 +128,6 @@ export default function CONFIG_WEBCAM() {
             </Box>
           </Grid>
 
-          {/* Combined Camera and Microphone Controls */}
           <Box
             sx={{
               display: "flex",
@@ -138,10 +136,10 @@ export default function CONFIG_WEBCAM() {
               gap: 2,
               borderRadius: "5px",
               padding: 1,
-              width: "100%", // Ensure the controls take full width
+              width: "100%",
             }}
           >
-            {/* Camera and Microphone Control */}
+            {/* Additional controls if any */}
           </Box>
 
           <Grid item xs={12}>
@@ -156,7 +154,7 @@ export default function CONFIG_WEBCAM() {
               <Box
                 component="video"
                 sx={{
-                  maxWidth: "600px",
+                  maxWidth: "100%",
                   height: { xs: "200px", sm: "300px" },
                   borderRadius: "10px",
                 }}

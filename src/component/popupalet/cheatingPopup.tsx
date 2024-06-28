@@ -11,7 +11,7 @@ import warning from "@/assets/close-circle.png";
 
 const CheatingPopup = ({ open, onClose }) => {
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} tabIndex={0}>
       <DialogTitle>
         Popup Title
         <IconButton

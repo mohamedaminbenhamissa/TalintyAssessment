@@ -5,7 +5,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 
-const IN_PROGRESS = () => {
+const chorttextQuestion = () => {
   const [text, setText] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -160,4 +160,4 @@ const IN_PROGRESS = () => {
   );
 };
 
-export default IN_PROGRESS;
+export default chorttextQuestion;

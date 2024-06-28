@@ -14,6 +14,10 @@ export default function Init() {
   const { t, i18n } = useTranslation("init");
   const [firstName, setFirstName] = useState("");
   const [estimatedTime, setEstimatedTime] = useState(0);
+  const [isintroVideo, setIntroVideo] = useState("");
+  const [webcamScreenshots, setWebcamScreenshots] = useState(false);
+  const [numberOfVideoQuestions, setNumberOfVideoQuestions] = useState(0);
+  const [jobName, setJobName] = useState("");
   useEffect(() => {
     console.log(i18n.language);
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
@@ -24,6 +28,10 @@ export default function Init() {
 
       setFirstName(data.firstName);
       setEstimatedTime(data.estimatedTime);
+      setIntroVideo(data.introVideo);
+      setWebcamScreenshots(data.webcamScreenshots);
+      setNumberOfVideoQuestions(data.numberOfVideoQuestions);
+      setJobName(data.jobName);
     };
 
     fetchAssessmentData();
@@ -55,7 +63,10 @@ export default function Init() {
                 tabIndex={0}
                 aria-label={t("dear")}
               >
-                {t("dear")}
+                <b>
+                  {" "}
+                  <i>{t("dear")}</i>
+                </b>
                 <Typography
                   sx={{
                     color: "#C1976B",
@@ -78,14 +89,21 @@ export default function Init() {
                 tabIndex={0}
                 aria-label={t("welcome")}
               >
-                {t("welcome")}
+                We are excited to welcome you to the next stage of our selection
+                process for <b>{jobName}</b>. Your qualifications have impressed
+                us, and we are eager to see your skills in action through this
+                assessment. This assessment is designed to give us a deeper
+                understanding of your abilities and how you might fit within our
+                team. We encourage you to approach it with confidence and
+                showcase your best work.
               </Typography>
-              <Box sx={{ width: "100%", mt: 2 }}>
-                <video width="100%" controls>
-                  <source src="your-video-url.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </Box>
+              {isintroVideo !== "" && (
+                <Box sx={{ width: "100%", mt: 2 }} tabIndex={0}>
+                  <video width="100%" controls>
+                    <source src="your-video-url.mp4" type="video/mp4" />
+                  </video>
+                </Box>
+              )}
             </Box>
           </Grid>
           <Divider orientation="vertical" flexItem />
@@ -111,8 +129,8 @@ export default function Init() {
                 }}
                 tabIndex={0}
               >
-                Your test will take approximately between {minTime} and{" "}
-                {maxTime} minutes to complete.
+                Your test will take approximately between <b>{minTime}</b> and{" "}
+                <b>{maxTime} minutes</b> to complete.
               </Typography>
               <Typography
                 sx={{
@@ -127,6 +145,7 @@ export default function Init() {
               >
                 {t("important")}
               </Typography>
+
               <Typography
                 sx={{
                   fontSize: { xs: 14, sm: 16 },
@@ -136,19 +155,7 @@ export default function Init() {
                 }}
                 tabIndex={0}
               >
-                1. <b>Activate Your Camera and Microphone:</b> Ensure your
-                camera and microphone are enabled, as we may need to verify your
-                identity and monitor the test.
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: { xs: 14, sm: 16 },
-                  textAlign: "justify",
-                  width: "100%",
-                  mt: 1,
-                }}
-              >
-                2.<b> Stable Internet Connection:</b> Make sure you have a
+                1.<b> Stable Internet Connection:</b> Make sure you have a
                 stable internet connection to avoid any disruptions.
               </Typography>
               <Typography
@@ -160,7 +167,7 @@ export default function Init() {
                 }}
                 tabIndex={0}
               >
-                3. <b>Stay Within the Test Browser:</b> Do not navigate away
+                2. <b>Stay Within the Test Browser:</b> Do not navigate away
                 from the test browser or open any other tabs/windows during the
                 assessment. Doing so will result in an automatic ban from the
                 test.
@@ -174,9 +181,8 @@ export default function Init() {
                 }}
                 tabIndex={0}
               >
-                4. <b>Quiet Environment:</b> Find a quiet and comfortable place
-                where you can focus without interruptions. You are free to use a
-                calculator, pen and paper.
+                3. <b>Quiet Environment:</b> Find a quiet and comfortable place
+                where you can focus without interruptions.
               </Typography>
               <Typography
                 sx={{
@@ -189,6 +195,21 @@ export default function Init() {
               >
                 4. <b> You are free to use a calculator, pen and paper.</b>
               </Typography>
+              {!(webcamScreenshots === false || numberOfVideoQuestions < 1) && (
+                <Typography
+                  sx={{
+                    fontSize: { xs: 14, sm: 16 },
+                    textAlign: "justify",
+                    width: "100%",
+                    mt: 1,
+                  }}
+                  tabIndex={0}
+                >
+                  5. <b>Activate Your Camera and Microphone:</b> Ensure your
+                  camera and microphone are enabled, as we may need to verify
+                  your identity and monitor the test.
+                </Typography>
+              )}
               <Typography
                 sx={{
                   fontSize: { xs: 14, sm: 16 },
@@ -198,8 +219,10 @@ export default function Init() {
                 }}
                 tabIndex={0}
               >
-                We wish you the best of luck and look forward to seeing your
-                results!
+                <i>
+                  We wish you the best of luck and look forward to seeing your
+                  results!
+                </i>
               </Typography>
             </Box>
           </Grid>

@@ -43,7 +43,7 @@ export default function CONGRATS() {
           />
           <Typography
             sx={{
-              fontSize: { xs: 36, sm: 48 },
+              fontSize: { xs: 24, sm: 36, md: 48 },
               fontWeight: 700,
               color: "#1A1A20",
               marginBottom: 2,
