@@ -5,39 +5,32 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useEffect, useState } from "react";
 
-// Assuming the assessment.json file is in the public directory or can be fetched from an API endpoint
-import assessmentData from "../../assessment.json";
+import { useEffect } from "react";
 
-export default function Init() {
+interface AssessmentData {
+  firstName: string;
+  jobName: string;
+  introVideo: string;
+  estimatedTime: number;
+  webcamScreenshots: boolean;
+  numberOfVideoQuestions: number;
+  enableExtraTime: boolean;
+}
+
+export default function Init({
+  assessmentData,
+}: {
+  assessmentData: AssessmentData;
+}) {
   const { t, i18n } = useTranslation("init");
-  const [firstName, setFirstName] = useState("");
-  const [estimatedTime, setEstimatedTime] = useState(0);
-  const [isintroVideo, setIntroVideo] = useState("");
-  const [webcamScreenshots, setWebcamScreenshots] = useState(false);
-  const [numberOfVideoQuestions, setNumberOfVideoQuestions] = useState(0);
-  const [jobName, setJobName] = useState("");
+
   useEffect(() => {
-    console.log(i18n.language);
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
-
-    const fetchAssessmentData = async () => {
-      // If the JSON is imported directly:
-      const data = assessmentData;
-
-      setFirstName(data.firstName);
-      setEstimatedTime(data.estimatedTime);
-      setIntroVideo(data.introVideo);
-      setWebcamScreenshots(data.webcamScreenshots);
-      setNumberOfVideoQuestions(data.numberOfVideoQuestions);
-      setJobName(data.jobName);
-    };
-
-    fetchAssessmentData();
   }, [i18n.language]);
-  const minTime = Math.ceil(estimatedTime / 60 / 2);
-  const maxTime = Math.ceil(estimatedTime / 60);
+
+  const minTime = Math.ceil(assessmentData.estimatedTime / 60 / 2);
+  const maxTime = Math.ceil(assessmentData.estimatedTime / 60);
 
   return (
     <Card
@@ -74,9 +67,9 @@ export default function Init() {
                     textAlign: "center",
                   }}
                   tabIndex={0}
-                  aria-label={firstName}
+                  aria-label={assessmentData.firstName}
                 >
-                  {firstName}
+                  {assessmentData.firstName}
                 </Typography>
               </Typography>
               <Typography
@@ -90,14 +83,14 @@ export default function Init() {
                 aria-label={t("welcome")}
               >
                 We are excited to welcome you to the next stage of our selection
-                process for <b>{jobName}</b>. Your qualifications have impressed
-                us, and we are eager to see your skills in action through this
-                assessment. This assessment is designed to give us a deeper
-                understanding of your abilities and how you might fit within our
-                team. We encourage you to approach it with confidence and
-                showcase your best work.
+                process for <b>{assessmentData.jobName}</b>. Your qualifications
+                have impressed us, and we are eager to see your skills in action
+                through this assessment. This assessment is designed to give us
+                a deeper understanding of your abilities and how you might fit
+                within our team. We encourage you to approach it with confidence
+                and showcase your best work.
               </Typography>
-              {isintroVideo !== "" && (
+              {assessmentData.introVideo !== "" && (
                 <Box sx={{ width: "100%", mt: 2 }} tabIndex={0}>
                   <video width="100%" controls>
                     <source src="your-video-url.mp4" type="video/mp4" />
@@ -195,7 +188,10 @@ export default function Init() {
               >
                 4. <b> You are free to use a calculator, pen and paper.</b>
               </Typography>
-              {!(webcamScreenshots === false || numberOfVideoQuestions < 1) && (
+              {!(
+                assessmentData.webcamScreenshots === false ||
+                assessmentData.numberOfVideoQuestions < 1
+              ) && (
                 <Typography
                   sx={{
                     fontSize: { xs: 14, sm: 16 },

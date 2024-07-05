@@ -4,9 +4,18 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import parse from "html-react-parser";
 
-const chorttextQuestion = () => {
-  const [text, setText] = useState("");
+type QuestionProps = {
+  question: {
+    name: string;
+    description: string;
+    answers: string[];
+  };
+};
+
+const chorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
+  const [, setText] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -34,6 +43,9 @@ const chorttextQuestion = () => {
     setSnackbarMessage("Pasting is disabled!");
     setSnackbarOpen(true);
   };
+  if (!question || !question.answers) {
+    return <Typography variant="body1">No question data available</Typography>;
+  }
 
   return (
     <Card
@@ -47,35 +59,6 @@ const chorttextQuestion = () => {
         userSelect: "none",
       }}
     >
-      <Box
-        sx={{
-          width: "100%",
-          bgcolor: "#FBF4E2",
-          color: "white",
-          display: "flex",
-          justifyContent: "space-evenly",
-          alignItems: "center",
-          px: 2,
-          py: 1,
-        }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: "#C1986C" }}>
-            Question Progress:
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#000" }}>
-            2/6
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: "#C1986C" }}>
-            Time Spent:
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#000" }}>
-            00:12:12
-          </Typography>
-        </Box>
-      </Box>
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ width: "100%", mt: 2 }}>
           <Typography
@@ -97,9 +80,7 @@ const chorttextQuestion = () => {
               mt: 1,
             }}
           >
-            Lorem ipsum dolor sit amet consectetur. Ullamcorper sed molestie
-            tempus scelerisque. Nunc egestas mattis tempor diam nulla sagittis.
-            Vestibulum curabitur blandit eu amet faucibus aliquam eros.
+            {parse(question.description)}
           </Typography>
           <Typography
             sx={{
@@ -111,16 +92,6 @@ const chorttextQuestion = () => {
             }}
           >
             Answer:
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: 14, sm: 16 },
-              textAlign: "center",
-              width: "100%",
-              mt: 3,
-            }}
-          >
-            Lorem ipsum dolor sit amet consectetur. Ullamcorper sed molestie
           </Typography>
         </Box>
 

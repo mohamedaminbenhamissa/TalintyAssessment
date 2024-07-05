@@ -87,7 +87,7 @@ export default function CONFIG_WEBCAM() {
                 <Switch
                   checked={cameraState}
                   onChange={handleCameraToggle}
-                  color="warning"
+                  style={{ color: "#C1976B" }}
                   inputProps={{ "aria-label": "camera toggle" }}
                 />
               </Box>
@@ -121,7 +121,7 @@ export default function CONFIG_WEBCAM() {
                 <Switch
                   checked={microphoneState}
                   onChange={handleMicrophoneToggle}
-                  color="warning"
+                  style={{ color: "#C1976B" }}
                   inputProps={{ "aria-label": "microphone toggle" }}
                 />
               </Box>

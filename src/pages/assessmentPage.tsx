@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useMachine } from "@xstate/react";
-import { stepsMachine } from "./Evaluation/stepsMachine";
+import { stepsMachine, StepsContext } from "./Evaluation/stepsMachine";
 import Init from "../component/init";
 import CONFIG_WEBCAM from "../component/configuration";
 import EXTRA_TIME from "../component/extraTime";
@@ -24,32 +24,57 @@ import { LangSelect } from "../component/languageSwitcher";
 import { useTranslation } from "../hooks/useTranslation";
 import IN_PROGRESS from "@/component/inProgress";
 import assessmentData from "../../assessment.json";
+import CheatingPopup from "@/component/popupalet/cheatingPopup";
 
 const Break = () => <div>Break</div>;
 
 const StepsPage: React.FC = () => {
-  const [jobName, setJobName] = useState("");
-  const [testName, setTestkName] = useState("");
-  const [estimatedTime, setEstimatedTime] = useState(0);
-  const [numberOfQuestions, setNumberOfQuestions] = useState(0);
-  const [state, send] = useMachine(stepsMachine);
-  const [name, setName] = useState("");
   const { t, i18n } = useTranslation("button");
-  console.log(i18n.language);
+  const [state, send] = useMachine(stepsMachine);
+  const [isPopupOpen, setPopupOpen] = useState(false);
+  const [assessment, setAssessment] = useState<StepsContext>({
+    currentStep: 1,
+    jobName: "",
+    testName: "",
+    estimatedTime: 0,
+    numberOfQuestions: 0,
+    firstName: "",
+    webcamScreenshots: false,
+    numberOfVideoQuestions: 0,
+    enableExtraTime: false,
+    introVideo: "",
+    enableFeedBack: false,
+    outroVideo: "",
+  });
+
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
 
     const fetchAssessmentData = async () => {
-      // If the JSON is imported directly:
       const data = assessmentData;
 
-      setJobName(data.jobName);
-      setTestkName(data.packs[0]?.name ?? "");
-      setEstimatedTime(data.estimatedTime);
-      setNumberOfQuestions(data.numberOfQuestions);
+      setAssessment({
+        currentStep: 1,
+        jobName: data.jobName,
+        testName: data.packs[0]?.name ?? "",
+        estimatedTime: data.estimatedTime,
+        numberOfQuestions: data.numberOfQuestions,
+        firstName: "",
+        webcamScreenshots: data.webcamScreenshots,
+        numberOfVideoQuestions: data.numberOfVideoQuestions,
+        enableExtraTime: data.enableExtraTime,
+        introVideo: data.introVideo,
+        enableFeedBack: data.enableFeedback,
+        outroVideo: data.outroVideo,
+      });
     };
+
     fetchAssessmentData();
-  }, [i18n.language]);
+  }, []);
+
+  useEffect(() => {
+    send({ type: "updateContext", context: assessment });
+  }, [assessment, send]);
 
   useEffect(() => {
     const handleFullScreen = () => {
@@ -57,25 +82,36 @@ const StepsPage: React.FC = () => {
         console.log("Entered full-screen mode");
       } else {
         console.log("Exited full-screen mode");
+        setPopupOpen(true);
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        if (document.fullscreenElement) {
-          event.preventDefault();
-        }
+      if (event.key === "Escape" && state.value === "IN_PROGRESS") {
+        setPopupOpen(true);
       }
     };
 
+    const handleBlur = () => {
+      if (state.value === "IN_PROGRESS") {
+        setPopupOpen(true);
+      }
+    };
+
+    const handleFocus = () => {};
+
     document.addEventListener("fullscreenchange", handleFullScreen);
     document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
 
     return () => {
       document.removeEventListener("fullscreenchange", handleFullScreen);
       document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [state.value]);
 
   useEffect(() => {
     if (state.value === "IN_PROGRESS") {
@@ -83,7 +119,7 @@ const StepsPage: React.FC = () => {
       if (docElm.requestFullscreen) {
         docElm.requestFullscreen();
       }
-    } else if (state.value === "FEEDBACK") {
+    } else if (state.value === "FEEDBACK" || state.value === "RESULTS") {
       if (document.fullscreenElement) {
         document.exitFullscreen();
       }
@@ -97,13 +133,23 @@ const StepsPage: React.FC = () => {
   const renderStep = () => {
     switch (state.value) {
       case "INIT":
-        return <Init />;
+        return <Init assessmentData={assessment} />;
       case "EXTRA_TIME":
         return <EXTRA_TIME />;
       case "CONFIG_WEBCAM":
         return <CONFIG_WEBCAM />;
       case "CONSENT":
-        return <CONSENT name={name} setName={setName} />;
+        return (
+          <CONSENT
+            name={assessment.firstName}
+            setName={(name) =>
+              setAssessment((prev: StepsContext) => ({
+                ...prev,
+                firstName: name,
+              }))
+            }
+          />
+        );
       case "START":
         return <START />;
       case "IN_PROGRESS":
@@ -140,16 +186,16 @@ const StepsPage: React.FC = () => {
               color: "#fff",
             }}
           >
-            {testName}
+            {assessment.testName}
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             <Chip
               icon={<AccessAlarmOutlinedIcon />}
-              label={`Duration: ${estimatedTime / 60} mins`}
+              label={`Duration: ${assessment.estimatedTime / 60} mins`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
             <Chip
-              label={`N° questions: ${numberOfQuestions}`}
+              label={`N° questions: ${assessment.numberOfQuestions}`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
           </Box>
@@ -279,7 +325,7 @@ const StepsPage: React.FC = () => {
                 fontSize: { xs: 12, sm: 20 },
               }}
             >
-              Evaluation {jobName}
+              Evaluation {assessment.jobName}
             </Typography>
           </Box>
         </Box>
@@ -336,6 +382,7 @@ const StepsPage: React.FC = () => {
                 py: 1,
                 display:
                   state.value === "RESULTS" ||
+                  state.value === "FEEDBACK" ||
                   state.value === "INIT" ||
                   state.value === "LOCKED" ||
                   state.value === "START" ||
@@ -357,7 +404,7 @@ const StepsPage: React.FC = () => {
             <Button
               sx={{
                 background:
-                  state.value === "CONSENT" && name === ""
+                  state.value === "CONSENT" && assessment.firstName === ""
                     ? "#E8E8F0"
                     : "#023651",
 
@@ -375,7 +422,9 @@ const StepsPage: React.FC = () => {
                 },
               }}
               size="small"
-              disabled={state.value === "CONSENT" && name === ""}
+              disabled={
+                state.value === "CONSENT" && assessment.firstName === ""
+              }
               onClick={
                 state.value === "START"
                   ? handleStartClick
@@ -387,6 +436,7 @@ const StepsPage: React.FC = () => {
           </Box>
         </CardContent>
       </Card>
+      <CheatingPopup open={isPopupOpen} onClose={() => setPopupOpen(false)} />
     </>
   );
 };

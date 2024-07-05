@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -10,7 +10,6 @@ import {
   FormControl,
   FormLabel,
 } from "@mui/material";
-import { useEffect } from "react";
 import parse from "html-react-parser";
 
 type QuestionProps = {
@@ -19,6 +18,12 @@ type QuestionProps = {
     description: string;
     answers: string[];
   };
+};
+
+const arabicCharPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+
+const isArabicText = (text: string): boolean => {
+  return arabicCharPattern.test(text) && text.length > 30;
 };
 
 const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
@@ -31,11 +36,6 @@ const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
       document.removeEventListener("contextmenu", handleContextMenu);
     };
   }, []);
-
-  const isArabicText = (text: string): boolean => {
-    const arabicCharPattern = /[\u0600-\u06FF\u0750-\u077F]/;
-    return arabicCharPattern.test(text);
-  };
 
   if (!question || !question.answers) {
     return <Typography variant="body1">No question data available</Typography>;
@@ -52,7 +52,7 @@ const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
         minWidth: 320,
         boxShadow: 0,
         minHeight: 500,
-        border: "ActiveBorder",
+
         userSelect: "none",
       }}
     >
@@ -67,7 +67,7 @@ const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
                 textAlign,
                 direction,
               }}
-              component="div" // Change Typography component to div
+              component="div"
             >
               {parse(question.description)}
             </Typography>
@@ -75,7 +75,7 @@ const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
           <RadioGroup name={question.name}>
             {question.answers.map((option: string, index: number) => (
               <Box
-                key={index} // Move key prop to Box
+                key={index}
                 sx={{
                   border: "1px solid grey",
                   px: 2,

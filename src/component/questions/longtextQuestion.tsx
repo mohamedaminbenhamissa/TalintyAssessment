@@ -4,8 +4,17 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
+import parse from "html-react-parser";
 
-const longtextQuestion = () => {
+type QuestionProps = {
+  question: {
+    name: string;
+    description: string;
+    answers: string[];
+  };
+};
+
+const longtextQuestion: React.FC<QuestionProps> = ({ question }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -44,35 +53,6 @@ const longtextQuestion = () => {
         userSelect: "none",
       }}
     >
-      <Box
-        sx={{
-          width: "100%",
-          bgcolor: "#FBF4E2",
-          color: "white",
-          display: "flex",
-          justifyContent: "space-evenly",
-          alignItems: "center",
-          px: 2,
-          py: 1,
-        }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: "#C1986C" }}>
-            Question Progress:
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#000" }}>
-            2/6
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: "#C1986C" }}>
-            Time Spent:
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#000" }}>
-            00:12:12
-          </Typography>
-        </Box>
-      </Box>
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ width: "100%", mt: 2 }}>
           <Typography
@@ -94,9 +74,7 @@ const longtextQuestion = () => {
               mt: 1,
             }}
           >
-            Lorem ipsum dolor sit amet consectetur. Ullamcorper sed molestie
-            tempus scelerisque. Nunc egestas mattis tempor diam nulla sagittis.
-            Vestibulum curabitur blandit eu amet faucibus aliquam eros.
+            {parse(question.description)}
           </Typography>
           <Typography
             sx={{
@@ -108,16 +86,6 @@ const longtextQuestion = () => {
             }}
           >
             Answer:
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: 14, sm: 16 },
-              textAlign: "center",
-              width: "100%",
-              mt: 3,
-            }}
-          >
-            Lorem ipsum dolor sit amet consectetur. Ullamcorper sed molestie
           </Typography>
         </Box>
 

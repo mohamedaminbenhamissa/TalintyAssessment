@@ -31,6 +31,7 @@ export default function CONSENT({
 }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -57,7 +58,7 @@ export default function CONSENT({
   };
 
   const { t, i18n } = useTranslation("consent");
-  console.log(i18n.language);
+
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
   }, [i18n.language]);
@@ -65,6 +66,9 @@ export default function CONSENT({
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value.toUpperCase());
+  };
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(event.target.checked);
   };
 
   return (
@@ -135,7 +139,9 @@ export default function CONSENT({
           }}
         >
           <FormControlLabel
-            control={<Checkbox name="agree" />}
+            control={
+              <Checkbox checked={isChecked} onChange={handleCheckboxChange} />
+            }
             label={t("agreepolicy")}
             tabIndex={0}
             aria-label={t("agreepolicy")}

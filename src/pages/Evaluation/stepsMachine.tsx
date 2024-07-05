@@ -1,90 +1,157 @@
-import { createMachine } from "xstate";
-import { Guard } from "xstate/guards";
+import { assign, createMachine } from "xstate";
 
-interface StepsContext {
+export interface StepsContext {
   currentStep: number;
-  userName?: string; // Optional userName field to store user's name
+  jobName: string;
+  testName: string;
+  estimatedTime: number;
+  numberOfQuestions: number;
+  firstName: string;
+  webcamScreenshots: boolean;
+  numberOfVideoQuestions: number;
+  enableExtraTime: boolean;
+  introVideo: string;
+  enableFeedBack: boolean;
+  outroVideo: string;
 }
 
-type StepsEvent = { type: "next" } | { type: "previous" };
-
-// Guard function to check if userName is defined
-const hasName: Guard<StepsContext, StepsEvent> = (
-  context: StepsContext,
-  event: StepsEvent
-) => {
-  return context.userName !== undefined && context.userName.trim() !== "";
+const initialContext: StepsContext = {
+  currentStep: 1,
+  jobName: "",
+  testName: "",
+  estimatedTime: 0,
+  numberOfQuestions: 0,
+  firstName: "",
+  webcamScreenshots: false,
+  numberOfVideoQuestions: 0,
+  enableExtraTime: false,
+  introVideo: "",
+  enableFeedBack: false,
+  outroVideo: "",
 };
 
-export const stepsMachine = createMachine<StepsContext, StepsEvent>(
-  {
-    id: "steps",
-    initial: "INIT",
-    context: {
-      currentStep: 1,
-      userName: "",
-    },
-    states: {
-      INIT: {
-        on: {
-          next: "EXTRA_TIME",
-        },
-      },
-      EXTRA_TIME: {
-        on: {
-          next: "CONFIG_WEBCAM",
-          previous: "INIT",
-        },
-      },
-      CONFIG_WEBCAM: {
-        on: {
-          next: "CONSENT",
-          previous: "EXTRA_TIME",
-        },
-      },
-      CONSENT: {
-        on: {
-          next: "START",
-          previous: "CONFIG_WEBCAM",
-        },
-      },
-      START: {
-        on: {
-          next: "IN_PROGRESS",
-          previous: "CONSENT",
-        },
-      },
-      IN_PROGRESS: {
-        on: {
-          next: "FEEDBACK",
-          previous: "START",
-        },
-      },
-      FEEDBACK: {
-        on: {
-          next: "RESULTS",
-          previous: "IN_PROGRESS",
-        },
-      },
-      RESULTS: {
-        on: {
-          next: "LOCKED",
-          previous: "FEEDBACK",
-        },
-      },
-      LOCKED: {
-        on: {},
-      },
-      BREAK: {
-        on: {
-          previous: "LOCKED",
-        },
-      },
+type StepsEvent =
+  | { type: "updateContext"; context: StepsContext }
+  | { type: "next" }
+  | { type: "previous" };
+
+export const stepsMachine = createMachine<
+  StepsContext,
+  StepsEvent,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any
+>({
+  id: "steps",
+  initial: "INIT",
+  context: initialContext,
+  on: {
+    updateContext: {
+      actions: assign({
+        enableExtraTime: ({ event }) => event.context.enableExtraTime,
+        enableFeedBack: ({ event }) => event.context.enableFeedBack,
+        numberOfVideoQuestions: ({ event }) =>
+          event.context.numberOfVideoQuestions,
+        webcamScreenshots: ({ event }) => event.context.webcamScreenshots,
+      }),
     },
   },
-  {
-    guards: {
-      hasName,
+  states: {
+    INIT: {
+      on: {
+        next: [
+          {
+            target: "EXTRA_TIME",
+            guard: ({ context }: { context: StepsContext }) =>
+              context.enableExtraTime,
+          },
+          {
+            target: "CONFIG_WEBCAM",
+            guard: ({ context }: { context: StepsContext }) =>
+              context.webcamScreenshots || context.numberOfVideoQuestions > 0,
+          },
+          { target: "CONSENT" },
+        ],
+      },
     },
-  }
-);
+    EXTRA_TIME: {
+      on: {
+        next: "CONFIG_WEBCAM",
+        previous: "INIT",
+      },
+    },
+    CONFIG_WEBCAM: {
+      on: {
+        next: "CONSENT",
+        previous: [
+          {
+            target: "EXTRA_TIME",
+            guard: ({ context }: { context: StepsContext }) =>
+              context.enableExtraTime,
+          },
+          { target: "INIT" },
+        ],
+      },
+    },
+    CONSENT: {
+      on: {
+        next: "START",
+        previous: [
+          {
+            target: "CONFIG_WEBCAM",
+            guard: ({ context }: { context: StepsContext }) =>
+              context.webcamScreenshots || context.numberOfVideoQuestions > 0,
+          },
+          { target: "INIT" },
+        ],
+      },
+    },
+    START: {
+      on: {
+        next: "IN_PROGRESS",
+        previous: "CONSENT",
+      },
+    },
+    IN_PROGRESS: {
+      on: {
+        next: [
+          {
+            target: "FEEDBACK",
+            guard: ({ context }: { context: StepsContext }) =>
+              context.enableFeedBack,
+          },
+          { target: "RESULTS" },
+        ],
+        previous: "START",
+      },
+    },
+    FEEDBACK: {
+      on: {
+        next: [
+          {
+            target: "RESULTS",
+            guard: ({ context }: { context: StepsContext }) =>
+              context.outroVideo.length > 0,
+          },
+          { target: "LOCKED" },
+        ],
+      },
+    },
+    RESULTS: {
+      on: {
+        next: "LOCKED",
+        previous: "FEEDBACK",
+      },
+    },
+    LOCKED: {
+      type: "final",
+    },
+  },
+});

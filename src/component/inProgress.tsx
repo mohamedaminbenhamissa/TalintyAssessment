@@ -2,15 +2,19 @@ import { useState, useEffect } from "react";
 import RadioBoxQuestion from "@/component/questions/radioboxQuestion";
 import CheckBoxQuestion from "@/component/questions/checkboxQuestion";
 import ShortTextQuestion from "@/component/questions/chorttextQuestion";
-import VideoQuestion from "@/component/questions/videoQuestion";
+import LongTextQuestion from "@/component/questions/longtextQuestion";
+
 import { Alert, Box, Typography } from "@mui/material";
 import assessmentData from "../../assessment.json";
 
-interface Question {
+type Question = {
   type: string;
   isTrainingQuestion: boolean;
   difficulty: string;
-}
+  name: string;
+  description: string;
+  answers: string[];
+};
 
 const QuestionComponent = () => {
   const [question, setQuestion] = useState<Question | null>(null);
@@ -43,13 +47,13 @@ const QuestionComponent = () => {
     case "checkbox":
       questionComponent = <CheckBoxQuestion question={question} />;
       break;
-    // Uncomment these cases if you plan to use them
-    // case "shorttext":
-    //   questionComponent = <ShortTextQuestion question={question} />;
-    //   break;
-    // case "longtext":
-    //   questionComponent = <LongTextQuestion question={question} />;
-    //   break;
+
+    case "shorttext":
+      questionComponent = <ShortTextQuestion question={question} />;
+      break;
+    case "longtext":
+      questionComponent = <LongTextQuestion question={question} />;
+      break;
     // case "video":
     //   questionComponent = <VideoQuestion question={question} />;
     //   break;

@@ -13,7 +13,7 @@ export default function EXTRA_TIME() {
     setSelectedValue(event.target.value);
   };
   const { t, i18n } = useTranslation("extratime");
-  console.log(i18n.language);
+
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
   }, [i18n.language]);

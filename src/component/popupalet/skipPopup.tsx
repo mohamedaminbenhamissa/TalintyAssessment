@@ -1,20 +1,30 @@
-import React from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import { Button } from "@mui/material";
-import warning from "@/assets/danger.png";
+import { DialogContentText } from "@mui/material";
+import warning from "@/assets/close-circle.png";
 
-const skipPopup = ({ open, onClose }) => {
+interface SkipPopupProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+const skipPopup = ({ open, onClose }: SkipPopupProps) => {
   return (
-    <Dialog open={open} onClose={onClose}>
-        {/* <CheatingPopup open={showPopup} onClose={handleClose} /> */}
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      sx={{
+        "& .MuiPaper-root": {
+          borderRadius: "20px",
+        },
+      }}
+    >
       <DialogTitle>
-        Popup Title
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -29,22 +39,32 @@ const skipPopup = ({ open, onClose }) => {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <img
-          src={warning}
-          alt="Popup"
-          style={{ width: "100%", marginBottom: "20px" }}
-        />
-        <DialogContentText>Rule-breaking detected !</DialogContentText>
-        <DialogContentText>
-          Lorem ipsum dolor sit amet consectetur. Blandit lacus mattis imperdiet
-          amet nisi convallis. Sit sit rutrum enim sagittis ut.
-        </DialogContentText>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <img
+            src={warning}
+            alt="Popup"
+            style={{
+              width: "100%",
+              maxWidth: 150,
+              height: "auto",
+              marginBottom: "20px",
+            }}
+          />
+          <DialogContentText align="center" sx={{ fontWeight: "bold" }}>
+            Attention !
+          </DialogContentText>
+          <DialogContentText align="center">
+            Sorry but you can’t skip the test questions imperdiet amet nisi
+            convallis. Sit sit rutrum enim sagittis ut.
+          </DialogContentText>
+        </div>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="primary">
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };

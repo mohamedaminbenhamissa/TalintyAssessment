@@ -8,7 +8,7 @@
     "currentQuestionCount": 0,
     "introVideo": "",
     "outroVideo": "",
-    "enableExtraTime": true,
+    "enableExtraTime":true,
     "disableCopyPaste": true,
     "webcamScreenshots": true,
     "estimatedTime": 2400,
