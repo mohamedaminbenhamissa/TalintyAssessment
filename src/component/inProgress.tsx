@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import RadioBoxQuestion from "@/component/questions/radioboxQuestion";
 import CheckBoxQuestion from "@/component/questions/checkboxQuestion";
 import ShortTextQuestion from "@/component/questions/chorttextQuestion";
@@ -6,6 +6,7 @@ import LongTextQuestion from "@/component/questions/longtextQuestion";
 
 import { Alert, Box, Typography } from "@mui/material";
 import assessmentData from "../../assessment.json";
+import TIMEOUT from "./timeout";
 
 type Question = {
   type: string;
@@ -19,24 +20,72 @@ type Question = {
 const QuestionComponent = () => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [numberOfQuestions, setNumberOfQuestions] = useState<number>(0);
+  const [estimatedTime, setEstimatedTime] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [backgroundColor, setBackgroundColor] = useState<string>("#F6F7F6");
+  const [textColor, setTextColor] = useState<string>("#3A923E");
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (assessmentData.numberOfQuestions) {
       setNumberOfQuestions(assessmentData.numberOfQuestions);
+      setEstimatedTime(assessmentData.estimatedTime);
     }
   }, []);
+
   useEffect(() => {
     fetch("../../question.json")
       .then((response) => response.json())
       .then((data) => setQuestion(data))
       .catch((error) => console.error("Error loading question.json:", error));
-
-    const fetchAssessmentData = async () => {};
-    fetchAssessmentData();
   }, []);
+
+  useEffect(() => {
+    if (question) {
+      timerRef.current = setInterval(() => {
+        setElapsedTime((prevTime) => prevTime + 1);
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [question]);
+
+  useEffect(() => {
+    if (question) {
+      const oneThirdTime = estimatedTime / 3;
+      const twoThirdsTime = (estimatedTime / 3) * 2;
+
+      if (elapsedTime < oneThirdTime) {
+        setBackgroundColor("#F6F7F6");
+        setTextColor("#3A923E");
+      } else if (elapsedTime >= oneThirdTime && elapsedTime < twoThirdsTime) {
+        setBackgroundColor("#FBF4E2");
+        setTextColor("#C1986C");
+      } else {
+        setBackgroundColor("#FFEEEE");
+        setTextColor("#D15050");
+      }
+    }
+  }, [elapsedTime, question]);
+
+  const formatTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, "0")}:${mins
+      .toString()
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   if (!question) {
     return <div>Loading...</div>;
+  }
+
+  if (elapsedTime >= estimatedTime) {
+    return <TIMEOUT />;
   }
 
   let questionComponent;
@@ -47,16 +96,12 @@ const QuestionComponent = () => {
     case "checkbox":
       questionComponent = <CheckBoxQuestion question={question} />;
       break;
-
     case "shorttext":
       questionComponent = <ShortTextQuestion question={question} />;
       break;
     case "longtext":
       questionComponent = <LongTextQuestion question={question} />;
       break;
-    // case "video":
-    //   questionComponent = <VideoQuestion question={question} />;
-    //   break;
     default:
       questionComponent = <div>Unknown question type</div>;
   }
@@ -66,7 +111,7 @@ const QuestionComponent = () => {
       <Box
         sx={{
           width: "100%",
-          bgcolor: "#FFEEEE",
+          bgcolor: backgroundColor,
           color: "white",
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
@@ -77,27 +122,27 @@ const QuestionComponent = () => {
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: "#D15050" }}>
+          <Typography variant="body1" sx={{ color: textColor }}>
             Question Progress:
           </Typography>
-          <Typography variant="body1" sx={{ color: "#D15050" }}>
+          <Typography variant="body1" sx={{ color: "#000" }}>
             {`2/${numberOfQuestions}`}
           </Typography>
         </Box>
         <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: "#D15050" }}>
+          <Typography variant="body1" sx={{ color: textColor }}>
             Difficulty:
           </Typography>
-          <Typography variant="body1" sx={{ color: "#D15050" }}>
+          <Typography variant="body1" sx={{ color: "#000" }}>
             {question.difficulty}
           </Typography>
         </Box>
         <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: "#D15050" }}>
+          <Typography variant="body1" sx={{ color: textColor }}>
             Time Spent:
           </Typography>
-          <Typography variant="body1" sx={{ color: "#D15050" }}>
-            00:12:12
+          <Typography variant="body1" sx={{ color: "#000" }}>
+            {formatTime(elapsedTime)}
           </Typography>
         </Box>
       </Box>

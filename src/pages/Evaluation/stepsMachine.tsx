@@ -33,7 +33,8 @@ const initialContext: StepsContext = {
 type StepsEvent =
   | { type: "updateContext"; context: StepsContext }
   | { type: "next" }
-  | { type: "previous" };
+  | { type: "previous" }
+  | { type: "evalExpired" };
 
 export const stepsMachine = createMachine<
   StepsContext,
@@ -130,17 +131,18 @@ export const stepsMachine = createMachine<
           { target: "RESULTS" },
         ],
         previous: "START",
+        evalExpired: "EVALEXPIRED",
       },
     },
     FEEDBACK: {
       on: {
         next: [
           {
-            target: "RESULTS",
+            target: "LOCKED",
             guard: ({ context }: { context: StepsContext }) =>
               context.outroVideo.length > 0,
           },
-          { target: "LOCKED" },
+          { target: "RESULTS" },
         ],
       },
     },
@@ -150,6 +152,12 @@ export const stepsMachine = createMachine<
         previous: "FEEDBACK",
       },
     },
+    EVALEXPIRED: {
+      on: {
+        next: "FEEDBACK",
+      },
+    },
+    TIMEOUT: {},
     LOCKED: {
       type: "final",
     },

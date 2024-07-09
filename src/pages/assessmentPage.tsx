@@ -25,6 +25,8 @@ import { useTranslation } from "../hooks/useTranslation";
 import IN_PROGRESS from "@/component/inProgress";
 import assessmentData from "../../assessment.json";
 import CheatingPopup from "@/component/popupalet/cheatingPopup";
+import EVALEXPIRED from "@/component/expired";
+import TIMEOUT from "@/component/timeout";
 
 const Break = () => <div>Break</div>;
 
@@ -32,6 +34,7 @@ const StepsPage: React.FC = () => {
   const { t, i18n } = useTranslation("button");
   const [state, send] = useMachine(stepsMachine);
   const [isPopupOpen, setPopupOpen] = useState(false);
+  const [_cheatingPopupCount, setCheatingPopupCount] = useState(0);
   const [assessment, setAssessment] = useState<StepsContext>({
     currentStep: 1,
     jobName: "",
@@ -82,36 +85,55 @@ const StepsPage: React.FC = () => {
         console.log("Entered full-screen mode");
       } else {
         console.log("Exited full-screen mode");
-        setPopupOpen(true);
+        if (state.value === "IN_PROGRESS") {
+          setPopupOpen(true);
+          setCheatingPopupCount((prevCount) => {
+            const newCount = prevCount + 1;
+            if (newCount > 2) {
+              send({ type: "evalExpired" });
+            }
+            return newCount;
+          });
+        }
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && state.value === "IN_PROGRESS") {
         setPopupOpen(true);
+        setCheatingPopupCount((prevCount) => {
+          const newCount = prevCount + 1;
+          if (newCount > 2) {
+            send({ type: "evalExpired" });
+          }
+          return newCount;
+        });
       }
     };
 
     const handleBlur = () => {
       if (state.value === "IN_PROGRESS") {
         setPopupOpen(true);
+        setCheatingPopupCount((prevCount) => {
+          const newCount = prevCount + 1;
+          if (newCount > 2) {
+            send({ type: "evalExpired" });
+          }
+          return newCount;
+        });
       }
     };
-
-    const handleFocus = () => {};
 
     document.addEventListener("fullscreenchange", handleFullScreen);
     document.addEventListener("keydown", handleKeyDown);
     window.addEventListener("blur", handleBlur);
-    window.addEventListener("focus", handleFocus);
 
     return () => {
       document.removeEventListener("fullscreenchange", handleFullScreen);
       document.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("blur", handleBlur);
-      window.removeEventListener("focus", handleFocus);
     };
-  }, [state.value]);
+  }, [state.value, send]);
 
   useEffect(() => {
     if (state.value === "IN_PROGRESS") {
@@ -160,6 +182,10 @@ const StepsPage: React.FC = () => {
         return <RESULT />;
       case "LOCKED":
         return <CONGRATS />;
+      case "EVALEXPIRED":
+        return <EVALEXPIRED />;
+      case "TIMEOUT":
+        return <TIMEOUT />;
       case "BREAK":
         return <Break />;
       default:
@@ -333,18 +359,17 @@ const StepsPage: React.FC = () => {
           <LangSelect />
         </Box>
       </Box>
-      <Card sx={{ marginTop: "30px" }}>
+      <Card sx={{ marginTop: "20px" }}>
         {state.value !== "LOCKED" && (
           <Box
             sx={{
               display: "flex",
-              justifyContent: "start",
               backgroundImage: `url(${Cover})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               zIndex: 1,
               width: "100%",
-              height: "130px",
+              height: "140px",
             }}
           >
             <Box

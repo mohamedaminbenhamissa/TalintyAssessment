@@ -22,35 +22,6 @@ const videoQuestion = () => {
         border: "ActiveBorder",
       }}
     >
-      <Box
-        sx={{
-          width: "100%",
-          bgcolor: "#FBF4E2",
-          color: "white",
-          display: "flex",
-          justifyContent: "space-evenly",
-          alignItems: "center",
-          px: 2,
-          py: 1,
-        }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: "#C1986C" }}>
-            Question Progress:
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#000" }}>
-            2/6
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: "#C1986C" }}>
-            Time Spent:
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#000" }}>
-            00:12:12
-          </Typography>
-        </Box>
-      </Box>
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ width: "100%", mt: 2 }}>
           <Typography

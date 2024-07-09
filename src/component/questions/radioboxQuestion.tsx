@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -9,6 +9,8 @@ import {
   Radio,
   FormControl,
   FormLabel,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import parse from "html-react-parser";
 
@@ -27,6 +29,12 @@ const isArabicText = (text: string): boolean => {
 };
 
 const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   useEffect(() => {
     const handleContextMenu = (event: MouseEvent) => {
       event.preventDefault();
@@ -99,6 +107,17 @@ const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
           </RadioGroup>
         </FormControl>
       </CardContent>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="warning">
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };

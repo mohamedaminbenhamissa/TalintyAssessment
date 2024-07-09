@@ -32,6 +32,8 @@ export const Evaluation = setup({
         }
       | { type: "LOCKED" }
       | { type: "BREAK" }
+      | { type: "TIMEOUT" }
+      | { type: "EVALEXPIRED" }
       | { type: "next" }
       | { type: "privious" },
   },

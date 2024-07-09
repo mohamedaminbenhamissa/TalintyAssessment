@@ -1,7 +1,7 @@
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import timeout from "../assets/timeout.png";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 export default function TIMEOUT() {
   return (
@@ -34,7 +34,7 @@ export default function TIMEOUT() {
               marginBottom: 2,
             }}
           >
-            Congratulations!
+            Time is out !
           </Typography>
           <Typography
             sx={{
@@ -47,45 +47,6 @@ export default function TIMEOUT() {
             tempus scelerisque. Nunc egestas mattis tempor diam nulla sagittis.
           </Typography>
         </Box>
-        <Stack
-          direction={"row"}
-          gap={3}
-          sx={{ justifyContent: "center", alignItems: "center", mt: 5 }}
-        >
-          <Button
-            sx={{
-              background: "#fff",
-              color: "#023651",
-              px: 6,
-              border: 1,
-              py: 1,
-              ":hover": {
-                background: "#fff",
-                color: "#023651",
-              },
-            }}
-            size="small"
-            style={{ borderRadius: "10px" }}
-          >
-            Create account{" "}
-          </Button>
-          <Button
-            sx={{
-              background: "#023651",
-              color: "#fff",
-              px: 6,
-              py: 1,
-              ":hover": {
-                background: "#023651",
-                color: "#fff",
-              },
-            }}
-            size="small"
-            style={{ borderRadius: "10px" }}
-          >
-            Suivi candidature
-          </Button>
-        </Stack>
       </CardContent>
     </Card>
   );
