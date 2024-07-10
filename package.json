@@ -18,6 +18,7 @@
     "@mui/styled-engine-sc": "6.0.0-alpha.18",
     "@xstate/react": "^4.1.1",
     "html-react-parser": "^5.1.10",
+    "html2canvas": "^1.4.1",
     "i18next": "^23.11.5",
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-http-backend": "^2.5.2",
@@ -32,6 +33,7 @@
     "react-intl": "^6.6.8",
     "react-router-dom": "^6.23.1",
     "styled-components": "^6.1.11",
+    "use-react-screenshot": "^4.0.0",
     "xstate": "^5.13.2"
   },
   "devDependencies": {

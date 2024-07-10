@@ -1,15 +1,60 @@
-import { useRef } from "react";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import { Button, ButtonGroup } from "@mui/material";
+import { useRef, useState } from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Divider,
+  Grid,
+  Alert,
+  Button,
+  ButtonGroup,
+  Snackbar,
+} from "@mui/material";
+import parse from "html-react-parser";
 import PlayCircleOutlinedIcon from "@mui/icons-material/PlayCircleOutlined";
 import StopCircleOutlinedIcon from "@mui/icons-material/StopCircleOutlined";
 import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
+import SendIcon from "@mui/icons-material/Send";
 
-const videoQuestion = () => {
+type QuestionProps = {
+  question: {
+    name: string;
+    description: string;
+    answers: string[];
+  };
+};
+
+const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, _setSnackbarMessage] = useState("");
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+        setIsPlaying(false);
+      } else {
+        videoRef.current.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  const handleStop = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
+  };
 
   return (
     <Card
@@ -19,92 +64,66 @@ const videoQuestion = () => {
         minWidth: 320,
         boxShadow: 0,
         minHeight: 500,
-        border: "ActiveBorder",
       }}
     >
       <CardContent sx={{ flex: 1 }}>
-        <Box sx={{ width: "100%", mt: 2 }}>
-          <Typography
-            sx={{
-              fontSize: { xs: 14, sm: 16 },
-              textAlign: "justify",
-              width: "100%",
-              mt: 2,
-              fontWeight: "bold",
-            }}
-          >
-            Question :
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: 14, sm: 16 },
-              textAlign: "justify",
-              width: "100%",
-              mt: 1,
-            }}
-          >
-            Lorem ipsum dolor sit amet consectetur. Ullamcorper sed molestie
-            tempus scelerisque. Nunc egestas mattis tempor diam nulla sagittis.
-            Vestibulum curabitur blandit eu amet faucibus aliquam eros.
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: 14, sm: 16 },
-              textAlign: "justify",
-              width: "100%",
-              mt: 3,
-              fontWeight: "bold",
-            }}
-          >
-            Answer:
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: 14, sm: 16 },
-              textAlign: "start",
-              width: "100%",
-              mt: 3,
-              mb: 1,
-            }}
-          >
-            Lorem ipsum dolor sit amet consectetur. Ullamcorper sed molestie
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 2,
-            mt: 3,
-          }}
-        >
-          <Box
-            component="video"
-            sx={{
-              maxWidth: "600px",
-              height: { xs: "200px", sm: "300px" },
-              borderRadius: "10px",
-            }}
-            controls
-          >
-            <video ref={videoRef} width="400" height="300" controls></video>
-          </Box>
-          <ButtonGroup sx={{ borderColor: "#C1986C" }}>
-            <Button>
-              <PlayCircleOutlinedIcon sx={{ color: "#C1986C" }} />
-            </Button>
-            <Button>
-              <StopCircleOutlinedIcon sx={{ color: "#C1986C" }} />
-            </Button>
-            <Button>
-              <ReplayOutlinedIcon sx={{ color: "#C1986C" }} />
-            </Button>
-          </ButtonGroup>
-        </Box>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" sx={{ mt: 2 }} gutterBottom>
+              {parse(question.description)}
+            </Typography>
+          </Grid>
+          <Divider orientation="vertical" flexItem />
+          <Grid item xs={12} sm={7}>
+            <Box
+              component="video"
+              sx={{
+                width: "100%",
+                height: { xs: "200px", sm: "300px" },
+                borderRadius: "10px",
+                p: 2,
+              }}
+              controls
+            >
+              <video ref={videoRef} width="100%" height="100%" controls></video>
+            </Box>
+            <ButtonGroup sx={{ borderColor: "#C1986C", mt: 2 }}>
+              <Button onClick={handlePlayPause}>
+                {isPlaying ? (
+                  <ReplayOutlinedIcon sx={{ color: "#C1986C" }} />
+                ) : (
+                  <PlayCircleOutlinedIcon sx={{ color: "#C1986C" }} />
+                )}
+              </Button>
+              <Button onClick={handleStop}>
+                <StopCircleOutlinedIcon sx={{ color: "#C1986C" }} />
+              </Button>
+              <Button>
+                <SendIcon sx={{ color: "#C1986C" }} />
+              </Button>
+            </ButtonGroup>
+            <Typography variant="body2" sx={{ mt: 2 }}>
+              Le lorem ipsum est, en imprimerie, une suite de mots sans
+              signification utilisée à titre provisoire pour calibrer une mise
+              en page, le texte définitif venant remplacer le faux-texte dès
+              qu'il est prêt ou que la mise en page est achevée. Généralement,
+              on utilise un texte en faux latin, le Lorem ipsum ou Lipsum.
+            </Typography>
+          </Grid>
+        </Grid>
       </CardContent>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="warning">
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };
 
-export default videoQuestion;
+export default VideoQuestion;

@@ -28,7 +28,7 @@ const isArabicText = (text: string): boolean => {
   return arabicCharPattern.test(text) && text.length > 30;
 };
 
-const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
+const listQuestion: React.FC<QuestionProps> = ({ question }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, _setSnackbarMessage] = useState("");
   const handleSnackbarClose = () => {
@@ -122,4 +122,4 @@ const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
   );
 };
 
-export default RadioboxQuestion;
+export default listQuestion;

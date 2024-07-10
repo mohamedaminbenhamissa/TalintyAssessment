@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import RadioBoxQuestion from "@/component/questions/radioboxQuestion";
 import CheckBoxQuestion from "@/component/questions/checkboxQuestion";
 import ShortTextQuestion from "@/component/questions/chorttextQuestion";
 import LongTextQuestion from "@/component/questions/longtextQuestion";
-
+import ListQuestion from "@/component/questions/listQuestion";
+import VideoQuestion from "@/component/questions/videoQuestion";
 import { Alert, Box, Typography } from "@mui/material";
 import assessmentData from "../../assessment.json";
 import TIMEOUT from "./timeout";
@@ -18,6 +19,7 @@ type Question = {
 };
 
 const QuestionComponent = () => {
+  const ToCaptureRef = React.useRef();
   const [question, setQuestion] = useState<Question | null>(null);
   const [numberOfQuestions, setNumberOfQuestions] = useState<number>(0);
   const [estimatedTime, setEstimatedTime] = useState<number>(0);
@@ -96,11 +98,17 @@ const QuestionComponent = () => {
     case "checkbox":
       questionComponent = <CheckBoxQuestion question={question} />;
       break;
-    case "shorttext":
+    case "shortText":
       questionComponent = <ShortTextQuestion question={question} />;
       break;
-    case "longtext":
+    case "text":
       questionComponent = <LongTextQuestion question={question} />;
+      break;
+    case "list":
+      questionComponent = <ListQuestion question={question} />;
+      break;
+    case "video":
+      questionComponent = <VideoQuestion question={question} />;
       break;
     default:
       questionComponent = <div>Unknown question type</div>;
@@ -120,6 +128,7 @@ const QuestionComponent = () => {
           py: 1,
           gap: { xs: 1, sm: 0 },
         }}
+        ref={ToCaptureRef}
       >
         <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
           <Typography variant="body1" sx={{ color: textColor }}>
