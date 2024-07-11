@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useMachine } from "@xstate/react";
 import { stepsMachine, StepsContext } from "./Evaluation/stepsMachine";
 import Init from "../component/init";
@@ -27,7 +27,7 @@ import assessmentData from "../../assessment.json";
 import CheatingPopup from "@/component/popupalet/cheatingPopup";
 import EVALEXPIRED from "@/component/expired";
 import TIMEOUT from "@/component/timeout";
-
+import html2canvas from "html2canvas";
 const Break = () => <div>Break</div>;
 
 const StepsPage: React.FC = () => {
@@ -35,6 +35,8 @@ const StepsPage: React.FC = () => {
   const [state, send] = useMachine(stepsMachine);
   const [isPopupOpen, setPopupOpen] = useState(false);
   const [_cheatingPopupCount, setCheatingPopupCount] = useState(0);
+  const ToCaptureRef = useRef(null);
+  const [_screenshotCount, setScreenshotCount] = useState(0);
   const [assessment, setAssessment] = useState<StepsContext>({
     currentStep: 1,
     jobName: "",
@@ -152,6 +154,54 @@ const StepsPage: React.FC = () => {
     send({ type: "next" });
   };
 
+  const captureScreenshot = () => {
+    // Ensure ToCaptureRef.current is not null and assert its type to HTMLElement
+    if (ToCaptureRef.current !== null) {
+      html2canvas(ToCaptureRef.current as HTMLElement).then((canvas) => {
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = "screenshot.png";
+        link.href = image;
+        link.click();
+        setScreenshotCount((prevCount) => prevCount + 1); // Increment screenshot count
+      });
+    }
+  };
+
+  useEffect(() => {
+    const totalTime = assessment.estimatedTime * 1000; // Convert to milliseconds
+    let numberOfScreenshots;
+
+    if (totalTime < 10 * 60 * 1000) {
+      numberOfScreenshots = 3;
+    } else if (totalTime < 20 * 60 * 1000) {
+      numberOfScreenshots = 6;
+    } else {
+      numberOfScreenshots = 9;
+    }
+
+    // Generate random intervals
+    const intervals = new Set<number>();
+    while (intervals.size < numberOfScreenshots - 1) {
+      //  the first screenshot is at 1 minute
+      intervals.add(
+        Math.floor(Math.random() * (totalTime - 1 * 60 * 1000)) + 1 * 60 * 1000
+      );
+    }
+
+    const sortedIntervals = [
+      1 * 60 * 1000,
+      ...Array.from(intervals).sort((a, b) => a - b),
+    ];
+
+    sortedIntervals.forEach((interval, _index) => {
+      setTimeout(() => {
+        if (state.value === "IN_PROGRESS") {
+          captureScreenshot();
+        }
+      }, interval);
+    });
+  }, [assessment.estimatedTime, state.value]);
   const renderStep = () => {
     switch (state.value) {
       case "INIT":
@@ -172,6 +222,7 @@ const StepsPage: React.FC = () => {
             }
           />
         );
+
       case "START":
         return <START />;
       case "IN_PROGRESS":
@@ -386,7 +437,7 @@ const StepsPage: React.FC = () => {
             </Box>
           </Box>
         )}
-        <CardContent>
+        <CardContent ref={ToCaptureRef}>
           {renderStep()}
 
           <Box

@@ -1,10 +1,18 @@
 {
-    "_id": "65c3f692c02f716d35855b6a",
-    "type": "video",
-    "answers": [
-        "",
-        ""
+    "id": "629df3057ad326b86f13d225",
+    "type": "radio",
+    "name": "TEST QI #1",
+    "allowedTime": 300,
+    "category": [
+        "Culture générale"
     ],
-    "allowedTime": 120,
-    "description": "<h2>يرجى تقديم نبذة عن نفسك وتجربتك في مجال إدارة التنقل والطرق، بالإضافة إلى كيفية رؤيتك لتحسين البنية التحتية للنقل في المدينة التي تعمل فيها. يمكنك تقديم إجابتك عبر فيديو قصير لمدة دقيقة إلى دقيقتين.</h2><p><br></p>"
+    "isRandomResponseChecker": false,
+    "difficulty": "Facile",
+    "description": "<div class=\"ql-editor\"   data-placeholder=\"Contenu...\"><p>Vous  des problèmes semblables aux exemples qui vous sont proposés sur cette page.</p><p>Les lettres dans chaque série se suivent selon une certaine loi.</p><p>Pour chaque série de lettres vous devez trouvez cette loi et compléter la série par une suite de lettres référencée de 1 à 5 à droite sur la même ligne.</p><p>Exemple:</p><blockquote>A B A B A B A B</blockquote><p>Dans cet exemple, vous avez les séries: <em>AB AB AB AB</em></p><p>La prochaine lettre de la série est donc <strong>A</strong></p><p>Exemple 2:</p><blockquote>A A B B C C D D</blockquote><p>Dans cet exemple, vous avez les séries: AA <em>BB CC DD</em></p><p>La prochaine lettre de la série est donc <strong>E</strong></p><p>Exemple 3:</p><blockquote>A C E G I K M O</blockquote><h2>Quel est la prochaine lettre ?</h2></div>",
+    "answers": [
+        "<p>P</p>",
+        "<p>Q</p>",
+        "<p>R</p>"
+    ],
+    "isTrainingQuestion": false
 }

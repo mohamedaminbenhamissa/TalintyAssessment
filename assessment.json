@@ -11,7 +11,7 @@
     "enableExtraTime":false,
     "disableCopyPaste": false,
     "webcamScreenshots": false,
-    "estimatedTime": 12,
+    "estimatedTime": 120,
     "numberOfQuestions": 41,
     "numberOfTests": 1,
     "numberOfVideoQuestions": 0,

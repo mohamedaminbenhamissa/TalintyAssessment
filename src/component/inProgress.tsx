@@ -8,6 +8,7 @@ import VideoQuestion from "@/component/questions/videoQuestion";
 import { Alert, Box, Typography } from "@mui/material";
 import assessmentData from "../../assessment.json";
 import TIMEOUT from "./timeout";
+import html2canvas from "html2canvas";
 
 type Question = {
   type: string;
@@ -19,7 +20,6 @@ type Question = {
 };
 
 const QuestionComponent = () => {
-  const ToCaptureRef = React.useRef();
   const [question, setQuestion] = useState<Question | null>(null);
   const [numberOfQuestions, setNumberOfQuestions] = useState<number>(0);
   const [estimatedTime, setEstimatedTime] = useState<number>(0);
@@ -27,7 +27,7 @@ const QuestionComponent = () => {
   const [backgroundColor, setBackgroundColor] = useState<string>("#F6F7F6");
   const [textColor, setTextColor] = useState<string>("#3A923E");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
+  const ToCaptureRef = useRef(null);
   useEffect(() => {
     if (assessmentData.numberOfQuestions) {
       setNumberOfQuestions(assessmentData.numberOfQuestions);
@@ -128,7 +128,6 @@ const QuestionComponent = () => {
           py: 1,
           gap: { xs: 1, sm: 0 },
         }}
-        ref={ToCaptureRef}
       >
         <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
           <Typography variant="body1" sx={{ color: textColor }}>
