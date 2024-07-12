@@ -8,7 +8,8 @@
         "consent":" Trust commitment",
         "extratime":"Extra Time ",
         "result":"Performance report",
-        "init":" Recruitment process"
+        "init":" Recruitment process",
+        "report":"Report Issue"
                 
        
       
@@ -43,6 +44,14 @@
     "feedback":{
         "text1":"Evaluating the current assessment will provide valuable insights and feedback, enabling us to enhance the quality and effectiveness of future assessments.",
         "text2":"We would love to hear from you how was your experience?"
+    },
+    "report":{
+        "title":"Report a Problem",
+        "pholder":"If you have any problems, please report them here.",
+        "btnsend":"Send Repport",
+        "btnfile":"Attach File",
+        "guide":"Describe what you were trying to do, the steps you took, what you expected to happen, what actually happened, and any error messages or screenshots you can provide.",
+        "file":"Selected File:"
     }
     
 }

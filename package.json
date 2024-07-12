@@ -32,6 +32,7 @@
     "react-i18next": "^14.1.2",
     "react-intl": "^6.6.8",
     "react-router-dom": "^6.23.1",
+    "react-webcam": "^7.2.0",
     "styled-components": "^6.1.11",
     "use-react-screenshot": "^4.0.0",
     "xstate": "^5.13.2"

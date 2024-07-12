@@ -58,7 +58,9 @@ export default function Init({
               >
                 <b>
                   {" "}
-                  <i>{t("dear")}</i>
+                  <i>
+                    {t("dear")} {assessmentData.firstName}
+                  </i>
                 </b>
                 <Typography
                   sx={{
@@ -69,7 +71,7 @@ export default function Init({
                   tabIndex={0}
                   aria-label={assessmentData.firstName}
                 >
-                  {assessmentData.firstName}
+                  ok {assessmentData.firstName}
                 </Typography>
               </Typography>
               <Typography

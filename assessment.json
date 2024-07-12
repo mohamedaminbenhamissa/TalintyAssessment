@@ -10,7 +10,7 @@
     "outroVideo": "",
     "enableExtraTime":false,
     "disableCopyPaste": false,
-    "webcamScreenshots": false,
+    "webcamScreenshots": true,
     "estimatedTime": 120,
     "numberOfQuestions": 41,
     "numberOfTests": 1,
