@@ -58,9 +58,7 @@ export default function Init({
               >
                 <b>
                   {" "}
-                  <i>
-                    {t("dear")} {assessmentData.firstName}
-                  </i>
+                  <i>{t("dear")}</i>
                 </b>
                 <Typography
                   sx={{
@@ -71,7 +69,7 @@ export default function Init({
                   tabIndex={0}
                   aria-label={assessmentData.firstName}
                 >
-                  ok {assessmentData.firstName}
+                  {assessmentData.firstName}
                 </Typography>
               </Typography>
               <Typography
@@ -84,13 +82,20 @@ export default function Init({
                 tabIndex={0}
                 aria-label={t("welcome")}
               >
-                We are excited to welcome you to the next stage of our selection
-                process for <b>{assessmentData.jobName}</b>. Your qualifications
-                have impressed us, and we are eager to see your skills in action
-                through this assessment. This assessment is designed to give us
-                a deeper understanding of your abilities and how you might fit
-                within our team. We encourage you to approach it with confidence
-                and showcase your best work.
+                {t("text1")} <b>{assessmentData.jobName}</b>.
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: { xs: 14, sm: 16 },
+                  textAlign: "justify",
+                  width: "100%",
+                  mt: 1,
+                }}
+                tabIndex={0}
+                aria-label={t("welcome")}
+              >
+                {t("text2")}
               </Typography>
               {assessmentData.introVideo !== "" && (
                 <Box sx={{ width: "100%", mt: 2 }} tabIndex={0}>
@@ -124,7 +129,7 @@ export default function Init({
                 }}
                 tabIndex={0}
               >
-                Your test will take approximately between <b>{minTime}</b> and{" "}
+                Duration: The test will take approximately <b>{minTime}</b> to{" "}
                 <b>{maxTime} minutes</b> to complete.
               </Typography>
               <Typography
@@ -150,8 +155,7 @@ export default function Init({
                 }}
                 tabIndex={0}
               >
-                1.<b> Stable Internet Connection:</b> Make sure you have a
-                stable internet connection to avoid any disruptions.
+                1. {t("l1")}
               </Typography>
               <Typography
                 sx={{
@@ -162,10 +166,7 @@ export default function Init({
                 }}
                 tabIndex={0}
               >
-                2. <b>Stay Within the Test Browser:</b> Do not navigate away
-                from the test browser or open any other tabs/windows during the
-                assessment. Doing so will result in an automatic ban from the
-                test.
+                2. {t("2")}
               </Typography>
               <Typography
                 sx={{
@@ -176,8 +177,7 @@ export default function Init({
                 }}
                 tabIndex={0}
               >
-                3. <b>Quiet Environment:</b> Find a quiet and comfortable place
-                where you can focus without interruptions.
+                3. {t("3")}
               </Typography>
               <Typography
                 sx={{
@@ -188,7 +188,18 @@ export default function Init({
                 }}
                 tabIndex={0}
               >
-                4. <b> You are free to use a calculator, pen and paper.</b>
+                4. <b> {t("4")}</b>
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: { xs: 14, sm: 16 },
+                  textAlign: "justify",
+                  width: "100%",
+                  mt: 1,
+                }}
+                tabIndex={0}
+              >
+                5. {t("6")}
               </Typography>
               {!(
                 assessmentData.webcamScreenshots === false ||
@@ -203,9 +214,7 @@ export default function Init({
                   }}
                   tabIndex={0}
                 >
-                  5. <b>Activate Your Camera and Microphone:</b> Ensure your
-                  camera and microphone are enabled, as we may need to verify
-                  your identity and monitor the test.
+                  6. {t("5")}
                 </Typography>
               )}
               <Typography
@@ -217,10 +226,7 @@ export default function Init({
                 }}
                 tabIndex={0}
               >
-                <i>
-                  We wish you the best of luck and look forward to seeing your
-                  results!
-                </i>
+                <i>{t("bestofluck")}</i>
               </Typography>
             </Box>
           </Grid>

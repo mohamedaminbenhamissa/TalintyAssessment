@@ -23,23 +23,33 @@
         "yes":"Yes",
         "no":"No",
         "prefernot":"I prefer not to say",
-     "text1": "As part of our commitment to ensuring an inclusive and accommodating recruitment process, we would like to know if you require any special accommodations or support due to a disability. This information will help us to provide you with the best possible experience during our selection process.",
-        "text2":"We look forward to assisting you and ensuring you have the best possible experience."
+     "text1": "As part of our commitment to an inclusive and accommodating recruitment process, please let us know if you require any special accommodations or support due to a disability. This information will help us provide you with the best possible experience during our selection process.",
+        "text2":"We are looking forward to assisting you and ensuring you have the best possible experience."
     },
     "init":{
         "welcome":"We are excited to welcome you to the next stage of our selection process. Your qualifications have impressed us, and we are eager to see your skills in action through this assessment. This assessment is designed to give us a deeper understanding of your abilities and how you might fit within our team. We encourage you to approach it with confidence and showcase your best work.",
-          "beforestarting":"Before starting your assessment, please note the following important details:",
+          "beforestarting":"Before starting your assessment, please review the following important details:",
           "important":"Important Instructions:",
-          "dear":"Dear"
+          "dear":"Dear",
+          "text1":"We are pleased to invite you to the next step of our selection process to evaluate your skills for the position of",
+          "text2":"This assessment is designed to give us a deeper understanding of your abilities and how you might integrate into our team. We encourage you to approach it with confidence and showcase your best performance.",
+          "l1":"Ensure you have a stable internet connection to avoid any disruptions.",
+          "2":"Stay within the test browser and do not navigate away from the test browser or open any other tabs/windows during the assessment, as doing so will result in an automatic ban from the test.",
+          "3":"Find a quiet and comfortable place where you can focus without interruptions.",
+          "4":"You are free to use a calculator, pen and paper.",
+          "5":"It is important to inform you that random screenshots will be taken during the test in order to ensure transparency of the process.",
+          "6":"Ensure your camera and microphone are enabled, as we may need to verify your identity and monitor the test.",
+          "bestofluck":"We wish you the best of luck and we are looking forward to seeing your results."
+
     },
     "consent":{
-        "text1":"We strives to create a fair test-taking experience for all. We use advanced methods to detect dishonesty and to protect the integrity of your assessment. Instances of dishonesty may lead to disqualification from the assessment and our platform, and may be reported to the employer who requested the assessment.",
-        "text2":"The use of AI tools, taking an assessment multiple times, and other behaviors outlined in the full policy are not allowed unless instructed otherwise.",
-        "text3":"I acknowledge that I have read and understood the Candidate Honesty Policy, and I agree to abide by it. I understand the importance of upholding honesty and integrity in assessments.",
-        "agreepolicy":"I agree with this policy by entering my name as my signature."
+        "text1":"We strive to create a fair testing experience for all. We use advanced methods to detect cheating and to protect the integrity of your assessment. Instances of cheating may lead to disqualification from the assessment and from our platform, and will be reported to the employer who requested the assessment. ",
+        "text2":"The use of Al tools, taking the assessment multiple times, and other behaviors outlined in the full policy are not allowed unless instructed otherwise. ",
+        "text3":"I acknowledge that I have read and understood the Candidate Honesty Policy, and I agree to abide by it. I understand the importance of upholding honesty and integrity in assessments. ",
+        "agreepolicy":"I agree to this policy by entering my name as my signature."
     },
     "configuration":{
-        "note":"For the upcoming assessment, we kindly request access to your camera and microphone. These tools may be necessary to ensure a smooth and effective evaluation process."
+        "note":"For the upcoming assessment, we kindly request access to your camera and microphone in order to ensure a smooth and effective evaluation process."
     },
     "feedback":{
         "text1":"Evaluating the current assessment will provide valuable insights and feedback, enabling us to enhance the quality and effectiveness of future assessments.",

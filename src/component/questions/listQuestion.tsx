@@ -3,16 +3,14 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import {
-  FormControlLabel,
-  RadioGroup,
-  Radio,
-  FormControl,
-  FormLabel,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import parse from "html-react-parser";
+import { SelectChangeEvent } from "@mui/material/Select";
 
 type QuestionProps = {
   question: {
@@ -28,11 +26,17 @@ const isArabicText = (text: string): boolean => {
   return arabicCharPattern.test(text) && text.length > 30;
 };
 
-const listQuestion: React.FC<QuestionProps> = ({ question }) => {
+const ListQuestion: React.FC<QuestionProps> = ({ question }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, _setSnackbarMessage] = useState("");
+  const [selectedAnswer, setSelectedAnswer] = useState("");
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
+  };
+
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    setSelectedAnswer(event.target.value);
   };
 
   useEffect(() => {
@@ -60,51 +64,37 @@ const listQuestion: React.FC<QuestionProps> = ({ question }) => {
         minWidth: 320,
         boxShadow: 0,
         minHeight: 500,
-
         userSelect: "none",
       }}
     >
       <CardContent sx={{ flex: 1 }}>
-        <FormControl component="fieldset">
-          <FormLabel component="legend">
-            <Typography
-              variant="body2"
-              sx={{
-                fontSize: "0.875rem",
-                lineHeight: "1.2",
-                textAlign,
-                direction,
-              }}
-              component="div"
-            >
-              {parse(question.description)}
-            </Typography>
-          </FormLabel>
-          <RadioGroup name={question.name}>
+        <FormControl fullWidth>
+          <InputLabel id="question-select-label">{question.name}</InputLabel>
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: "0.875rem",
+              lineHeight: "1.2",
+              textAlign,
+              direction,
+            }}
+            component="div"
+          >
+            {parse(question.description)}
+          </Typography>
+          <Select
+            labelId="question-select-label"
+            id="question-select"
+            value={selectedAnswer}
+            label={question.name}
+            onChange={handleChange}
+          >
             {question.answers.map((option: string, index: number) => (
-              <Box
-                key={index}
-                sx={{
-                  border: "1px solid grey",
-                  px: 2,
-                  borderRadius: 4,
-                  display: "flex",
-                  width: "90%",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
-                  mb: 1,
-                }}
-              >
-                <FormControlLabel
-                  value={option}
-                  control={<Radio />}
-                  label={
-                    <Typography variant="body2">{parse(option)}</Typography>
-                  }
-                />
-              </Box>
+              <MenuItem key={index} value={option}>
+                {parse(option)}
+              </MenuItem>
             ))}
-          </RadioGroup>
+          </Select>
         </FormControl>
       </CardContent>
 
@@ -122,4 +112,4 @@ const listQuestion: React.FC<QuestionProps> = ({ question }) => {
   );
 };
 
-export default listQuestion;
+export default ListQuestion;

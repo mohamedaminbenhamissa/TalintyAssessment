@@ -7,13 +7,54 @@ import { Divider, Grid, Switch } from "@mui/material";
 import RecordCamera from "../assets/camera";
 import KeyboardVoiceOutlinedIcon from "@mui/icons-material/KeyboardVoiceOutlined";
 import NotStartedOutlinedIcon from "@mui/icons-material/NotStartedOutlined";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import StopCircleOutlinedIcon from "@mui/icons-material/StopCircleOutlined";
 
 export default function CONFIG_WEBCAM() {
-  const [cameraState, setCameraState] = useState(true);
-  const [microphoneState, setMicrophoneState] = useState(true);
+  const [cameraState, setCameraState] = useState(false);
+  const [microphoneState, setMicrophoneState] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunks = useRef<Blob[]>([]);
   const { t } = useTranslation("configuration");
+
+  useEffect(() => {
+    const getMedia = async () => {
+      try {
+        const userMediaStream = await navigator.mediaDevices.getUserMedia({
+          video: cameraState,
+          audio: microphoneState,
+        });
+        setStream(userMediaStream);
+        if (videoRef.current) {
+          videoRef.current.srcObject = userMediaStream;
+        }
+        setError(null);
+      } catch (err) {
+        console.error("Error accessing media devices.", err);
+        // setError("Error accessing media devices.");
+      }
+    };
+
+    if (cameraState || microphoneState) {
+      getMedia();
+    } else {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+        setStream(null);
+      }
+    }
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [cameraState, microphoneState]);
 
   const handleCameraToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCameraState(event.target.checked);
@@ -23,6 +64,39 @@ export default function CONFIG_WEBCAM() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setMicrophoneState(event.target.checked);
+  };
+
+  const handleStartRecording = () => {
+    if (stream) {
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunks.current.push(event.data);
+        }
+      };
+      mediaRecorderRef.current.onstop = () => {
+        const blob = new Blob(recordedChunks.current, {
+          type: "video/webm",
+        });
+        const url = URL.createObjectURL(blob);
+        if (videoRef.current) {
+          videoRef.current.srcObject = null;
+          videoRef.current.src = url;
+          videoRef.current.controls = true;
+          videoRef.current.play();
+        }
+        recordedChunks.current = [];
+      };
+      mediaRecorderRef.current.start();
+      setRecording(true);
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current && recording) {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+    }
   };
 
   return (
@@ -153,19 +227,20 @@ export default function CONFIG_WEBCAM() {
             >
               <Box
                 component="video"
+                ref={videoRef}
                 sx={{
                   maxWidth: "100%",
                   height: { xs: "200px", sm: "300px" },
                   borderRadius: "10px",
                 }}
-                controls
-              >
-                <source
-                  src="https://www.youtube.com/watch?v=ZyQlpX7lCRE"
-                  type="video/mp4"
-                />
-                Your browser does not support the video tag.
-              </Box>
+                autoPlay
+                muted
+              />
+              {error && (
+                <Typography color="error" sx={{ mt: 2 }}>
+                  {error}
+                </Typography>
+              )}
               <Button
                 sx={{
                   background: "#C1976B",
@@ -183,8 +258,15 @@ export default function CONFIG_WEBCAM() {
                   },
                 }}
                 size="small"
+                onClick={recording ? handleStopRecording : handleStartRecording}
               >
-                <NotStartedOutlinedIcon /> Commencer l'enregistrement
+                {recording ? (
+                  <StopCircleOutlinedIcon />
+                ) : (
+                  <NotStartedOutlinedIcon />
+                )}
+
+                {recording ? "Stop Recording" : "Start Recording"}
               </Button>
             </Box>
           </Grid>

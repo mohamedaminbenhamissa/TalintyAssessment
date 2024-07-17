@@ -2,8 +2,21 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-
-export default function START() {
+interface AssessmentData {
+  firstName: string;
+  jobName: string;
+  introVideo: string;
+  estimatedTime: number;
+  webcamScreenshots: boolean;
+  numberOfVideoQuestions: number;
+  enableExtraTime: boolean;
+  testDescription: string;
+}
+export default function START({
+  assessmentData,
+}: {
+  assessmentData: AssessmentData;
+}) {
   return (
     <Card
       sx={{
@@ -23,21 +36,7 @@ export default function START() {
               width: "100%",
             }}
           >
-            Le lorem ipsum est, en imprimerie, une suite de mots sans
-            signification utilisée à titre provisoire pour calibrer une mise en
-            page, le texte définitif venant remplacer le faux-texte dès qu'il
-            est prêt ou que la mise en page est achevée. Généralement, on
-            utilise un texte en faux latin, le Lorem ipsum ou Lipsum. Le lorem
-            ipsum est, en imprimerie, une suite de mots sans signification
-            utilisée à titre provisoire pour calibrer une mise en page, le texte
-            définitif venant remplacer le faux-texte dès qu'il est prêt ou que
-            la mise en page est achevée. Généralement, on utilise un texte en
-            faux latin, le Lorem ipsum ou Lipsum. Le lorem ipsum est, en
-            imprimerie, une suite de mots sans signification utilisée à titre
-            provisoire pour calibrer une mise en page, le texte définitif venant
-            remplacer le faux-texte dès qu'il est prêt ou que la mise en page
-            est achevée. Généralement, on utilise un texte en faux latin, le
-            Lorem ipsum ou Lipsum.
+            {assessmentData.testDescription}
           </Typography>
         </Box>
       </CardContent>

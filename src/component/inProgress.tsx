@@ -8,7 +8,6 @@ import VideoQuestion from "@/component/questions/videoQuestion";
 import { Alert, Box, Typography } from "@mui/material";
 import assessmentData from "../../assessment.json";
 import TIMEOUT from "./timeout";
-import html2canvas from "html2canvas";
 
 type Question = {
   type: string;
@@ -27,7 +26,7 @@ const QuestionComponent = () => {
   const [backgroundColor, setBackgroundColor] = useState<string>("#F6F7F6");
   const [textColor, setTextColor] = useState<string>("#3A923E");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const ToCaptureRef = useRef(null);
+
   useEffect(() => {
     if (assessmentData.numberOfQuestions) {
       setNumberOfQuestions(assessmentData.numberOfQuestions);
@@ -123,7 +122,7 @@ const QuestionComponent = () => {
           color: "white",
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          justifyContent: { sm: "space-evenly" },
+          justifyContent: { sm: "space-between" },
           alignItems: "center",
           py: 1,
           gap: { xs: 1, sm: 0 },
@@ -137,14 +136,7 @@ const QuestionComponent = () => {
             {`2/${numberOfQuestions}`}
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
-          <Typography variant="body1" sx={{ color: textColor }}>
-            Difficulty:
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#000" }}>
-            {question.difficulty}
-          </Typography>
-        </Box>
+
         <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
           <Typography variant="body1" sx={{ color: textColor }}>
             Time Spent:

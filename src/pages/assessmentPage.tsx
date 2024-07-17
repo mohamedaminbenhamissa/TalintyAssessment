@@ -15,6 +15,7 @@ import {
   GlobalStyles,
   Typography,
 } from "@mui/material";
+import axios from "axios";
 import Cover from "../assets/cover.png";
 import FEEDBACK from "../component/feedback";
 import CONGRATS from "../component/congratulations";
@@ -23,7 +24,7 @@ import RESULT from "../component/result";
 import { LangSelect } from "../component/languageSwitcher";
 import { useTranslation } from "../hooks/useTranslation";
 import IN_PROGRESS from "@/component/inProgress";
-import assessmentData from "../../assessment.json";
+
 import CheatingPopup from "@/component/popupalet/cheatingPopup";
 import EVALEXPIRED from "@/component/expired";
 import TIMEOUT from "@/component/timeout";
@@ -39,6 +40,7 @@ const StepsPage: React.FC = () => {
   const ToCaptureRef = useRef(null);
   const [_screenshotCount, _setScreenshotCount] = useState(0);
   const [open, setOpen] = useState(false);
+
   const [assessment, setAssessment] = useState<StepsContext>({
     currentStep: 1,
     jobName: "",
@@ -46,38 +48,50 @@ const StepsPage: React.FC = () => {
     estimatedTime: 0,
     numberOfQuestions: 0,
     firstName: "",
+    jobImage: "",
     webcamScreenshots: false,
     numberOfVideoQuestions: 0,
     enableExtraTime: false,
     introVideo: "",
     enableFeedBack: false,
     outroVideo: "",
+    testDescription: "",
   });
 
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
 
     const fetchAssessmentData = async () => {
-      const data = assessmentData;
+      try {
+        const response = await axios.get(
+          "http://localhost:5002/api/v1/evaluation/evaluation/7dc90f97-add1-4f03-88aa-e0eade511086"
+        );
 
-      setAssessment({
-        currentStep: 1,
-        jobName: data.jobName,
-        testName: data.packs[0]?.name ?? "",
-        estimatedTime: data.estimatedTime,
-        numberOfQuestions: data.numberOfQuestions,
-        firstName: "",
-        webcamScreenshots: data.webcamScreenshots,
-        numberOfVideoQuestions: data.numberOfVideoQuestions,
-        enableExtraTime: data.enableExtraTime,
-        introVideo: data.introVideo,
-        enableFeedBack: data.enableFeedback,
-        outroVideo: data.outroVideo,
-      });
+        const data = response.data;
+        console.log("-+-+---+-+-+-+-+-+-+-+", response.data);
+        setAssessment({
+          currentStep: 1,
+          jobName: data.finalEvaluation.jobName,
+          testName: data.finalEvaluation.packs[0].name,
+          testDescription: data.finalEvaluation.packs[0].description,
+          estimatedTime: data.finalEvaluation.estimatedTime,
+          numberOfQuestions: data.finalEvaluation.numberOfQuestions,
+          firstName: data.finalEvaluation.firstName,
+          jobImage: data.finalEvaluation.jobImage,
+          webcamScreenshots: data.finalEvaluation.webcamScreenshots,
+          numberOfVideoQuestions: data.finalEvaluation.numberOfVideoQuestions,
+          enableExtraTime: data.finalEvaluation.enableExtraTime,
+          introVideo: data.finalEvaluation.introVideo,
+          enableFeedBack: data.finalEvaluation.enableFeedback,
+          outroVideo: data.finalEvaluation.outroVideo,
+        });
+      } catch (error) {
+        console.error("Error fetching assessment data:", error);
+      }
     };
 
     fetchAssessmentData();
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     send({ type: "updateContext", context: assessment });
@@ -235,7 +249,7 @@ const StepsPage: React.FC = () => {
         );
 
       case "START":
-        return <START />;
+        return <START assessmentData={assessment} />;
       case "IN_PROGRESS":
         return <IN_PROGRESS />;
       case "FEEDBACK":
@@ -346,8 +360,11 @@ const StepsPage: React.FC = () => {
   return (
     <>
       <GlobalStyles
-        styles={{ body: { backgroundColor: "#F8F9FA", color: "white" } }}
+        styles={{
+          body: { backgroundColor: "#F8F9FA", color: "white" },
+        }}
       />
+
       <Box
         sx={{
           width: "100%",
@@ -388,10 +405,11 @@ const StepsPage: React.FC = () => {
       >
         <Box sx={{ display: "flex", alignItems: "center", px: 2 }}>
           <img
-            src="https://astrolab.co/wp-content/uploads/2023/10/astrolab-1.svg"
+            src={assessment.jobImage}
             width={100}
             height={100}
             style={{ objectFit: "contain" }}
+            alt="Job"
           />
           <Box
             sx={{
@@ -417,7 +435,7 @@ const StepsPage: React.FC = () => {
                 fontSize: { xs: 12, sm: 20 },
               }}
             >
-              Evaluation {assessment.jobName}
+              Evaluation for {assessment.jobName}
             </Typography>
           </Box>
         </Box>
@@ -452,7 +470,7 @@ const StepsPage: React.FC = () => {
             </Box>
           </Box>
         )}
-        <CardContent ref={ToCaptureRef}>
+        <CardContent ref={ToCaptureRef} sx={{ minWidth: "70vw" }}>
           {renderStep()}
 
           <Box

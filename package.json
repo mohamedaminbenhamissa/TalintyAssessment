@@ -17,6 +17,8 @@
     "@mui/material": "^5.15.19",
     "@mui/styled-engine-sc": "6.0.0-alpha.18",
     "@xstate/react": "^4.1.1",
+    "accessibility": "^6.0.1",
+    "axios": "^1.7.2",
     "html-react-parser": "^5.1.10",
     "html2canvas": "^1.4.1",
     "i18next": "^23.11.5",

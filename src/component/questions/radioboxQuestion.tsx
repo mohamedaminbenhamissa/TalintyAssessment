@@ -60,7 +60,6 @@ const RadioboxQuestion: React.FC<QuestionProps> = ({ question }) => {
         minWidth: 320,
         boxShadow: 0,
         minHeight: 500,
-
         userSelect: "none",
       }}
     >

@@ -11,20 +11,24 @@ export interface StepsContext {
   numberOfVideoQuestions: number;
   enableExtraTime: boolean;
   introVideo: string;
+  jobImage: string;
   enableFeedBack: boolean;
   outroVideo: string;
+  testDescription: string;
 }
 
 const initialContext: StepsContext = {
   currentStep: 1,
   jobName: "",
   testName: "",
+  testDescription: "",
   estimatedTime: 0,
   numberOfQuestions: 0,
   firstName: "",
   webcamScreenshots: false,
   numberOfVideoQuestions: 0,
   enableExtraTime: false,
+  jobImage: "",
   introVideo: "",
   enableFeedBack: false,
   outroVideo: "",

@@ -93,7 +93,7 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
     if (videoBlob) {
       const formData = new FormData();
       formData.append("video", videoBlob, "recording.webm");
-      // Handle the formData upload here
+
       setSnackbarMessage("Video sent successfully!");
       setSnackbarOpen(true);
     }
