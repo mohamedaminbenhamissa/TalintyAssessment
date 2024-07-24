@@ -5,6 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { DialogContentText } from "@mui/material";
 import warning from "@/assets/close-circle.png";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SkipPopupProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface SkipPopupProps {
 }
 
 const skipPopup = ({ open, onClose }: SkipPopupProps) => {
+  const { t } = useTranslation("popups");
   return (
     <Dialog
       open={open}
@@ -57,11 +59,10 @@ const skipPopup = ({ open, onClose }: SkipPopupProps) => {
             }}
           />
           <DialogContentText align="center" sx={{ fontWeight: "bold" }}>
-            Attention !
+            {t("incompquest")}
           </DialogContentText>
           <DialogContentText align="center">
-            Sorry but you can’t skip the test questions imperdiet amet nisi
-            convallis. Sit sit rutrum enim sagittis ut.
+            {t("incompquestmsg")}
           </DialogContentText>
         </div>
       </DialogContent>

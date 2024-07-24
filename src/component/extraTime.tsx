@@ -8,15 +8,22 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 export default function EXTRA_TIME() {
   const [selectedValue, setSelectedValue] = useState("nottosay");
+  const { t, i18n } = useTranslation("extratime");
+
+  useEffect(() => {
+    // Store true or false based on the selected value
+    const valueToStore = selectedValue === "yes" ? "true" : "false";
+    localStorage.setItem("selectedValue", valueToStore);
+  }, [selectedValue]);
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedValue(event.target.value);
   };
-  const { t, i18n } = useTranslation("extratime");
 
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
   }, [i18n.language]);
+
   return (
     <Card
       sx={{

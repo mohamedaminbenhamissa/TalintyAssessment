@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import parse from "html-react-parser";
 interface AssessmentData {
   firstName: string;
   jobName: string;
@@ -36,7 +37,7 @@ export default function START({
               width: "100%",
             }}
           >
-            {assessmentData.testDescription}
+            {parse(assessmentData.testDescription)}
           </Typography>
         </Box>
       </CardContent>

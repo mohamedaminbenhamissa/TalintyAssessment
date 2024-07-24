@@ -5,6 +5,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 import parse from "html-react-parser";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type QuestionProps = {
   question: {
@@ -12,15 +13,23 @@ type QuestionProps = {
     description: string;
     answers: string[];
   };
+  onChange: (answer: string) => void;
+};
+const arabicCharPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+
+const isArabicText = (text: string): boolean => {
+  return arabicCharPattern.test(text) && text.length > 30;
 };
 
-const longtextQuestion: React.FC<QuestionProps> = ({ question }) => {
+const LongTextQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const { t } = useTranslation("progress");
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
+
   useEffect(() => {
     const handleContextMenu = (event: MouseEvent) => {
       event.preventDefault();
@@ -30,6 +39,7 @@ const longtextQuestion: React.FC<QuestionProps> = ({ question }) => {
       document.removeEventListener("contextmenu", handleContextMenu);
     };
   }, []);
+
   const handleCopy = (event: React.ClipboardEvent<HTMLInputElement>) => {
     event.preventDefault();
     setSnackbarMessage("Copying is disabled!");
@@ -41,6 +51,14 @@ const longtextQuestion: React.FC<QuestionProps> = ({ question }) => {
     setSnackbarMessage("Pasting is disabled!");
     setSnackbarOpen(true);
   };
+
+  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(event.target.value);
+  };
+
+  const textAlign = isArabicText(question.description) ? "right" : "left";
+  const direction = isArabicText(question.description) ? "rtl" : "ltr";
+
   return (
     <Card
       sx={{
@@ -64,12 +82,13 @@ const longtextQuestion: React.FC<QuestionProps> = ({ question }) => {
               fontWeight: "bold",
             }}
           >
-            Question :
+            {t("quest")}
           </Typography>
           <Typography
             sx={{
               fontSize: { xs: 14, sm: 16 },
-              textAlign: "justify",
+              textAlign,
+              direction,
               width: "100%",
               mt: 1,
             }}
@@ -85,7 +104,7 @@ const longtextQuestion: React.FC<QuestionProps> = ({ question }) => {
               fontWeight: "bold",
             }}
           >
-            Answer:
+            {t("rep")}
           </Typography>
         </Box>
 
@@ -109,6 +128,7 @@ const longtextQuestion: React.FC<QuestionProps> = ({ question }) => {
             maxRows={15}
             onCopy={handleCopy}
             onPaste={handlePaste}
+            onChange={handleTextChange}
             sx={{
               width: "100%",
             }}
@@ -129,4 +149,4 @@ const longtextQuestion: React.FC<QuestionProps> = ({ question }) => {
   );
 };
 
-export default longtextQuestion;
+export default LongTextQuestion;

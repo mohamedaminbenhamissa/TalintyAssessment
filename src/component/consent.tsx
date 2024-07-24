@@ -166,7 +166,7 @@ export default function CONSENT({
             tabIndex={0}
             aria-label="Your signature"
           >
-            Your signature
+            {t("signature")}
           </Typography>
           <Stack
             direction={{ xs: "column", sm: "row" }}

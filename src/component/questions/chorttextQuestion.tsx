@@ -5,6 +5,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import parse from "html-react-parser";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type QuestionProps = {
   question: {
@@ -12,12 +13,22 @@ type QuestionProps = {
     description: string;
     answers: string[];
   };
+  onChange: (answers: string[]) => void;
+};
+const arabicCharPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+
+// const isArabicText = (text: string): boolean => {
+//   return arabicCharPattern.test(text) && text.length > 30;
+// };
+const isArabicText = (text: string): boolean => {
+  return arabicCharPattern.test(text) && text.length > 30;
 };
 
 const chorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
   const [, setText] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const { t } = useTranslation("progress");
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
@@ -43,6 +54,10 @@ const chorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
     setSnackbarMessage("Pasting is disabled!");
     setSnackbarOpen(true);
   };
+
+  const textAlign = isArabicText(question.description) ? "right" : "left";
+  const direction = isArabicText(question.description) ? "rtl" : "ltr";
+
   if (!question || !question.answers) {
     return <Typography variant="body1">No question data available</Typography>;
   }
@@ -70,12 +85,13 @@ const chorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
               fontWeight: "bold",
             }}
           >
-            Question :
+            {t("quest")}
           </Typography>
           <Typography
             sx={{
               fontSize: { xs: 14, sm: 16 },
-              textAlign: "justify",
+              textAlign,
+              direction,
               width: "100%",
               mt: 1,
             }}
@@ -91,7 +107,7 @@ const chorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
               fontWeight: "bold",
             }}
           >
-            Answer:
+            {t("rep")}
           </Typography>
         </Box>
 

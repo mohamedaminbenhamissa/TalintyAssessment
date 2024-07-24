@@ -18,6 +18,7 @@ type QuestionProps = {
     description: string;
     answers: string[];
   };
+  onChange: (answers: string[]) => void;
 };
 
 const arabicCharPattern = /[\u0600-\u06FF\u0750-\u077F]/;

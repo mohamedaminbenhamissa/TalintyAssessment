@@ -9,7 +9,11 @@
         "extratime":"Extra Time ",
         "result":"Performance report",
         "init":" Recruitment process",
-        "report":"Report Issue"
+        "report":"Report Issue",
+        "evalfor":"Evaluation for",
+        "Duration:":"Duration:",
+        "minutes":"mins",
+        "nquest":"N° questions:"
                 
        
       
@@ -29,7 +33,9 @@
     "init":{
         "welcome":"We are excited to welcome you to the next stage of our selection process. Your qualifications have impressed us, and we are eager to see your skills in action through this assessment. This assessment is designed to give us a deeper understanding of your abilities and how you might fit within our team. We encourage you to approach it with confidence and showcase your best work.",
           "beforestarting":"Before starting your assessment, please review the following important details:",
-          "important":"Important Instructions:",
+          "important":"Important Instructions :",
+          "duration":"Duration: The test will take approximately",
+          "minutes":"minutes.",
           "dear":"Dear",
           "text1":"We are pleased to invite you to the next step of our selection process to evaluate your skills for the position of",
           "text2":"This assessment is designed to give us a deeper understanding of your abilities and how you might integrate into our team. We encourage you to approach it with confidence and showcase your best performance.",
@@ -37,8 +43,8 @@
           "2":"Stay within the test browser and do not navigate away from the test browser or open any other tabs/windows during the assessment, as doing so will result in an automatic ban from the test.",
           "3":"Find a quiet and comfortable place where you can focus without interruptions.",
           "4":"You are free to use a calculator, pen and paper.",
-          "5":"It is important to inform you that random screenshots will be taken during the test in order to ensure transparency of the process.",
-          "6":"Ensure your camera and microphone are enabled, as we may need to verify your identity and monitor the test.",
+          "6":"It is important to inform you that random screenshots will be taken during the test in order to ensure transparency of the process.",
+          "5":"Ensure your camera and microphone are enabled, as we may need to verify your identity and monitor the test.",
           "bestofluck":"We wish you the best of luck and we are looking forward to seeing your results."
 
     },
@@ -46,14 +52,18 @@
         "text1":"We strive to create a fair testing experience for all. We use advanced methods to detect cheating and to protect the integrity of your assessment. Instances of cheating may lead to disqualification from the assessment and from our platform, and will be reported to the employer who requested the assessment. ",
         "text2":"The use of Al tools, taking the assessment multiple times, and other behaviors outlined in the full policy are not allowed unless instructed otherwise. ",
         "text3":"I acknowledge that I have read and understood the Candidate Honesty Policy, and I agree to abide by it. I understand the importance of upholding honesty and integrity in assessments. ",
-        "agreepolicy":"I agree to this policy by entering my name as my signature."
+        "agreepolicy":"I agree to this policy by entering my name as my signature.",
+        "signature":"Your signature"
     },
     "configuration":{
         "note":"For the upcoming assessment, we kindly request access to your camera and microphone in order to ensure a smooth and effective evaluation process."
     },
     "feedback":{
         "text1":"Evaluating the current assessment will provide valuable insights and feedback, enabling us to enhance the quality and effectiveness of future assessments.",
-        "text2":"We would love to hear from you how was your experience?"
+        "text2":"We would love to hear from you how was your experience?",
+        "feedback1":" Not So Great",
+        "feedback2":" Just Fine",
+        "feedback3":" Fantastic"
     },
     "report":{
         "title":"Report a Problem",
@@ -62,6 +72,27 @@
         "btnfile":"Attach File",
         "guide":"Describe what you were trying to do, the steps you took, what you expected to happen, what actually happened, and any error messages or screenshots you can provide.",
         "file":"Selected File:"
+    },
+    "progress":{
+        "title":"You are asked to record a response using your camera/webcam.You can use the video screen to record and play a test video. Please ensure that you are in front of your camera and check if the video and audio are recorded correctly. Don't worry, these test videos are not saved and will be deleted.",
+        "tprogress":"Question Progress:",
+        "tspent":"Time Spent:",
+        "quest":"Question :",
+        "rep":"answer :",
+        "test":"This question doesn't count towards your score. It's part of a trial phase."
+
+    },
+    "popups":{
+        "cngrats":"Congratulations!",
+        "congratsmsg":"You have successfully completed the assessment. Our team will contact you soon with your results.",
+        "timeout":"Time is Out",
+        "timeoutmsg":"Unfortunately, the allocated time for the assessment has ended. You can no longer continue.",
+        "evalexpred":"Evaluation Expired!",
+        "evalexpredmsg":"Your assessment has expired. For more details, please contact our support team.",
+        "incompquest":"Attention!",
+        "incompquestmsg":"Incomplete question: Please answer the current question before moving on to the next one.",
+        "violation":"Rule Violation",
+        "violationmsg":"A rule from our Candidate Honesty Policy has been violated. You still have one chance to complete the assessment. The next violation will result in a ban. "
+
     }
-    
 }

@@ -7,8 +7,10 @@ import {
   Typography,
 } from "@mui/material";
 import congrats from "../assets/congrats.png";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function CONGRATS() {
+  const { t } = useTranslation("popups");
   return (
     <Card
       sx={{
@@ -49,7 +51,7 @@ export default function CONGRATS() {
               marginBottom: 2,
             }}
           >
-            Congratulations!
+            {t("cngrats")}
           </Typography>
           <Typography
             sx={{
@@ -59,8 +61,7 @@ export default function CONGRATS() {
               maxWidth: 600,
             }}
           >
-            Lorem ipsum dolor sit amet consectetur. Ullamcorper sed molestie
-            tempus scelerisque. Nunc egestas mattis tempor diam nulla sagittis.
+            {t("congratsmsg")}
           </Typography>
         </Box>
         <Stack

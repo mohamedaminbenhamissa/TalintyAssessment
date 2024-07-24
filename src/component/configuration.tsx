@@ -134,7 +134,7 @@ export default function CONFIG_WEBCAM() {
               >
                 {t("note")}
               </Typography>
-              <Divider sx={{ my: 2, borderColor: "#E3D9C8", width: "100%" }} />
+              <Divider sx={{ borderColor: "#E3D9C8", width: "100%" }} />
 
               <Box
                 sx={{
@@ -207,14 +207,12 @@ export default function CONFIG_WEBCAM() {
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
-              gap: 2,
+              gap: 1,
               borderRadius: "5px",
               padding: 1,
               width: "100%",
             }}
-          >
-            {/* Additional controls if any */}
-          </Box>
+          ></Box>
 
           <Grid item xs={12}>
             <Box
@@ -222,7 +220,7 @@ export default function CONFIG_WEBCAM() {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                marginTop: 2,
+                marginTop: 1,
               }}
             >
               <Box
@@ -237,7 +235,7 @@ export default function CONFIG_WEBCAM() {
                 muted
               />
               {error && (
-                <Typography color="error" sx={{ mt: 2 }}>
+                <Typography color="error" sx={{ mt: 1 }}>
                   {error}
                 </Typography>
               )}

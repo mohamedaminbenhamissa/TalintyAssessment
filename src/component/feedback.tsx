@@ -21,7 +21,7 @@ export default function Feedback() {
         boxShadow: 0,
         border: "ActiveBorder",
         minHeight: 500,
-        margin: "auto",
+        gap: 2,
         width: { xs: "100%", sm: "80%", md: "100%" },
       }}
     >
@@ -53,7 +53,7 @@ export default function Feedback() {
         <Box sx={{ width: "90%", mt: 2, mx: "auto" }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
-            spacing={2}
+            gap={2}
             sx={{ width: "100%" }}
           >
             <Card
@@ -73,7 +73,7 @@ export default function Feedback() {
                 <img src={Sad} alt="Sad" style={{ maxWidth: "80px" }} />
               </Box>
               <Typography sx={{ textAlign: "center", mt: 2 }}>
-                Not So Great
+                {t("feedback1")}
               </Typography>
             </Card>
             <Card
@@ -93,7 +93,7 @@ export default function Feedback() {
                 <img src={Normal} alt="Normal" style={{ maxWidth: "80px" }} />
               </Box>
               <Typography sx={{ textAlign: "center", mt: 2 }}>
-                Just Fine
+                {t("feedback2")}
               </Typography>
             </Card>
             <Card
@@ -112,7 +112,7 @@ export default function Feedback() {
                 <img src={Happy} alt="Happy" style={{ maxWidth: "80px" }} />
               </Box>
               <Typography sx={{ textAlign: "center", mt: 2, mb: 4 }}>
-                Fantastic
+                {t("feedback3")}
               </Typography>
             </Card>
           </Stack>

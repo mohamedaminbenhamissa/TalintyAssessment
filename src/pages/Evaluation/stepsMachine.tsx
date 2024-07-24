@@ -5,7 +5,7 @@ export interface StepsContext {
   jobName: string;
   testName: string;
   estimatedTime: number;
-  numberOfQuestions: number;
+  numberTotalOfQuestions: number;
   firstName: string;
   webcamScreenshots: boolean;
   numberOfVideoQuestions: number;
@@ -15,6 +15,7 @@ export interface StepsContext {
   enableFeedBack: boolean;
   outroVideo: string;
   testDescription: string;
+  evaluationStaus: string;
 }
 
 const initialContext: StepsContext = {
@@ -23,7 +24,7 @@ const initialContext: StepsContext = {
   testName: "",
   testDescription: "",
   estimatedTime: 0,
-  numberOfQuestions: 0,
+  numberTotalOfQuestions: 0,
   firstName: "",
   webcamScreenshots: false,
   numberOfVideoQuestions: 0,
@@ -32,10 +33,11 @@ const initialContext: StepsContext = {
   introVideo: "",
   enableFeedBack: false,
   outroVideo: "",
+  evaluationStaus: "",
 };
 
 type StepsEvent =
-  | { type: "updateContext"; context: StepsContext }
+  | { type: "updateContext"; context: Partial<StepsContext> }
   | { type: "next" }
   | { type: "previous" }
   | { type: "evalExpired" };
@@ -55,8 +57,9 @@ export const stepsMachine = createMachine<
   any
 >({
   id: "steps",
-  initial: "INIT",
   context: initialContext,
+  initial: "checkStatus",
+
   on: {
     updateContext: {
       actions: assign({
@@ -65,10 +68,41 @@ export const stepsMachine = createMachine<
         numberOfVideoQuestions: ({ event }) =>
           event.context.numberOfVideoQuestions,
         webcamScreenshots: ({ event }) => event.context.webcamScreenshots,
+        evaluationStaus: ({ event }) => {
+          console.log(
+            "Updated evaluationStaus ok:",
+            event.context.evaluationStaus
+          );
+          return event.context.evaluationStaus;
+        },
       }),
     },
   },
   states: {
+    checkStatus: {
+      always: [
+        {
+          target: "INIT",
+          guard: ({ context }: { context: StepsContext }) =>
+            context.evaluationStaus === "Init",
+        },
+        {
+          target: "START",
+          guard: ({ context }: { context: StepsContext }) =>
+            context.evaluationStaus === "InProgress",
+        },
+        {
+          target: "EVALEXPIRED",
+          guard: ({ context }: { context: StepsContext }) =>
+            context.evaluationStaus === "Locked",
+        },
+        {
+          target: "LOCKED",
+          guard: ({ context }: { context: StepsContext }) =>
+            context.evaluationStaus === "finished_locked",
+        },
+      ],
+    },
     INIT: {
       on: {
         next: [

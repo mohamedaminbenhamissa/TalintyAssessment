@@ -30,6 +30,10 @@ import EVALEXPIRED from "@/component/expired";
 import TIMEOUT from "@/component/timeout";
 import ReportPopup from "@/component/report";
 
+const API_URL =
+  "http://localhost:5002/api/v1/evaluation/evaluation/115e0442-b0c4-4a10-a86b-1ccdda809214";
+const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/115e0442-b0c4-4a10-a86b-1ccdda809214/lockEvaluationFromCandidate/`;
+
 const Break = () => <div>Break</div>;
 
 const StepsPage: React.FC = () => {
@@ -46,7 +50,7 @@ const StepsPage: React.FC = () => {
     jobName: "",
     testName: "",
     estimatedTime: 0,
-    numberOfQuestions: 0,
+    numberTotalOfQuestions: 0,
     firstName: "",
     jobImage: "",
     webcamScreenshots: false,
@@ -56,42 +60,41 @@ const StepsPage: React.FC = () => {
     enableFeedBack: false,
     outroVideo: "",
     testDescription: "",
+    evaluationStaus: "",
   });
+  const fetchAssessmentData = async () => {
+    try {
+      const response = await axios.get(API_URL);
 
+      const data = response.data;
+      console.log("-+-+---+-+-+-+-+-+-+-+", response.data);
+      setAssessment({
+        currentStep: 1,
+        jobName: data?.finalEvaluation?.jobName || null,
+        testName: data?.finalEvaluation?.packs[0].name || null,
+        testDescription: data?.finalEvaluation?.packs[0].description || null,
+        estimatedTime: data?.finalEvaluation?.estimatedTime || null,
+        numberTotalOfQuestions:
+          data?.finalEvaluation?.numberTotalOfQuestions || null,
+        firstName: data?.finalEvaluation?.firstName || null,
+        jobImage: data?.finalEvaluation?.jobImage || null,
+        webcamScreenshots: data?.finalEvaluation?.webcamScreenshots || null,
+        numberOfVideoQuestions:
+          data?.finalEvaluation?.numberOfVideoQuestions || null,
+        enableExtraTime: data?.finalEvaluation?.enableExtraTime || null,
+        introVideo: data?.finalEvaluation?.introVideo || null,
+        enableFeedBack: data?.finalEvaluation?.enableFeedback || null,
+        outroVideo: data?.finalEvaluation?.outroVideo || null,
+        evaluationStaus: data?.evaluationStaus || null,
+      });
+    } catch (error) {
+      console.error("Error fetching assessment data:", error);
+    }
+  };
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
-
-    const fetchAssessmentData = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5002/api/v1/evaluation/evaluation/7dc90f97-add1-4f03-88aa-e0eade511086"
-        );
-
-        const data = response.data;
-        console.log("-+-+---+-+-+-+-+-+-+-+", response.data);
-        setAssessment({
-          currentStep: 1,
-          jobName: data.finalEvaluation.jobName,
-          testName: data.finalEvaluation.packs[0].name,
-          testDescription: data.finalEvaluation.packs[0].description,
-          estimatedTime: data.finalEvaluation.estimatedTime,
-          numberOfQuestions: data.finalEvaluation.numberOfQuestions,
-          firstName: data.finalEvaluation.firstName,
-          jobImage: data.finalEvaluation.jobImage,
-          webcamScreenshots: data.finalEvaluation.webcamScreenshots,
-          numberOfVideoQuestions: data.finalEvaluation.numberOfVideoQuestions,
-          enableExtraTime: data.finalEvaluation.enableExtraTime,
-          introVideo: data.finalEvaluation.introVideo,
-          enableFeedBack: data.finalEvaluation.enableFeedback,
-          outroVideo: data.finalEvaluation.outroVideo,
-        });
-      } catch (error) {
-        console.error("Error fetching assessment data:", error);
-      }
-    };
-
     fetchAssessmentData();
-  }, [i18n.language]);
+  }, []);
 
   useEffect(() => {
     send({ type: "updateContext", context: assessment });
@@ -109,6 +112,7 @@ const StepsPage: React.FC = () => {
             const newCount = prevCount + 1;
             if (newCount > 2) {
               send({ type: "evalExpired" });
+              lockEvaluation("Fullscreen exited more than twice");
             }
             return newCount;
           });
@@ -123,6 +127,7 @@ const StepsPage: React.FC = () => {
           const newCount = prevCount + 1;
           if (newCount > 2) {
             send({ type: "evalExpired" });
+            lockEvaluation("Escape key pressed more than twice");
           }
           return newCount;
         });
@@ -136,11 +141,22 @@ const StepsPage: React.FC = () => {
           const newCount = prevCount + 1;
           if (newCount > 2) {
             send({ type: "evalExpired" });
+            lockEvaluation("Window lost focus more than twice");
           }
           return newCount;
         });
       }
     };
+    if (state.value === "IN_PROGRESS") {
+      const docElm = document.documentElement;
+      if (docElm.requestFullscreen) {
+        docElm.requestFullscreen();
+      }
+    } else if (state.value === "FEEDBACK" || state.value === "RESULTS") {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
+    }
 
     document.addEventListener("fullscreenchange", handleFullScreen);
     document.addEventListener("keydown", handleKeyDown);
@@ -152,19 +168,6 @@ const StepsPage: React.FC = () => {
       window.removeEventListener("blur", handleBlur);
     };
   }, [state.value, send]);
-
-  useEffect(() => {
-    if (state.value === "IN_PROGRESS") {
-      const docElm = document.documentElement;
-      if (docElm.requestFullscreen) {
-        docElm.requestFullscreen();
-      }
-    } else if (state.value === "FEEDBACK" || state.value === "RESULTS") {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      }
-    }
-  }, [state.value]);
 
   const handleStartClick = () => {
     send({ type: "next" });
@@ -226,6 +229,17 @@ const StepsPage: React.FC = () => {
   const handleClose = () => {
     setOpen(false);
   };
+  const lockEvaluation = async (reason: string) => {
+    try {
+      await axios.patch(LOCKED_API_URL, {
+        reason,
+        isUnlockOperation: true,
+      });
+      console.log("Evaluation locked successfully");
+    } catch (error) {
+      console.error("Error locking evaluation:", error);
+    }
+  };
 
   const renderStep = () => {
     switch (state.value) {
@@ -251,7 +265,7 @@ const StepsPage: React.FC = () => {
       case "START":
         return <START assessmentData={assessment} />;
       case "IN_PROGRESS":
-        return <IN_PROGRESS />;
+        return <IN_PROGRESS assessmentData={assessment} />;
       case "FEEDBACK":
         return <FEEDBACK />;
       case "RESULTS":
@@ -293,11 +307,13 @@ const StepsPage: React.FC = () => {
           <Box sx={{ display: "flex", gap: 1 }}>
             <Chip
               icon={<AccessAlarmOutlinedIcon />}
-              label={`Duration: ${assessment.estimatedTime / 60} mins`}
+              label={`${t("Duration:")} ${assessment.estimatedTime / 60} ${t(
+                "minutes"
+              )}`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
             <Chip
-              label={`N° questions: ${assessment.numberOfQuestions}`}
+              label={`${t("nquest")} ${assessment.numberTotalOfQuestions}`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
           </Box>
@@ -435,7 +451,7 @@ const StepsPage: React.FC = () => {
                 fontSize: { xs: 12, sm: 20 },
               }}
             >
-              Evaluation for {assessment.jobName}
+              {t("evalfor")} {assessment.jobName}
             </Typography>
           </Box>
         </Box>
@@ -470,7 +486,7 @@ const StepsPage: React.FC = () => {
             </Box>
           </Box>
         )}
-        <CardContent ref={ToCaptureRef} sx={{ minWidth: "70vw" }}>
+        <CardContent ref={ToCaptureRef} sx={{ minWidth: "60vw" }}>
           {renderStep()}
 
           <Box

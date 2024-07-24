@@ -27,3 +27,199 @@
     "jobName": "Stage d'été",
     "firstName": "Mohamed Amine"
 }
+
++++++Save Progress API (PATCH) :
+Endpoint: /api/v1/evaluation/:id/answer/
+
+Method: PATCH
+
+Description:
+This endpoint allows saving the user's answers for an ongoing evaluation. The :id in the route is the publicUrl of the evaluation. The request body should contain the answers provided by the user.
+
+Request Body Example:
+
+ {
+    "answers": [
+        "الهدف الرئيسي لتحليل الأعمال هو تحديد وتحليل الاحتياجات والمتطلبات لتحسين العمليات التجارية والأنظمة. أهميته تكمن في تحسين الكفاءة، وزيادة الإنتاجية، ودعم اتخاذ القرارات الاستراتيجية."
+    ]
+}
+Response:
+200 OK
+{
+    "nextQuestion": { ... }/null,
+    "finished": true/false,
+    "feedback": true/false
+}
+nextQuestion : Returns the next question if available.
+finished: Indicates if the evaluation is finished.
+feedback : Indicates if feedback is required.
+
+404 Not Found: If the evaluation is not found.
+500 Internal Server Error: If an unknown error occurs.
+
+
+
+Here's the detailed description for the front-end developer regarding the addFeedback API:
+
++++++Add Feedback API (PATCH)
+Endpoint: /api/v1/evaluation/:id/feedback/
+
+Method: PATCH
+
+Description:
+This endpoint allows adding feedback to an evaluation. The :id in the route is the publicUrl of the evaluation. The request body should contain an object representing the feedback details.
+
+Request Body Example:
+{
+    "feedback": {
+        "comment": "Great job on the project!",
+        "rating": 5,
+        "reviewer": "John Doe"
+    }
+}
+Response:
+
+204 No Content: Feedback was successfully added.
+404 Not Found: If the evaluation is not found.
+500 Internal Server Error: If an unknown error occurs
+
+++++Get Evaluation API (GET)
+Endpoint: /api/v1/evaluation/:id
+
+Method: GET
+
+Description:
+This endpoint retrieves detailed information about an evaluation identified by its publicUrl. The :id in the route is the publicUrl of the evaluation.
+
+Response Examples:
+
+*Evaluation Finished and Locked:
+{
+    "evaluationStatus": "finished_locked"
+}
+*Evaluation Locked:
+{
+    "evaluationStatus": "Locked"
+}
+*Evaluation Finished:
+
+{
+    "evaluationStatus": "Finished",
+    "finalEvaluation": {
+        "id": "evaluationId",
+        "finished": true,
+        "hasNext": false,
+        "currentPackCount": 3,
+        "currentQuestionCount": 15,
+        "outroVideo": "video_url",
+        "feedback": {
+            "comment": "Great job on the project!",
+            "rating": 5,
+            "reviewer": "John Doe"
+        },
+        "enableFeedback": true,
+        "jobName": "Job Title",
+        "jobImage": "http://example.com/uploads/visual/image.png",
+        "firstName": "John"
+    }
+}
+*Evaluation Not Started:
+{
+    "evaluationStatus": "Init",
+    "finalEvaluation": {
+        "id": "evaluationId",
+        "introVideo": "video_url",
+        "enableExtraTime": true,
+        "webcamScreenshots": false,
+        "estimatedTime": 3600,
+        "disableCopyPaste": true,
+        "numberOfQuestions": 10,
+        "numberOfTests": 3,
+        "hasNext": true,
+        "numberOfVideoQuestions": 5,
+        "numberOfCodeQuestions": 5,
+        "jobName": "Job Title",
+        "jobImage": "http://example.com/uploads/visual/image.png",
+        "firstName": "John",
+        "enableFeedback": true,
+        "packs": [ ... ],
+        "packsStarted": [ ... ]
+    }
+}
+*Evaluation In Progress:
+
+{
+    "evaluationStatus": "InProgress",
+    "finalEvaluation": {
+        "id": "evaluationId",
+        "hasNext": true,
+        "enableFeedback": true,
+        "finished": false,
+        "feedback": {
+            "comment": "Great job on the project!",
+            "rating": 5,
+            "reviewer": "John Doe"
+        },
+        "currentPackCount": 2,
+        "currentQuestionCount": 8,
+        "numberOfQuestionsInCurrentPack": 5,
+        "numberTotalOfQuestions": 25,
+        "startDate": "2024-07-16T12:00:00Z",
+        "packsStarted": [ ... ],
+        "introVideo": "video_url",
+        "outroVideo": "video_url",
+        "enableExtraTime": true,
+        "disableCopyPaste": false,
+        "webcamScreenshots": true,
+        "estimatedTime": 5400,
+        "numberOfTests": 5,
+        "packs": [ ... ],
+        "jobName": "Job Title",
+        "jobImage": "http://example.com/uploads/visual/image.png",
+        "firstName": "John",
+        "nextQuestion": {
+            "id": "questionId",
+            "type": "multiple_choice",
+            "text": "What is the capital of France?",
+            "options": [ ... ]
+        }
+    }
+}
+Response:
+
+200 OK: Returns detailed information about the evaluation based on its status.
+500 Internal Server Error: If an unknown error occurs.
+
++++++Start Evaluation API (PATCH)
+Endpoint: /api/v1/evaluation/:id/start/:packId
+
+Method: PATCH
+
+Description:
+This endpoint starts an evaluation by initializing or updating the start time for a specific pack identified by packId. The :id in the route is the publicUrl of the evaluation. The request body should contain a boolean indicating whether the user has a handicap (hasHandicap).
+
+Request Body Example:
+{
+    "hasHandicap": false
+}
+Response Example:
+{
+    "currentQuestionCount": 1,
+    "numberOfQuestions": 10,
+    "packsStarted": [
+        {
+            "startDate": "2024-07-16T12:00:00Z",
+            "endDate": "2024-07-16T13:00:00Z"
+        }
+    ],
+    "nextQuestion": {
+        "id": "questionId",
+        "type": "multiple_choice",
+        "text": "What is the capital of France?",
+        "options": [ ... ]
+    }
+}
+Response:
+
+200 OK: Returns information about the evaluation start process, including the current question count, number of questions in the pack, start and end date of the pack, and details about the next question.
+500 Internal Server Error: If an unknown error occurs.

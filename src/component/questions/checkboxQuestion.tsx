@@ -1,16 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import {
   FormControlLabel,
-  RadioGroup,
   FormControl,
   FormLabel,
   Checkbox,
 } from "@mui/material";
-import { useEffect } from "react";
 import parse from "html-react-parser";
 
 type QuestionProps = {
@@ -19,9 +17,18 @@ type QuestionProps = {
     description: string;
     answers: string[];
   };
+  onChange: (answers: string[]) => void;
 };
 
-const checkboxQuestion: React.FC<QuestionProps> = ({ question }) => {
+const arabicCharPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+
+const isArabicText = (text: string): boolean => {
+  return arabicCharPattern.test(text) && text.length > 30;
+};
+
+const CheckboxQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
+  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
+
   useEffect(() => {
     const handleContextMenu = (event: MouseEvent) => {
       event.preventDefault();
@@ -32,9 +39,22 @@ const checkboxQuestion: React.FC<QuestionProps> = ({ question }) => {
     };
   }, []);
 
+  const handleCheckboxChange = (answer: string) => {
+    setSelectedAnswers((prevSelectedAnswers) => {
+      const newSelectedAnswers = prevSelectedAnswers.includes(answer)
+        ? prevSelectedAnswers.filter((a) => a !== answer)
+        : [...prevSelectedAnswers, answer];
+
+      onChange(newSelectedAnswers);
+      return newSelectedAnswers;
+    });
+  };
+
   if (!question || !question.answers) {
     return <Typography variant="body1">No question data available</Typography>;
   }
+  const textAlign = isArabicText(question.description) ? "right" : "left";
+  const direction = isArabicText(question.description) ? "rtl" : "ltr";
 
   return (
     <Card
@@ -56,15 +76,18 @@ const checkboxQuestion: React.FC<QuestionProps> = ({ question }) => {
               sx={{
                 fontSize: "0.875rem",
                 lineHeight: "1.2",
-                textAlign: "left",
+                textAlign,
+                direction,
               }}
+              component="div"
             >
               {parse(question.description)}
             </Typography>
           </FormLabel>
-          <RadioGroup name={question.name}>
+          <Box>
             {question.answers.map((option: string, index: number) => (
               <Box
+                key={index}
                 sx={{
                   border: "1px solid grey",
                   px: 2,
@@ -77,20 +100,23 @@ const checkboxQuestion: React.FC<QuestionProps> = ({ question }) => {
                 }}
               >
                 <FormControlLabel
-                  key={index}
-                  value={option}
-                  control={<Checkbox />}
+                  control={
+                    <Checkbox
+                      checked={selectedAnswers.includes(option)}
+                      onChange={() => handleCheckboxChange(option)}
+                    />
+                  }
                   label={
                     <Typography variant="body2">{parse(option)}</Typography>
                   }
                 />
               </Box>
             ))}
-          </RadioGroup>
+          </Box>
         </FormControl>
       </CardContent>
     </Card>
   );
 };
 
-export default checkboxQuestion;
+export default CheckboxQuestion;

@@ -5,6 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { DialogContentText } from "@mui/material";
 import warning from "@/assets/close-circle.png";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface CheatingPopupProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface CheatingPopupProps {
 }
 
 const CheatingPopup = ({ open, onClose }: CheatingPopupProps) => {
+  const { t } = useTranslation("popups");
   return (
     <Dialog
       open={open}
@@ -60,11 +62,10 @@ const CheatingPopup = ({ open, onClose }: CheatingPopupProps) => {
             align="center"
             sx={{ fontSize: 24, color: "#023651" }}
           >
-            Rule-breaking detected !
+            {t("violation")}
           </DialogContentText>
           <DialogContentText align="center">
-            Warning! You have one more chance. The next violation will result in
-            a ban from the test.
+            {t("violationmsg")}
           </DialogContentText>
         </div>
       </DialogContent>

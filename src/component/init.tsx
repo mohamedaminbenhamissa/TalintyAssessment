@@ -28,7 +28,7 @@ export default function Init({
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
   }, [i18n.language]);
-
+  console.log("/-/-//--/-/-/-/-/-/-/", assessmentData.estimatedTime);
   const minTime = Math.ceil(assessmentData.estimatedTime / 60 / 2);
   const maxTime = Math.ceil(assessmentData.estimatedTime / 60);
 
@@ -65,11 +65,12 @@ export default function Init({
                     color: "#C1976B",
                     mt: 1,
                     textAlign: "center",
+                    fontSize: 26,
                   }}
                   tabIndex={0}
                   aria-label={assessmentData.firstName}
                 >
-                  {assessmentData.firstName}
+                  <b>{assessmentData.firstName}</b>
                 </Typography>
               </Typography>
               <Typography
@@ -129,8 +130,10 @@ export default function Init({
                 }}
                 tabIndex={0}
               >
-                Duration: The test will take approximately <b>{minTime}</b> to{" "}
-                <b>{maxTime} minutes</b> to complete.
+                {t("duration")} <b>{minTime}</b> -{" "}
+                <b>
+                  {maxTime} {t("minutes")}
+                </b>
               </Typography>
               <Typography
                 sx={{

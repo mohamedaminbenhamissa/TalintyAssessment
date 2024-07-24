@@ -17,6 +17,7 @@ import StopCircleOutlinedIcon from "@mui/icons-material/StopCircleOutlined";
 import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 import SendIcon from "@mui/icons-material/Send";
 import Webcam from "react-webcam";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type QuestionProps = {
   question: {
@@ -24,6 +25,7 @@ type QuestionProps = {
     description: string;
     answers: string[];
   };
+  onChange: (answers: string[]) => void;
 };
 
 const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
@@ -35,7 +37,7 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
-
+  const { t } = useTranslation("progress");
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -134,11 +136,7 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
                   />
                 </video>
               ) : (
-                <Webcam
-                  audio={true}
-                  ref={webcamRef}
-                  //videoConstraints={{ width: "100%", height: "100%" }}
-                />
+                <Webcam audio={true} ref={webcamRef} />
               )}
             </Box>
             <ButtonGroup sx={{ borderColor: "#C1986C", mt: 2 }}>
@@ -173,11 +171,7 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
               )}
             </ButtonGroup>
             <Typography variant="body2" sx={{ mt: 2 }}>
-              Le lorem ipsum est, en imprimerie, une suite de mots sans
-              signification utilisée à titre provisoire pour calibrer une mise
-              en page, le texte définitif venant remplacer le faux-texte dès
-              qu'il est prêt ou que la mise en page est achevée. Généralement,
-              on utilise un texte en faux latin, le Lorem ipsum ou Lipsum.
+              <i>{t("title")}</i>
             </Typography>
           </Grid>
         </Grid>

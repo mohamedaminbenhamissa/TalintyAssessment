@@ -2,8 +2,10 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import expired from "../assets/expired.png";
 import { Box, Typography } from "@mui/material";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function EVALEXPIRED() {
+  const { t } = useTranslation("popups");
   return (
     <Card
       sx={{
@@ -34,7 +36,7 @@ export default function EVALEXPIRED() {
               marginBottom: 2,
             }}
           >
-            Evaluation expired !
+            {t("evalexpred")}
           </Typography>
           <Typography
             sx={{
@@ -43,8 +45,7 @@ export default function EVALEXPIRED() {
               fontWeight: 400,
             }}
           >
-            Lorem ipsum dolor sit amet consectetur. Ullamcorper sed molestie
-            tempus scelerisque. Nunc egestas mattis tempor diam nulla sagittis.
+            {t("evalexpredmsg")}
           </Typography>
         </Box>
       </CardContent>
