@@ -17,9 +17,6 @@ type QuestionProps = {
 };
 const arabicCharPattern = /[\u0600-\u06FF\u0750-\u077F]/;
 
-// const isArabicText = (text: string): boolean => {
-//   return arabicCharPattern.test(text) && text.length > 30;
-// };
 const isArabicText = (text: string): boolean => {
   return arabicCharPattern.test(text) && text.length > 30;
 };
@@ -85,6 +82,17 @@ const chorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
               fontWeight: "bold",
             }}
           >
+            {parse(question.description)}
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: { xs: 14, sm: 16 },
+              textAlign: "justify",
+              width: "100%",
+              mt: 2,
+              fontWeight: "bold",
+            }}
+          >
             {t("quest")}
           </Typography>
           <Typography
@@ -96,7 +104,7 @@ const chorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
               mt: 1,
             }}
           >
-            {parse(question.description)}
+            {parse(question.name)}
           </Typography>
           <Typography
             sx={{

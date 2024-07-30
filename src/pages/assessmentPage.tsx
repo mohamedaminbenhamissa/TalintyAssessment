@@ -31,8 +31,8 @@ import TIMEOUT from "@/component/timeout";
 import ReportPopup from "@/component/report";
 
 const API_URL =
-  "http://localhost:5002/api/v1/evaluation/evaluation/115e0442-b0c4-4a10-a86b-1ccdda809214";
-const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/115e0442-b0c4-4a10-a86b-1ccdda809214/lockEvaluationFromCandidate/`;
+  "http://localhost:5002/api/v1/evaluation/evaluation/377aa0c5-46cd-4699-80e4-075ac8dc0375";
+const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/377aa0c5-46cd-4699-80e4-075ac8dc0375/lockEvaluationFromCandidate/`;
 
 const Break = () => <div>Break</div>;
 
@@ -62,17 +62,24 @@ const StepsPage: React.FC = () => {
     testDescription: "",
     evaluationStaus: "",
   });
+  const [packIndex, setPackIndex] = useState(0);
+
   const fetchAssessmentData = async () => {
     try {
       const response = await axios.get(API_URL);
-
       const data = response.data;
-      console.log("-+-+---+-+-+-+-+-+-+-+", response.data);
+      const packs = data?.finalEvaluation?.packs || [];
+
+      // Ensure packIndex is within bounds
+      const currentPack = packs[packIndex % packs.length];
+
+      console.log("-+-+---+-+-+-+-+-+-+-+", data);
+
       setAssessment({
         currentStep: 1,
         jobName: data?.finalEvaluation?.jobName || null,
-        testName: data?.finalEvaluation?.packs[0].name || null,
-        testDescription: data?.finalEvaluation?.packs[0].description || null,
+        testName: currentPack?.name || null,
+        testDescription: currentPack?.description || null,
         estimatedTime: data?.finalEvaluation?.estimatedTime || null,
         numberTotalOfQuestions:
           data?.finalEvaluation?.numberTotalOfQuestions || null,
@@ -87,6 +94,9 @@ const StepsPage: React.FC = () => {
         outroVideo: data?.finalEvaluation?.outroVideo || null,
         evaluationStaus: data?.evaluationStaus || null,
       });
+
+      // Update the pack index for the next call
+      setPackIndex((prevIndex) => prevIndex + 1);
     } catch (error) {
       console.error("Error fetching assessment data:", error);
     }
@@ -100,74 +110,76 @@ const StepsPage: React.FC = () => {
     send({ type: "updateContext", context: assessment });
   }, [assessment, send]);
 
-  useEffect(() => {
-    const handleFullScreen = () => {
-      if (document.fullscreenElement) {
-        console.log("Entered full-screen mode");
-      } else {
-        console.log("Exited full-screen mode");
-        if (state.value === "IN_PROGRESS") {
-          setPopupOpen(true);
-          setCheatingPopupCount((prevCount) => {
-            const newCount = prevCount + 1;
-            if (newCount > 2) {
-              send({ type: "evalExpired" });
-              lockEvaluation("Fullscreen exited more than twice");
-            }
-            return newCount;
-          });
-        }
-      }
-    };
+  // *-*-*-*-*-*-*-*-*-*-*-* cheaing *-*-*-*-*-*-*-*-*-*-**--*-*-*
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && state.value === "IN_PROGRESS") {
-        setPopupOpen(true);
-        setCheatingPopupCount((prevCount) => {
-          const newCount = prevCount + 1;
-          if (newCount > 2) {
-            send({ type: "evalExpired" });
-            lockEvaluation("Escape key pressed more than twice");
-          }
-          return newCount;
-        });
-      }
-    };
+  // useEffect(() => {
+  //   const handleFullScreen = () => {
+  //     if (document.fullscreenElement) {
+  //       console.log("Entered full-screen mode");
+  //     } else {
+  //       console.log("Exited full-screen mode");
+  //       if (state.value === "IN_PROGRESS") {
+  //         setPopupOpen(true);
+  //         setCheatingPopupCount((prevCount) => {
+  //           const newCount = prevCount + 1;
+  //           if (newCount > 2) {
+  //             send({ type: "evalExpired" });
+  //             lockEvaluation("Fullscreen exited more than twice");
+  //           }
+  //           return newCount;
+  //         });
+  //       }
+  //     }
+  //   };
 
-    const handleBlur = () => {
-      if (state.value === "IN_PROGRESS") {
-        setPopupOpen(true);
-        setCheatingPopupCount((prevCount) => {
-          const newCount = prevCount + 1;
-          if (newCount > 2) {
-            send({ type: "evalExpired" });
-            lockEvaluation("Window lost focus more than twice");
-          }
-          return newCount;
-        });
-      }
-    };
-    if (state.value === "IN_PROGRESS") {
-      const docElm = document.documentElement;
-      if (docElm.requestFullscreen) {
-        docElm.requestFullscreen();
-      }
-    } else if (state.value === "FEEDBACK" || state.value === "RESULTS") {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      }
-    }
+  //   const handleKeyDown = (event: KeyboardEvent) => {
+  //     if (event.key === "Escape" && state.value === "IN_PROGRESS") {
+  //       setPopupOpen(true);
+  //       setCheatingPopupCount((prevCount) => {
+  //         const newCount = prevCount + 1;
+  //         if (newCount > 2) {
+  //           send({ type: "evalExpired" });
+  //           lockEvaluation("Escape key pressed more than twice");
+  //         }
+  //         return newCount;
+  //       });
+  //     }
+  //   };
 
-    document.addEventListener("fullscreenchange", handleFullScreen);
-    document.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("blur", handleBlur);
+  //   const handleBlur = () => {
+  //     if (state.value === "IN_PROGRESS") {
+  //       setPopupOpen(true);
+  //       setCheatingPopupCount((prevCount) => {
+  //         const newCount = prevCount + 1;
+  //         if (newCount > 2) {
+  //           send({ type: "evalExpired" });
+  //           lockEvaluation("Window lost focus more than twice");
+  //         }
+  //         return newCount;
+  //       });
+  //     }
+  //   };
+  //   if (state.value === "IN_PROGRESS") {
+  //     const docElm = document.documentElement;
+  //     if (docElm.requestFullscreen) {
+  //       docElm.requestFullscreen();
+  //     }
+  //   } else if (state.value === "FEEDBACK" || state.value === "RESULTS") {
+  //     if (document.fullscreenElement) {
+  //       document.exitFullscreen();
+  //     }
+  //   }
 
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullScreen);
-      document.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("blur", handleBlur);
-    };
-  }, [state.value, send]);
+  //   document.addEventListener("fullscreenchange", handleFullScreen);
+  //   document.addEventListener("keydown", handleKeyDown);
+  //   window.addEventListener("blur", handleBlur);
+
+  //   return () => {
+  //     document.removeEventListener("fullscreenchange", handleFullScreen);
+  //     document.removeEventListener("keydown", handleKeyDown);
+  //     window.removeEventListener("blur", handleBlur);
+  //   };
+  // }, [state.value, send]);
 
   const handleStartClick = () => {
     send({ type: "next" });

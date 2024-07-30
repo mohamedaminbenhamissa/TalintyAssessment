@@ -40,7 +40,9 @@ type StepsEvent =
   | { type: "updateContext"; context: Partial<StepsContext> }
   | { type: "next" }
   | { type: "previous" }
-  | { type: "evalExpired" };
+  | { type: "evalExpired" }
+  | { type: "submitAnswer" }
+  | { type: "ActionProgress" };
 
 export const stepsMachine = createMachine<
   StepsContext,
@@ -65,6 +67,7 @@ export const stepsMachine = createMachine<
       actions: assign({
         enableExtraTime: ({ event }) => event.context.enableExtraTime,
         enableFeedBack: ({ event }) => event.context.enableFeedBack,
+
         numberOfVideoQuestions: ({ event }) =>
           event.context.numberOfVideoQuestions,
         webcamScreenshots: ({ event }) => event.context.webcamScreenshots,
@@ -77,6 +80,9 @@ export const stepsMachine = createMachine<
         },
       }),
     },
+  submitAnswer: {
+    actions: "submitAnswer",
+  },
   },
   states: {
     checkStatus: {
@@ -160,18 +166,28 @@ export const stepsMachine = createMachine<
     },
     IN_PROGRESS: {
       on: {
+        // next: [
+        //   {
+        //     actions: "submitAnswer",
+        //     target: "FEEDBACK",
+        //     guard: ({ context }: { context: StepsContext }) =>
+        //       context.enableFeedBack,
+        //   },
+        //   { target: "RESULTS" },
+        // ],
         next: [
           {
+            actions: "ActionProgress",
             target: "FEEDBACK",
-            guard: ({ context }: { context: StepsContext }) =>
-              context.enableFeedBack,
           },
-          { target: "RESULTS" },
+          
         ],
+
         previous: "START",
         evalExpired: "EVALEXPIRED",
       },
     },
+
     FEEDBACK: {
       on: {
         next: [

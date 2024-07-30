@@ -28,16 +28,18 @@ type QuestionProps = {
   onChange: (answers: string[]) => void;
 };
 
-const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
+const VideoQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
   const webcamRef = useRef<Webcam>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoPlayerRef = useRef<HTMLVideoElement>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const { t } = useTranslation("progress");
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -57,11 +59,13 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
     ({ data }: BlobEvent) => {
       if (data.size > 0) {
         setVideoBlob(data);
+        const videoURL = URL.createObjectURL(data);
+        setVideoUrl(videoURL);
         setSnackbarMessage("Recording saved successfully!");
         setSnackbarOpen(true);
       }
     },
-    [setVideoBlob, setSnackbarMessage, setSnackbarOpen]
+    [setVideoBlob, setVideoUrl, setSnackbarMessage, setSnackbarOpen]
   );
 
   const handleStopRecording = useCallback(() => {
@@ -92,11 +96,9 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
   };
 
   const handleSend = () => {
-    if (videoBlob) {
-      const formData = new FormData();
-      formData.append("video", videoBlob, "recording.webm");
-
-      setSnackbarMessage("Video sent successfully!");
+    if (videoUrl) {
+      onChange([videoUrl]);
+      setSnackbarMessage("Video URL sent successfully!");
       setSnackbarOpen(true);
     }
   };
@@ -128,12 +130,9 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question }) => {
                 p: 2,
               }}
             >
-              {videoBlob ? (
+              {videoBlob && videoUrl !== null ? (
                 <video ref={videoPlayerRef} width="100%" height="100%" controls>
-                  <source
-                    src={URL.createObjectURL(videoBlob)}
-                    type="video/webm"
-                  />
+                  <source src={videoUrl} type="video/webm" />
                 </video>
               ) : (
                 <Webcam audio={true} ref={webcamRef} />

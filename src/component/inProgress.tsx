@@ -1,15 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import RadioBoxQuestion from "@/component/questions/radioboxQuestion";
 import CheckBoxQuestion from "@/component/questions/checkboxQuestion";
 import ShortTextQuestion from "@/component/questions/chorttextQuestion";
 import LongTextQuestion from "@/component/questions/longtextQuestion";
 import ListQuestion from "@/component/questions/listQuestion";
 import VideoQuestion from "@/component/questions/videoQuestion";
-import { Alert, Box, Typography } from "@mui/material";
-
+import { Alert, Box, Button, Typography } from "@mui/material";
+import { stepsMachine } from "@/pages/Evaluation/stepsMachine";
 import TIMEOUT from "./timeout";
 import { useTranslation } from "@/hooks/useTranslation";
 import axios from "axios";
+import { useMachine } from "@xstate/react";
+
 type Question = {
   type: string;
   isTrainingQuestion: boolean;
@@ -25,7 +27,8 @@ interface AssessmentData {
   numberTotalOfQuestions: number;
 }
 
-const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/115e0442-b0c4-4a10-a86b-1ccdda809214/start/664486309fd39c20961b092f`;
+const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/377aa0c5-46cd-4699-80e4-075ac8dc0375/start/664471de70f98f9c8034b9b6`;
+const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/377aa0c5-46cd-4699-80e4-075ac8dc0375/answer`;
 
 const QuestionComponent = ({
   assessmentData,
@@ -33,15 +36,15 @@ const QuestionComponent = ({
   assessmentData: AssessmentData;
 }) => {
   const [question, setQuestion] = useState<Question | null>(null);
-  const [answer, setAnswer] = useState<any>(null);
+  const [answers, setAnswers] = useState<any>([]);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [backgroundColor, setBackgroundColor] = useState<string>("#F6F7F6");
   const [textColor, setTextColor] = useState<string>("#3A923E");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const { t } = useTranslation("progress");
+  const [_state, send] = useMachine(stepsMachine);
   const selectedValue = localStorage.getItem("selectedValue");
-  console.log("object", selectedValue);
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const response = await axios.patch(API_BASE_URL, {
         hasHandicap: selectedValue,
@@ -61,37 +64,65 @@ const QuestionComponent = ({
     } catch (error) {
       console.error("Error loading data:", error);
     }
-  };
-  const handleAnswerChange = (newAnswer: any) => {
-    setAnswer(newAnswer);
+  }, [selectedValue]);
+
+  const handleAnswerChange = (answers: any) => {
+    console.log("Answers:", answers);
+    setAnswers(answers);
   };
   useEffect(() => {
     fetchData();
   }, []);
-  // useEffect(() => {
-  //   fetch("../../question.json")
-  //     .then((response) => response.json())
-  //     .then((data) => setQuestion(data))
-  //     .catch((error) => console.error("Error loading question.json:", error));
-  // }, []);
-  console.log(
-    "++++++++++++++++++-+++++++",
-    assessmentData.estimatedTime,
-    assessmentData.numberTotalOfQuestions
-  );
 
-  const submitAnswer = async () => {
+  const submitAnswer = useCallback(async () => {
     try {
-      const response = await axios.post(API_BASE_URL, {
-        questionId: question?.name,
-        answer: answer,
+      const response = await axios.patch(POST_EVAL_URL, {
+        answers: answers,
       });
       console.log("Answer submitted successfully:", response.data);
-      // Fetch next question or handle completion
+
+      if ( response.data.hasNext) {
+        setAnswers([]);
+        const deliveredData = response.data;
+        console.log("object", deliveredData);
+        setQuestion({
+          numberOfQuestions: deliveredData?.numberOfQuestions || 0,
+          currentQuestionCount: deliveredData?.currentQuestionCount || 0,
+          type: deliveredData?.nextQuestion?.type || "",
+          isTrainingQuestion:
+            deliveredData?.nextQuestion?.isTrainingQuestion || false,
+          name: deliveredData?.nextQuestion?.name || "",
+          description: deliveredData?.nextQuestion?.description || "",
+          answers: deliveredData?.nextQuestion?.answers || [],
+        });
+      
+      } 
+      if (!response.data.feedback  && response.data.hasNext && !response.data.nextQuestion) {
+        console.log("Feedback component");
+        send({ type: "ActionProgress" });}
+       if (response.data.finished && !response.data.feedback && !response.data.nextQuestion) {
+        console.log("Go to RESULTS");
+       
+      } 
+      if (response.data.finished && response.data.feedback && !response.data.nextQuestion) {
+        console.log("Go to feedback");
+        send({ type: "ActionProgress" })
+      } 
+      if (!response.data.feedback  && response.data.hasNext && !response.data.nextQuestion) {
+        console.log("Feedback component");
+        send({ type: "ActionProgress" });}
     } catch (error) {
       console.error("Error submitting answer:", error);
     }
-  };
+  }, [send, answers]);
+
+  // useEffect(() => {
+  //   window.addEventListener("submitAnswer", submitAnswer);
+
+  //   return () => {
+  //     window.removeEventListener("submitAnswer", submitAnswer);
+  //   };
+  // }, [submitAnswer]);
 
   useEffect(() => {
     if (question) {
@@ -122,7 +153,7 @@ const QuestionComponent = ({
         setTextColor("#D15050");
       }
     }
-  }, [elapsedTime, question]);
+  }, [elapsedTime, question, assessmentData.estimatedTime]);
 
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -160,7 +191,11 @@ const QuestionComponent = ({
       break;
     case "text":
       questionComponent = (
-        <LongTextQuestion question={question} onChange={handleAnswerChange} />
+        <LongTextQuestion
+          question={question}
+          answers={answers}
+          onChange={handleAnswerChange}
+        />
       );
       break;
     case "list":
@@ -209,6 +244,7 @@ const QuestionComponent = ({
             {formatTime(elapsedTime)}
           </Typography>
         </Box>
+        <Button onClick={submitAnswer}>send</Button>
       </Box>
       {questionComponent}
       {question.isTrainingQuestion && (

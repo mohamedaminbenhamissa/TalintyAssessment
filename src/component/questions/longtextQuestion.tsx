@@ -13,19 +13,25 @@ type QuestionProps = {
     description: string;
     answers: string[];
   };
-  onChange: (answer: string) => void;
+  answers?: string[];
+
+  onChange: (answer: string[]) => void;
 };
+
 const arabicCharPattern = /[\u0600-\u06FF\u0750-\u077F]/;
 
 const isArabicText = (text: string): boolean => {
   return arabicCharPattern.test(text) && text.length > 30;
 };
 
-const LongTextQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
+const LongTextQuestion: React.FC<QuestionProps> = ({
+  question,
+  answers,
+  onChange,
+}) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const { t } = useTranslation("progress");
-
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -40,6 +46,9 @@ const LongTextQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   console.log("Answer:", answer);
+  // }, [answer]);
   const handleCopy = (event: React.ClipboardEvent<HTMLInputElement>) => {
     event.preventDefault();
     setSnackbarMessage("Copying is disabled!");
@@ -52,9 +61,12 @@ const LongTextQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
     setSnackbarOpen(true);
   };
 
-  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(event.target.value);
-  };
+  // const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const newAnswer = event.target.value;
+  //   const newAnswerArray = [newAnswer];
+  //   setAnswer(newAnswerArray);
+  //   onChange(newAnswerArray);
+  // };
 
   const textAlign = isArabicText(question.description) ? "right" : "left";
   const direction = isArabicText(question.description) ? "rtl" : "ltr";
@@ -67,12 +79,22 @@ const LongTextQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
         minWidth: 320,
         boxShadow: 0,
         minHeight: 500,
-        border: "ActiveBorder",
         userSelect: "none",
       }}
     >
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ width: "100%", mt: 2 }}>
+          <Typography
+            sx={{
+              fontSize: { xs: 14, sm: 16 },
+              textAlign,
+              direction,
+              width: "100%",
+              mt: 1,
+            }}
+          >
+            {parse(question.description)}
+          </Typography>
           <Typography
             sx={{
               fontSize: { xs: 14, sm: 16 },
@@ -93,7 +115,7 @@ const LongTextQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
               mt: 1,
             }}
           >
-            {parse(question.description)}
+            {parse(question.name)}
           </Typography>
           <Typography
             sx={{
@@ -128,7 +150,8 @@ const LongTextQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
             maxRows={15}
             onCopy={handleCopy}
             onPaste={handlePaste}
-            onChange={handleTextChange}
+            onChange={(e) => onChange([e.target.value])}
+            value={answers?.[0] || ""}
             sx={{
               width: "100%",
             }}

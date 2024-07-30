@@ -64,7 +64,7 @@ const CheckboxQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
         minWidth: 320,
         boxShadow: 0,
         minHeight: 500,
-        border: "ActiveBorder",
+        border: "1px solid",
         userSelect: "none",
       }}
     >
