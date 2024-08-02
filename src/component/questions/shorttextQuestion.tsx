@@ -21,7 +21,7 @@ const isArabicText = (text: string): boolean => {
   return arabicCharPattern.test(text) && text.length > 30;
 };
 
-const chorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
+const shorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
   const [, setText] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -155,4 +155,4 @@ const chorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
   );
 };
 
-export default chorttextQuestion;
+export default shorttextQuestion;

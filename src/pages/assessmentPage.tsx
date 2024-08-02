@@ -15,6 +15,7 @@ import {
   GlobalStyles,
   Typography,
 } from "@mui/material";
+
 import axios from "axios";
 import Cover from "../assets/cover.png";
 import FEEDBACK from "../component/feedback";
@@ -31,8 +32,8 @@ import TIMEOUT from "@/component/timeout";
 import ReportPopup from "@/component/report";
 
 const API_URL =
-  "http://localhost:5002/api/v1/evaluation/evaluation/377aa0c5-46cd-4699-80e4-075ac8dc0375";
-const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/377aa0c5-46cd-4699-80e4-075ac8dc0375/lockEvaluationFromCandidate/`;
+  "http://localhost:5002/api/v1/evaluation/evaluation/031d6d67-85d8-4c93-81eb-30c754797d79";
+const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/159ec40c-17b8-4f95-87d9-c530114e1ec9/lockEvaluationFromCandidate/`;
 
 const Break = () => <div>Break</div>;
 
@@ -49,6 +50,7 @@ const StepsPage: React.FC = () => {
     currentStep: 1,
     jobName: "",
     testName: "",
+    packId: "",
     estimatedTime: 0,
     numberTotalOfQuestions: 0,
     firstName: "",
@@ -61,7 +63,9 @@ const StepsPage: React.FC = () => {
     outroVideo: "",
     testDescription: "",
     evaluationStaus: "",
+    packs:[""]
   });
+
   const [packIndex, setPackIndex] = useState(0);
 
   const fetchAssessmentData = async () => {
@@ -69,6 +73,7 @@ const StepsPage: React.FC = () => {
       const response = await axios.get(API_URL);
       const data = response.data;
       const packs = data?.finalEvaluation?.packs || [];
+
 
       // Ensure packIndex is within bounds
       const currentPack = packs[packIndex % packs.length];
@@ -78,6 +83,8 @@ const StepsPage: React.FC = () => {
       setAssessment({
         currentStep: 1,
         jobName: data?.finalEvaluation?.jobName || null,
+        packId: currentPack?.id || null,
+        packs: data?.finalEvaluation?.packs || null,
         testName: currentPack?.name || null,
         testDescription: currentPack?.description || null,
         estimatedTime: data?.finalEvaluation?.estimatedTime || null,
@@ -93,10 +100,12 @@ const StepsPage: React.FC = () => {
         enableFeedBack: data?.finalEvaluation?.enableFeedback || null,
         outroVideo: data?.finalEvaluation?.outroVideo || null,
         evaluationStaus: data?.evaluationStaus || null,
+        
       });
-
-      // Update the pack index for the next call
+     
       setPackIndex((prevIndex) => prevIndex + 1);
+     console.log("*-*",packs)
+     
     } catch (error) {
       console.error("Error fetching assessment data:", error);
     }
@@ -277,7 +286,7 @@ const StepsPage: React.FC = () => {
       case "START":
         return <START assessmentData={assessment} />;
       case "IN_PROGRESS":
-        return <IN_PROGRESS assessmentData={assessment} />;
+        return <IN_PROGRESS assessmentData={assessment}  send = {send}  />;
       case "FEEDBACK":
         return <FEEDBACK />;
       case "RESULTS":

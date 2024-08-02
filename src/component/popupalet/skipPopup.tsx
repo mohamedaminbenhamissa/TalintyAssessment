@@ -12,7 +12,7 @@ interface SkipPopupProps {
   onClose: () => void;
 }
 
-const skipPopup = ({ open, onClose }: SkipPopupProps) => {
+const SkipPopup = ({ open, onClose }: SkipPopupProps) => {
   const { t } = useTranslation("popups");
   return (
     <Dialog
@@ -70,4 +70,4 @@ const skipPopup = ({ open, onClose }: SkipPopupProps) => {
   );
 };
 
-export default skipPopup;
+export default SkipPopup;

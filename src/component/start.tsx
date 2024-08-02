@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import parse from "html-react-parser";
-interface AssessmentData {
+type  AssessmentData = {
   firstName: string;
   jobName: string;
   introVideo: string;

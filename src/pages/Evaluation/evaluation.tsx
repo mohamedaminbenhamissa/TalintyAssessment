@@ -34,7 +34,6 @@ export const Evaluation = setup({
       | { type: "BREAK" }
       | { type: "TIMEOUT" }
       | { type: "EVALEXPIRED" }
-   
       | { type: "next" }
       | { type: "privious" },
   },

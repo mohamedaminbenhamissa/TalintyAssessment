@@ -1,9 +1,10 @@
 import { assign, createMachine } from "xstate";
 
-export interface StepsContext {
+export type StepsContext = {
   currentStep: number;
   jobName: string;
   testName: string;
+  packId: string; 
   estimatedTime: number;
   numberTotalOfQuestions: number;
   firstName: string;
@@ -16,12 +17,14 @@ export interface StepsContext {
   outroVideo: string;
   testDescription: string;
   evaluationStaus: string;
-}
+  packs: any;
+};
 
 const initialContext: StepsContext = {
   currentStep: 1,
   jobName: "",
   testName: "",
+  packId: "",
   testDescription: "",
   estimatedTime: 0,
   numberTotalOfQuestions: 0,
@@ -34,6 +37,7 @@ const initialContext: StepsContext = {
   enableFeedBack: false,
   outroVideo: "",
   evaluationStaus: "",
+  packs: []
 };
 
 type StepsEvent =
@@ -41,8 +45,9 @@ type StepsEvent =
   | { type: "next" }
   | { type: "previous" }
   | { type: "evalExpired" }
-  | { type: "submitAnswer" }
-  | { type: "ActionProgress" };
+  | { type: "CallResult" }
+  | { type: "CallStart" }
+  | { type: "CallFeedback" };
 
 export const stepsMachine = createMachine<
   StepsContext,
@@ -61,13 +66,11 @@ export const stepsMachine = createMachine<
   id: "steps",
   context: initialContext,
   initial: "checkStatus",
-
   on: {
     updateContext: {
       actions: assign({
         enableExtraTime: ({ event }) => event.context.enableExtraTime,
         enableFeedBack: ({ event }) => event.context.enableFeedBack,
-
         numberOfVideoQuestions: ({ event }) =>
           event.context.numberOfVideoQuestions,
         webcamScreenshots: ({ event }) => event.context.webcamScreenshots,
@@ -80,9 +83,7 @@ export const stepsMachine = createMachine<
         },
       }),
     },
-  submitAnswer: {
-    actions: "submitAnswer",
-  },
+  
   },
   states: {
     checkStatus: {
@@ -105,7 +106,7 @@ export const stepsMachine = createMachine<
         {
           target: "LOCKED",
           guard: ({ context }: { context: StepsContext }) =>
-            context.evaluationStaus === "finished_locked",
+            context.evaluationStaus === "Finished",
         },
       ],
     },
@@ -165,36 +166,33 @@ export const stepsMachine = createMachine<
       },
     },
     IN_PROGRESS: {
+      entry: () => {
+        console.log("In progress  event handled, transitioned to ");
+      },
       on: {
-        // next: [
-        //   {
-        //     actions: "submitAnswer",
-        //     target: "FEEDBACK",
-        //     guard: ({ context }: { context: StepsContext }) =>
-        //       context.enableFeedBack,
-        //   },
-        //   { target: "RESULTS" },
-        // ],
-        next: [
-          {
-            actions: "ActionProgress",
-            target: "FEEDBACK",
-          },
-          
-        ],
-
-        previous: "START",
+        // next: "FEEDBACK",
+        CallFeedback: "FEEDBACK",
+        CallStart: "START",
+        CallResult: "RESULTS",
         evalExpired: "EVALEXPIRED",
       },
     },
-
     FEEDBACK: {
+      entry: () => {
+        console.log("CallFeedback event handled, transitioned to FEEDBACK");
+      },
       on: {
+      
         next: [
           {
             target: "LOCKED",
             guard: ({ context }: { context: StepsContext }) =>
               context.outroVideo.length > 0,
+          },
+          {
+            target: "START",
+            guard: ({ context }: { context: StepsContext }) =>
+              context.evaluationStaus === "InProgress",
           },
           { target: "RESULTS" },
         ],

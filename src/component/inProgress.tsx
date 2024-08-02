@@ -1,16 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import RadioBoxQuestion from "@/component/questions/radioboxQuestion";
 import CheckBoxQuestion from "@/component/questions/checkboxQuestion";
-import ShortTextQuestion from "@/component/questions/chorttextQuestion";
+import ShortTextQuestion from "@/component/questions/shorttextQuestion";
 import LongTextQuestion from "@/component/questions/longtextQuestion";
 import ListQuestion from "@/component/questions/listQuestion";
 import VideoQuestion from "@/component/questions/videoQuestion";
 import { Alert, Box, Button, Typography } from "@mui/material";
-import { stepsMachine } from "@/pages/Evaluation/stepsMachine";
 import TIMEOUT from "./timeout";
 import { useTranslation } from "@/hooks/useTranslation";
 import axios from "axios";
-import { useMachine } from "@xstate/react";
+import SkipPopup from "@/component/popupalet/skipPopup";
 
 type Question = {
   type: string;
@@ -22,18 +21,19 @@ type Question = {
   numberOfQuestions: number;
 };
 
-interface AssessmentData {
+type AssessmentData = {
   estimatedTime: number;
   numberTotalOfQuestions: number;
-}
-
-const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/377aa0c5-46cd-4699-80e4-075ac8dc0375/start/664471de70f98f9c8034b9b6`;
-const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/377aa0c5-46cd-4699-80e4-075ac8dc0375/answer`;
+  packId: string;
+  packs: any[];
+};
 
 const QuestionComponent = ({
   assessmentData,
+  send,
 }: {
   assessmentData: AssessmentData;
+  send: any;
 }) => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [answers, setAnswers] = useState<any>([]);
@@ -41,50 +41,66 @@ const QuestionComponent = ({
   const [backgroundColor, setBackgroundColor] = useState<string>("#F6F7F6");
   const [textColor, setTextColor] = useState<string>("#3A923E");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isPopupOpen, setPopupOpen] = useState(false);
   const { t } = useTranslation("progress");
-  const [_state, send] = useMachine(stepsMachine);
   const selectedValue = localStorage.getItem("selectedValue");
-  const fetchData = useCallback(async () => {
-    try {
-      const response = await axios.patch(API_BASE_URL, {
-        hasHandicap: selectedValue,
-      });
+  const [currentPackIndex, setCurrentPackIndex] = useState<number>(0);
 
-      const data = response.data;
-
-      setQuestion({
-        numberOfQuestions: data?.numberOfQuestions || 0,
-        currentQuestionCount: data?.currentQuestionCount || 0,
-        type: data?.nextQuestion.type || "",
-        isTrainingQuestion: data?.nextQuestion.isTrainingQuestion || false,
-        name: data?.nextQuestion.name || "",
-        description: data?.nextQuestion.description || "",
-        answers: data?.nextQuestion.answers || [],
-      });
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  }, [selectedValue]);
+  const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/031d6d67-85d8-4c93-81eb-30c754797d79/answer`;
 
   const handleAnswerChange = (answers: any) => {
-    console.log("Answers:", answers);
     setAnswers(answers);
   };
+
   useEffect(() => {
+    const fetchData = async () => {
+      if (!assessmentData || currentPackIndex >= assessmentData.packs.length) {
+        console.log("No more packs to process or assessmentData is missing");
+        return;
+      }
+      const currentPack = assessmentData.packs[currentPackIndex];
+      const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/031d6d67-85d8-4c93-81eb-30c754797d79/start/${currentPack.id}`;
+      try {
+        const response = await axios.patch(API_BASE_URL, {
+          hasHandicap: selectedValue,
+        });
+
+        const data = response.data;
+
+        setQuestion({
+          numberOfQuestions: data?.numberOfQuestions || 0,
+          currentQuestionCount: data?.currentQuestionCount || 0,
+          type: data?.nextQuestion?.type || "",
+          isTrainingQuestion: data?.nextQuestion?.isTrainingQuestion || false,
+          name: data?.nextQuestion?.name || "",
+          description: data?.nextQuestion?.description || "",
+          answers: data?.nextQuestion?.answers || [],
+        });
+        setCurrentPackIndex(currentPackIndex + 1);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    };
+
     fetchData();
-  }, []);
+  }, [currentPackIndex, assessmentData]);
 
   const submitAnswer = useCallback(async () => {
+    if (answers.length === 0) {
+      setPopupOpen(true);
+      
+    }
+
     try {
       const response = await axios.patch(POST_EVAL_URL, {
         answers: answers,
       });
+
       console.log("Answer submitted successfully:", response.data);
 
-      if ( response.data.hasNext) {
+      if (response.data.hasNext) {
         setAnswers([]);
         const deliveredData = response.data;
-        console.log("object", deliveredData);
         setQuestion({
           numberOfQuestions: deliveredData?.numberOfQuestions || 0,
           currentQuestionCount: deliveredData?.currentQuestionCount || 0,
@@ -95,34 +111,41 @@ const QuestionComponent = ({
           description: deliveredData?.nextQuestion?.description || "",
           answers: deliveredData?.nextQuestion?.answers || [],
         });
-      
-      } 
-      if (!response.data.feedback  && response.data.hasNext && !response.data.nextQuestion) {
-        console.log("Feedback component");
-        send({ type: "ActionProgress" });}
-       if (response.data.finished && !response.data.feedback && !response.data.nextQuestion) {
-        console.log("Go to RESULTS");
-       
-      } 
-      if (response.data.finished && response.data.feedback && !response.data.nextQuestion) {
-        console.log("Go to feedback");
-        send({ type: "ActionProgress" })
-      } 
-      if (!response.data.feedback  && response.data.hasNext && !response.data.nextQuestion) {
-        console.log("Feedback component");
-        send({ type: "ActionProgress" });}
+      }
+      if (
+        !response.data.finished &&
+        response.data.feedback &&
+        response.data.hasNext &&
+        !response.data.nextQuestion
+      ) {
+        send({ type: "CallFeedback" });
+      }
+      if (
+        response.data.finished &&
+        !response.data.feedback &&
+        !response.data.nextQuestion
+      ) {
+        send({ type: "CallResult" });
+      }
+      if (
+        response.data.finished &&
+        response.data.feedback &&
+        !response.data.nextQuestion
+      ) {
+        send({ type: "CallFeedback" });
+        
+      }
+      if (
+        !response.data.feedback &&
+        response.data.hasNext &&
+        !response.data.nextQuestion
+      ) {
+        send({ type: "CallStart" });
+      }
     } catch (error) {
       console.error("Error submitting answer:", error);
     }
   }, [send, answers]);
-
-  // useEffect(() => {
-  //   window.addEventListener("submitAnswer", submitAnswer);
-
-  //   return () => {
-  //     window.removeEventListener("submitAnswer", submitAnswer);
-  //   };
-  // }, [submitAnswer]);
 
   useEffect(() => {
     if (question) {
@@ -250,6 +273,7 @@ const QuestionComponent = ({
       {question.isTrainingQuestion && (
         <Alert severity="info">{t("test")}</Alert>
       )}
+      <SkipPopup open={isPopupOpen} onClose={() => setPopupOpen(false)} />
     </>
   );
 };
