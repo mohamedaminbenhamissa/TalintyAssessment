@@ -15,7 +15,9 @@ export type StepsContext = {
   jobImage: string;
   enableFeedBack: boolean;
   outroVideo: string;
+  numberOfQuestionsInCurrentPack: number;
   testDescription: string;
+  allowedTime: number;
   evaluationStaus: string;
   packs: any;
 };
@@ -26,6 +28,7 @@ const initialContext: StepsContext = {
   testName: "",
   packId: "",
   testDescription: "",
+  numberOfQuestionsInCurrentPack: 0,
   estimatedTime: 0,
   numberTotalOfQuestions: 0,
   firstName: "",
@@ -36,6 +39,7 @@ const initialContext: StepsContext = {
   introVideo: "",
   enableFeedBack: false,
   outroVideo: "",
+  allowedTime: 0,
   evaluationStaus: "",
   packs: []
 };
@@ -44,6 +48,7 @@ type StepsEvent =
   | { type: "updateContext"; context: Partial<StepsContext> }
   | { type: "next" }
   | { type: "previous" }
+  | { type: "SubmitAnswer" }
   | { type: "evalExpired" }
   | { type: "CallResult" }
   | { type: "CallStart" }
@@ -171,6 +176,7 @@ export const stepsMachine = createMachine<
       },
       on: {
         // next: "FEEDBACK",
+        SubmitAnswer:{ actions: "submitAnswer" },
         CallFeedback: "FEEDBACK",
         CallStart: "START",
         CallResult: "RESULTS",

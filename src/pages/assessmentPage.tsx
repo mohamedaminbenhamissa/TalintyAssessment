@@ -32,8 +32,8 @@ import TIMEOUT from "@/component/timeout";
 import ReportPopup from "@/component/report";
 
 const API_URL =
-  "http://localhost:5002/api/v1/evaluation/evaluation/031d6d67-85d8-4c93-81eb-30c754797d79";
-const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/159ec40c-17b8-4f95-87d9-c530114e1ec9/lockEvaluationFromCandidate/`;
+  "http://localhost:5002/api/v1/evaluation/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65";
+const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/lockEvaluationFromCandidate/`;
 
 const Break = () => <div>Break</div>;
 
@@ -45,7 +45,7 @@ const StepsPage: React.FC = () => {
   const ToCaptureRef = useRef(null);
   const [_screenshotCount, _setScreenshotCount] = useState(0);
   const [open, setOpen] = useState(false);
-
+  const [currentPackIndex, setCurrentPackIndex] = useState<number>(0);
   const [assessment, setAssessment] = useState<StepsContext>({
     currentStep: 1,
     jobName: "",
@@ -63,6 +63,8 @@ const StepsPage: React.FC = () => {
     outroVideo: "",
     testDescription: "",
     evaluationStaus: "",
+    numberOfQuestionsInCurrentPack: 0,
+    allowedTime: 0,
     packs:[""]
   });
 
@@ -73,12 +75,7 @@ const StepsPage: React.FC = () => {
       const response = await axios.get(API_URL);
       const data = response.data;
       const packs = data?.finalEvaluation?.packs || [];
-
-
-      // Ensure packIndex is within bounds
-      const currentPack = packs[packIndex % packs.length];
-
-      console.log("-+-+---+-+-+-+-+-+-+-+", data);
+      const currentPack = packs[packIndex];
 
       setAssessment({
         currentStep: 1,
@@ -86,6 +83,8 @@ const StepsPage: React.FC = () => {
         packId: currentPack?.id || null,
         packs: data?.finalEvaluation?.packs || null,
         testName: currentPack?.name || null,
+        numberOfQuestionsInCurrentPack:data?.finalEvaluation?.numberOfQuestionsInCurrentPack || null,
+        allowedTime: currentPack?.allowedTime || null,
         testDescription: currentPack?.description || null,
         estimatedTime: data?.finalEvaluation?.estimatedTime || null,
         numberTotalOfQuestions:
@@ -103,7 +102,7 @@ const StepsPage: React.FC = () => {
         
       });
      
-      setPackIndex((prevIndex) => prevIndex + 1);
+    setPackIndex(packIndex + 1);
      console.log("*-*",packs)
      
     } catch (error) {
@@ -286,9 +285,9 @@ const StepsPage: React.FC = () => {
       case "START":
         return <START assessmentData={assessment} />;
       case "IN_PROGRESS":
-        return <IN_PROGRESS assessmentData={assessment}  send = {send}  />;
+        return <IN_PROGRESS assessmentData={assessment}  send = {send} currentPackIndex={currentPackIndex} setCurrentPackIndex={setCurrentPackIndex} />;
       case "FEEDBACK":
-        return <FEEDBACK />;
+        return <FEEDBACK send={send} />;
       case "RESULTS":
         return <RESULT />;
       case "LOCKED":
@@ -323,18 +322,18 @@ const StepsPage: React.FC = () => {
               color: "#fff",
             }}
           >
-            {assessment.testName}
+            {assessment.packs[packIndex].name}
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             <Chip
               icon={<AccessAlarmOutlinedIcon />}
-              label={`${t("Duration:")} ${assessment.estimatedTime / 60} ${t(
+              label={`${t("Duration:")} ${assessment.packs[packIndex].allowedTime / 60} ${t(
                 "minutes"
               )}`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
             <Chip
-              label={`${t("nquest")} ${assessment.numberTotalOfQuestions}`}
+              label={`${t("nquest")} ${assessment.numberOfQuestionsInCurrentPack}`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
           </Box>

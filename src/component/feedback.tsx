@@ -1,16 +1,37 @@
 import React from "react";
-import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
+import axios from "axios";
+import { Box, Card, CardContent, Stack, Typography, Button } from "@mui/material";
 import Happy from "../assets/happy.png";
 import Normal from "../assets/normal.png";
 import Sad from "../assets/sad.png";
 import { useTranslation } from "@/hooks/useTranslation";
 
-export default function Feedback() {
+export default function Feedback( {send}:{send : any}) {
   const [value, setValue] = React.useState("");
   const { t } = useTranslation("feedback");
 
   const handleSelect = (newValue: string) => {
     setValue(newValue);
+  };
+
+  const sendFeedback = async () => {
+    const feedbackData = {
+      feedback: {
+        comment: "test",
+        rating: 5,
+      },
+    };
+
+    try {
+      const response = await axios.patch(
+        "http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/feedback/",
+        feedbackData
+      );
+      console.log("Feedback sent successfully:", response.data);
+    } catch (error) {
+      console.error("Error sending feedback:", error);
+    }
+    send({ type: "CallFeedback" });
   };
 
   return (
@@ -116,6 +137,16 @@ export default function Feedback() {
               </Typography>
             </Card>
           </Stack>
+        </Box>
+        
+        <Box sx={{ width: "90%", mt: 2, mx: "auto", textAlign: "center" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={sendFeedback}
+          >
+            {t("sendFeedback")}
+          </Button>
         </Box>
       </CardContent>
     </Card>

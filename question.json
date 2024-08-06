@@ -16,3 +16,65 @@
     ],
     "isTrainingQuestion": false
 }
+
+//----------------------------------
+const [loading, setLoading] = useState(false);
+const [data, setData] = useState(null);
+const fetchData = async () => {
+  const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6e127695-4c2c-47d3-a9a0-2fa8244575cb/start/${currentPack.id}`;
+  try {
+    setLoading(true);
+    const response = await axios.patch(API_BASE_URL, {
+      hasHandicap: selectedValue,
+    });
+    await setData(response.data);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+const fetchData = async () => {
+  if (!assessmentData || currentPackIndex >= assessmentData.packs.length) {
+    console.log("No more packs to process or assessmentData is missing");
+    return;
+  }
+
+  const currentPack = assessmentData.packs[currentPackIndex];
+  const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6e127695-4c2c-47d3-a9a0-2fa8244575cb/start/${currentPack.id}`;
+  try {
+    const response = await axios.patch(API_BASE_URL, {
+      hasHandicap: selectedValue,
+    });
+
+    const data = response.data;
+
+    setQuestion({
+      numberOfQuestions: data?.numberOfQuestions || 0,
+      currentQuestionCount: data?.currentQuestionCount || 0,
+      type: data?.nextQuestion?.type || "",
+      isTrainingQuestion: data?.nextQuestion?.isTrainingQuestion || false,
+      name: data?.nextQuestion?.name || "",
+      description: data?.nextQuestion?.description || "",
+      answers: data?.nextQuestion?.answers || [],
+    });
+    if (
+      !response.data.feedback &&
+      response.data.hasNext &&
+      !response.data.nextQuestion
+    ) {
+      setCurrentPackIndex((prev) => {
+        console.log("currentPackIndex:", prev + 1);
+        return prev + 1;
+      });
+    }
+  } catch (error) {
+    console.error("Error loading data:", error);
+  }
+};
+fetchData()
+},[assessmentData])
+
+//----------------------------------
