@@ -31,6 +31,16 @@ import EVALEXPIRED from "@/component/expired";
 import TIMEOUT from "@/component/timeout";
 import ReportPopup from "@/component/report";
 
+// type Question = {
+//   type: string;
+//   isTrainingQuestion: boolean;
+//   currentQuestionCount: number;
+//   name: string;
+//   description: string;
+//   answers: string[];
+//   numberOfQuestions: number;
+// };
+
 const API_URL =
   "http://localhost:5002/api/v1/evaluation/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65";
 const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/lockEvaluationFromCandidate/`;
@@ -69,7 +79,7 @@ const StepsPage: React.FC = () => {
   });
 
   const [packIndex, setPackIndex] = useState(0);
-
+  const selectedValue = localStorage.getItem("selectedValue");
   const fetchAssessmentData = async () => {
     try {
       const response = await axios.get(API_URL);
@@ -101,6 +111,7 @@ const StepsPage: React.FC = () => {
         evaluationStaus: data?.evaluationStaus || null,
         
       });
+      
      
     setPackIndex(packIndex + 1);
      console.log("*-*",packs)
@@ -117,6 +128,26 @@ const StepsPage: React.FC = () => {
   useEffect(() => {
     send({ type: "updateContext", context: assessment });
   }, [assessment, send]);
+  const sendFeedback = async () => {
+    const feedbackData = {
+      feedback: {
+        comment: "test",
+        rating: 5,
+      },
+    };
+
+    try {
+      const response = await axios.patch(
+        "http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/feedback/",
+        feedbackData
+      );
+      console.log("Feedback sent successfully:", response.data);
+    } catch (error) {
+      console.error("Error sending feedback:", error);
+    }
+
+  };
+
 
   // *-*-*-*-*-*-*-*-*-*-*-* cheaing *-*-*-*-*-*-*-*-*-*-**--*-*-*
 
@@ -190,8 +221,11 @@ const StepsPage: React.FC = () => {
   // }, [state.value, send]);
 
   const handleStartClick = () => {
-    send({ type: "next" });
+  
+      send({ type: "next" });
+    
   };
+
 
   // const captureScreenshot = () => {
   //   // Ensure ToCaptureRef.current is not null and assert its type to HTMLElement
@@ -260,6 +294,45 @@ const StepsPage: React.FC = () => {
       console.error("Error locking evaluation:", error);
     }
   };
+  //------------------ inPROGRESS ------------------
+  
+  // const fetchData =   async (currentPackIndex: number) => {
+  //   if (!assessment || currentPackIndex >= assessment.packs.length) {
+  //     console.log("No more packs to process or assessmentData is missing");
+  //     return;
+  //   }
+  //   const currentPack = assessment.packs[currentPackIndex];
+  //   console.log("current pack", currentPackIndex);
+  //   const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/start/${currentPack.id}`;
+  //   console.log("-*-*-*-*-**-*-*-* id",currentPack.id)
+  //   try {
+  //     const response = await axios.patch(API_BASE_URL, {
+  //       hasHandicap: selectedValue,
+  //     });
+
+  //     const data = response.data;
+
+  //     setQuestion({
+  //       numberOfQuestions: data?.numberOfQuestions || 0,
+  //       currentQuestionCount: data?.currentQuestionCount || 0,
+  //       type: data?.nextQuestion?.type || "",
+  //       isTrainingQuestion: data?.nextQuestion?.isTrainingQuestion || false,
+  //       name: data?.nextQuestion?.name || "",
+  //       description: data?.nextQuestion?.description || "",
+  //       answers: data?.nextQuestion?.answers || [],
+  //     });
+     
+  //   } catch (error) {
+  //     console.error("Error loading data:", error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   console.log("useeffect",currentPackIndex)
+  //   fetchData(currentPackIndex);
+  //   if(currentPackIndex === 0) {}
+  // }, [currentPackIndex]);
+
+
 
   const renderStep = () => {
     switch (state.value) {
@@ -282,12 +355,13 @@ const StepsPage: React.FC = () => {
           />
         );
 
+
       case "START":
         return <START assessmentData={assessment} />;
       case "IN_PROGRESS":
-        return <IN_PROGRESS assessmentData={assessment}  send = {send} currentPackIndex={currentPackIndex} setCurrentPackIndex={setCurrentPackIndex} />;
+        return <IN_PROGRESS assessmentData={assessment}   send = {send} currentPackIndex={currentPackIndex} setCurrentPackIndex={setCurrentPackIndex}   />;
       case "FEEDBACK":
-        return <FEEDBACK send={send} />;
+        return <FEEDBACK send={send} sendFeedback={sendFeedback} />;
       case "RESULTS":
         return <RESULT />;
       case "LOCKED":
@@ -302,6 +376,7 @@ const StepsPage: React.FC = () => {
         return null;
     }
   };
+
 
   const renderHeaderContent = () => {
     if (state.value === "START") {
@@ -570,10 +645,14 @@ const StepsPage: React.FC = () => {
               disabled={
                 state.value === "CONSENT" && assessment.firstName === ""
               }
+              
               onClick={
-                state.value === "START"
-                  ? handleStartClick
-                  : () => send({ type: "next" })
+                state.value === "FEEDBACK"
+                  ? () => {sendFeedback() 
+                   send({ type: "next" })}
+                  : state.value === "START"
+                    ? handleStartClick
+                    : () => send({ type: "next" })
               }
             >
               {state.value === "START" ? t("btnstart") : t("btnNext")}

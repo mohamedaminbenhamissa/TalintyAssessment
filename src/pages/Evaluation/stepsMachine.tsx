@@ -48,11 +48,12 @@ type StepsEvent =
   | { type: "updateContext"; context: Partial<StepsContext> }
   | { type: "next" }
   | { type: "previous" }
-  | { type: "SubmitAnswer" }
+  | { type: "OnSubmit" }
   | { type: "evalExpired" }
   | { type: "CallResult" }
   | { type: "CallStart" }
-  | { type: "CallFeedback" };
+  | { type: "CallFeedback" }
+  | { type: "SubmitFeedback" };
 
 export const stepsMachine = createMachine<
   StepsContext,
@@ -175,8 +176,17 @@ export const stepsMachine = createMachine<
         console.log("In progress  event handled, transitioned to ");
       },
       on: {
+
         // next: "FEEDBACK",
-        SubmitAnswer:{ actions: "submitAnswer" },
+        // SubmitAnswer: {
+        //   actions: (context: StepsContext, event) => {
+        //     event.onSubmit();
+        //   }
+        // },
+
+        next: {
+          actions: 'submitAnswer'
+        },
         CallFeedback: "FEEDBACK",
         CallStart: "START",
         CallResult: "RESULTS",
@@ -201,6 +211,9 @@ export const stepsMachine = createMachine<
               context.evaluationStaus === "InProgress",
           },
           { target: "RESULTS" },
+          {
+            actions: 'SubmitFeedback'
+          }
         ],
       },
     },
@@ -220,4 +233,5 @@ export const stepsMachine = createMachine<
       type: "final",
     },
   },
+  
 });

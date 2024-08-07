@@ -24,7 +24,7 @@ type Question = {
 type AssessmentData = {
   estimatedTime: number;
   numberTotalOfQuestions: number;
-  numberOfQuestionsInCurrentPack:number;
+  numberOfQuestionsInCurrentPack: number;
   allowedTime: number;
   packId: string;
   packs: any[];
@@ -33,13 +33,17 @@ type AssessmentData = {
 const QuestionComponent = ({
   assessmentData,
   send,
-  currentPackIndex,setCurrentPackIndex
-}: {
+  currentPackIndex,
+  setCurrentPackIndex,
+  // fetchData,
+}: // OnSubmit
+{
   assessmentData: AssessmentData;
   send: any;
-  currentPackIndex:number,
-  setCurrentPackIndex:any
-  // submitAnswer: () => void;
+  currentPackIndex: number;
+  setCurrentPackIndex: any;
+  // fetchData: (currentPackIndex: number) => void;
+  // OnSubmit:()=>void;
 }) => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [answers, setAnswers] = useState<any>([]);
@@ -50,13 +54,13 @@ const QuestionComponent = ({
   const [isPopupOpen, setPopupOpen] = useState(false);
   const { t } = useTranslation("progress");
   const selectedValue = localStorage.getItem("selectedValue");
- 
 
   const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/answer`;
 
   const handleAnswerChange = (answers: any) => {
     setAnswers(answers);
   };
+
   const fetchData =   async (currentPackIndex: number) => {
     if (!assessmentData || currentPackIndex >= assessmentData.packs.length) {
       console.log("No more packs to process or assessmentData is missing");
@@ -81,7 +85,7 @@ const QuestionComponent = ({
         description: data?.nextQuestion?.description || "",
         answers: data?.nextQuestion?.answers || [],
       });
-     
+
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -92,19 +96,19 @@ const QuestionComponent = ({
     if(currentPackIndex === 0) {}
   }, [currentPackIndex]);
 
+
   const submitAnswer = async () => {
     if (answers.length === 0) {
       setPopupOpen(true);
- 
     }
-  
+
     try {
       const response = await axios.patch(POST_EVAL_URL, {
         answers: answers,
       });
-  
+
       console.log("Answer submitted successfully:", response.data);
-  
+
       if (response.data.hasNext) {
         setAnswers([]);
         const deliveredData = response.data;
@@ -113,35 +117,59 @@ const QuestionComponent = ({
 
           currentQuestionCount: deliveredData?.currentQuestionCount || 0,
           type: deliveredData?.nextQuestion?.type || "",
-          isTrainingQuestion: deliveredData?.nextQuestion?.isTrainingQuestion || false,
+          isTrainingQuestion:
+            deliveredData?.nextQuestion?.isTrainingQuestion || false,
           name: deliveredData?.nextQuestion?.name || "",
           description: deliveredData?.nextQuestion?.description || "",
           answers: deliveredData?.nextQuestion?.answers || [],
         });
       }
-      if (!response.data.finished && response.data.feedback && response.data.hasNext && !response.data.nextQuestion) {
+      if (
+        !response.data.finished &&
+        response.data.feedback &&
+        response.data.hasNext &&
+        !response.data.nextQuestion
+      ) {
         send({ type: "CallFeedback" });
       }
-      if (response.data.finished && !response.data.feedback && !response.data.nextQuestion) {
+      if (
+        response.data.finished &&
+        !response.data.feedback &&
+        !response.data.nextQuestion
+      ) {
         send({ type: "CallResult" });
       }
-      if (response.data.finished && response.data.feedback && !response.data.nextQuestion) {
+      if (
+        response.data.finished &&
+        response.data.feedback &&
+        !response.data.nextQuestion
+      ) {
         send({ type: "CallFeedback" });
       }
-      if (!response.data.feedback && response.data.hasNext && !response.data.nextQuestion) {
+      if (
+        !response.data.feedback &&
+        response.data.hasNext &&
+        !response.data.nextQuestion
+      ) {
         send({ type: "CallStart" });
       }
       if (!response.data.nextQuestion) {
-        console.log("No next question. Pack index incremented:", currentPackIndex + 1);
-        setCurrentPackIndex( currentPackIndex + 1);
-        fetchData(currentPackIndex + 1)
+        console.log(
+          "No next question. Pack index incremented:",
+          currentPackIndex + 1
+        );
+        setCurrentPackIndex(currentPackIndex + 1);
+        fetchData(currentPackIndex + 1);
       }
     } catch (error) {
       console.error("Error submitting answer:", error);
     }
   };
-  
-  console.log("allowed time ----------------",assessmentData.packs[currentPackIndex].allowedTime)
+
+  console.log(
+    "allowed time ----------------",
+    assessmentData.packs[currentPackIndex].allowedTime
+  );
 
   useEffect(() => {
     if (question) {
@@ -155,12 +183,14 @@ const QuestionComponent = ({
       }
     };
   }, [question]);
-  console.log("object")
+  console.log("object");
 
   useEffect(() => {
     if (question) {
-      const oneThirdTime = assessmentData.packs[currentPackIndex].allowedTime / 3;
-      const twoThirdsTime = (assessmentData.packs[currentPackIndex].allowedTime / 3) * 2;
+      const oneThirdTime =
+        assessmentData.packs[currentPackIndex].allowedTime / 3;
+      const twoThirdsTime =
+        (assessmentData.packs[currentPackIndex].allowedTime / 3) * 2;
 
       if (elapsedTime < oneThirdTime) {
         setBackgroundColor("#F6F7F6");
@@ -173,7 +203,11 @@ const QuestionComponent = ({
         setTextColor("#D15050");
       }
     }
-  }, [elapsedTime, question, assessmentData.packs[currentPackIndex].allowedTime]);
+  }, [
+    elapsedTime,
+    question,
+    assessmentData.packs[currentPackIndex].allowedTime,
+  ]);
 
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
