@@ -6,17 +6,18 @@ import CONFIG_WEBCAM from "../component/configuration";
 import EXTRA_TIME from "../component/extraTime";
 import CONSENT from "../component/consent";
 import AccessAlarmOutlinedIcon from "@mui/icons-material/AccessAlarmOutlined";
+
 import {
   Box,
   Button,
   Card,
-  CardContent,
+  CardContent, 
   Chip,
-  GlobalStyles,
+  GlobalStyles, 
   Typography,
 } from "@mui/material";
 
-import axios from "axios";
+import axios from "axios"; 
 import Cover from "../assets/cover.png";
 import FEEDBACK from "../component/feedback";
 import CONGRATS from "../component/congratulations";
@@ -25,21 +26,20 @@ import RESULT from "../component/result";
 import { LangSelect } from "../component/languageSwitcher";
 import { useTranslation } from "../hooks/useTranslation";
 import IN_PROGRESS from "@/component/inProgress";
-
 import CheatingPopup from "@/component/popupalet/cheatingPopup";
 import EVALEXPIRED from "@/component/expired";
 import TIMEOUT from "@/component/timeout";
 import ReportPopup from "@/component/report";
 
-// type Question = {
-//   type: string;
-//   isTrainingQuestion: boolean;
-//   currentQuestionCount: number;
-//   name: string;
-//   description: string;
-//   answers: string[];
-//   numberOfQuestions: number;
-// };
+type Question = {
+  type: string;
+  isTrainingQuestion: boolean;
+  currentQuestionCount: number;
+  name: string;
+  description: string;
+  answers: string[];
+  numberOfQuestions: number;
+};
 
 const API_URL =
   "http://localhost:5002/api/v1/evaluation/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65";
@@ -56,6 +56,8 @@ const StepsPage: React.FC = () => {
   const [_screenshotCount, _setScreenshotCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [currentPackIndex, setCurrentPackIndex] = useState<number>(0);
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [answers, setAnswers] = useState<any>([]);
   const [assessment, setAssessment] = useState<StepsContext>({
     currentStep: 1,
     jobName: "",
@@ -78,15 +80,16 @@ const StepsPage: React.FC = () => {
     packs:[""]
   });
 
-  const [packIndex, setPackIndex] = useState(0);
   const selectedValue = localStorage.getItem("selectedValue");
+  const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/answer`;
+
   const fetchAssessmentData = async () => {
     try {
       const response = await axios.get(API_URL);
       const data = response.data;
       const packs = data?.finalEvaluation?.packs || [];
-      const currentPack = packs[packIndex];
-
+      const currentPack = packs[currentPackIndex];
+console.log("current packindex in first class " ,currentPackIndex)
       setAssessment({
         currentStep: 1,
         jobName: data?.finalEvaluation?.jobName || null,
@@ -113,8 +116,8 @@ const StepsPage: React.FC = () => {
       });
       
      
-    setPackIndex(packIndex + 1);
-     console.log("*-*",packs)
+      // setCurrentPackIndex(currentPackIndex + 1);
+     console.log("All packs",packs)
      
     } catch (error) {
       console.error("Error fetching assessment data:", error);
@@ -148,8 +151,122 @@ const StepsPage: React.FC = () => {
 
   };
 
+// ------------------- INPROGRESS -------------------
+
+const fetchData =   async (currentPackIndex: number) => {
+  if (!assessment || currentPackIndex >= assessment.packs.length) {
+    console.log("No more packs to process or assessmentData is missing");
+    return;
+  }
+  const currentPack = assessment.packs[currentPackIndex];
+  console.log("current pack", currentPack);
+  console.log("Current Pack ID is :",currentPack.id)
+  
+ 
+  const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/start/${currentPack.id}`;
+  
+  try {
+    const response = await axios.patch(API_BASE_URL, {
+      hasHandicap: selectedValue, 
+    });
+ 
+    const data = response.data;
+
+    setQuestion({
+      numberOfQuestions: data?.numberOfQuestions || 0,
+      currentQuestionCount: data?.currentQuestionCount || 0,
+      type: data?.nextQuestion?.type || "",
+      isTrainingQuestion: data?.nextQuestion?.isTrainingQuestion || false,
+      name: data?.nextQuestion?.name || "",
+      description: data?.nextQuestion?.description || "",
+      answers: data?.nextQuestion?.answers || [],
+    });
+
+  } catch (error) {
+    console.error("Error loading data:", error);
+  }
+};
+
+useEffect(() => {
+  console.log("Current pack index is :",currentPackIndex)
+  fetchData(currentPackIndex);
+  // if(currentPackIndex === 0) {}
+}, [currentPackIndex]);
+
+const submitAnswer = async () => {
+  if (answers.length === 0) {
+    setPopupOpen(true);
+  }
+
+  try {
+    const response = await axios.patch(POST_EVAL_URL, {
+      answers: answers,
+    });
+
+    console.log("Answer submitted successfully:", response.data);
+
+    if (response.data.hasNext) {
+      setAnswers([]);
+      const deliveredData = response.data;
+      setQuestion({
+        numberOfQuestions: deliveredData?.numberOfQuestions || 0,
+
+        currentQuestionCount: deliveredData?.currentQuestionCount || 0,
+        type: deliveredData?.nextQuestion?.type || "",
+        isTrainingQuestion:
+          deliveredData?.nextQuestion?.isTrainingQuestion || false,
+        name: deliveredData?.nextQuestion?.name || "",
+        description: deliveredData?.nextQuestion?.description || "",
+        answers: deliveredData?.nextQuestion?.answers || [],
+      });
+    }
+    if (
+      !response.data.finished &&
+      response.data.feedback &&
+      response.data.hasNext &&
+      !response.data.nextQuestion
+    ) {
+      send({ type: "CallFeedback" });
+    }
+    if (
+      response.data.finished &&
+      !response.data.feedback &&
+      !response.data.nextQuestion
+    ) {
+      send({ type: "CallResult" });
+    }
+    if (
+      response.data.finished &&
+      response.data.feedback &&
+      !response.data.nextQuestion
+    ) {
+      send({ type: "CallFeedback" });
+    }
+    if (
+      !response.data.feedback &&
+      response.data.hasNext &&
+      !response.data.nextQuestion
+    ) {
+      send({ type: "CallStart" });
+    }
+    if (!response.data.nextQuestion) {
+      console.log(
+        "No next question. Pack index incremented:",
+        currentPackIndex + 1
+      );
+      setCurrentPackIndex(currentPackIndex + 1);
+      fetchData(currentPackIndex + 1);
+    }
+  } catch (error) {
+    console.error("Error submitting answer:", error);
+  }
+};
+
+
+ 
 
   // *-*-*-*-*-*-*-*-*-*-*-* cheaing *-*-*-*-*-*-*-*-*-*-**--*-*-*
+
 
   // useEffect(() => {
   //   const handleFullScreen = () => {
@@ -294,43 +411,7 @@ const StepsPage: React.FC = () => {
       console.error("Error locking evaluation:", error);
     }
   };
-  //------------------ inPROGRESS ------------------
-  
-  // const fetchData =   async (currentPackIndex: number) => {
-  //   if (!assessment || currentPackIndex >= assessment.packs.length) {
-  //     console.log("No more packs to process or assessmentData is missing");
-  //     return;
-  //   }
-  //   const currentPack = assessment.packs[currentPackIndex];
-  //   console.log("current pack", currentPackIndex);
-  //   const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/start/${currentPack.id}`;
-  //   console.log("-*-*-*-*-**-*-*-* id",currentPack.id)
-  //   try {
-  //     const response = await axios.patch(API_BASE_URL, {
-  //       hasHandicap: selectedValue,
-  //     });
 
-  //     const data = response.data;
-
-  //     setQuestion({
-  //       numberOfQuestions: data?.numberOfQuestions || 0,
-  //       currentQuestionCount: data?.currentQuestionCount || 0,
-  //       type: data?.nextQuestion?.type || "",
-  //       isTrainingQuestion: data?.nextQuestion?.isTrainingQuestion || false,
-  //       name: data?.nextQuestion?.name || "",
-  //       description: data?.nextQuestion?.description || "",
-  //       answers: data?.nextQuestion?.answers || [],
-  //     });
-     
-  //   } catch (error) {
-  //     console.error("Error loading data:", error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   console.log("useeffect",currentPackIndex)
-  //   fetchData(currentPackIndex);
-  //   if(currentPackIndex === 0) {}
-  // }, [currentPackIndex]);
 
 
 
@@ -353,13 +434,17 @@ const StepsPage: React.FC = () => {
               }))
             }
           />
-        );
-
+        ); 
+  
 
       case "START":
-        return <START assessmentData={assessment} />;
+        return <START assessmentData={assessment} currentPackIndex={currentPackIndex} />;
       case "IN_PROGRESS":
-        return <IN_PROGRESS assessmentData={assessment}   send = {send} currentPackIndex={currentPackIndex} setCurrentPackIndex={setCurrentPackIndex}   />;
+        return <IN_PROGRESS assessmentData={assessment}   send = {send} currentPackIndex={currentPackIndex} setCurrentPackIndex={setCurrentPackIndex}   fetchData={fetchData} // pass fetchData as prop
+        submitAnswer={submitAnswer} 
+        question={question} 
+        setAnswers={setAnswers} 
+        answers={answers} />;
       case "FEEDBACK":
         return <FEEDBACK send={send} sendFeedback={sendFeedback} />;
       case "RESULTS":
@@ -397,12 +482,12 @@ const StepsPage: React.FC = () => {
               color: "#fff",
             }}
           >
-            {assessment.packs[packIndex].name}
+            {assessment.packs[currentPackIndex].name} 
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             <Chip
               icon={<AccessAlarmOutlinedIcon />}
-              label={`${t("Duration:")} ${assessment.packs[packIndex].allowedTime / 60} ${t(
+              label={`${t("Duration:")} ${assessment.packs[currentPackIndex].allowedTime/ 60} ${t(
                 "minutes"
               )}`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
@@ -415,7 +500,7 @@ const StepsPage: React.FC = () => {
         </Box>
       );
     }
-
+ 
     let title;
     switch (state.value) {
       case "CONFIG_WEBCAM":
@@ -650,9 +735,12 @@ const StepsPage: React.FC = () => {
                 state.value === "FEEDBACK"
                   ? () => {sendFeedback() 
                    send({ type: "next" })}
+                  : state.value === "IN_PROGRESS"
+                  ?() => submitAnswer()
                   : state.value === "START"
                     ? handleStartClick
                     : () => send({ type: "next" })
+                  
               }
             >
               {state.value === "START" ? t("btnstart") : t("btnNext")}

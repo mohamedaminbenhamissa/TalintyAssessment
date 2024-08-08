@@ -4,7 +4,7 @@ export type StepsContext = {
   currentStep: number;
   jobName: string;
   testName: string;
-  packId: string; 
+  packId: string;
   estimatedTime: number;
   numberTotalOfQuestions: number;
   firstName: string;
@@ -41,7 +41,7 @@ const initialContext: StepsContext = {
   outroVideo: "",
   allowedTime: 0,
   evaluationStaus: "",
-  packs: []
+  packs: [],
 };
 
 type StepsEvent =
@@ -89,7 +89,6 @@ export const stepsMachine = createMachine<
         },
       }),
     },
-  
   },
   states: {
     checkStatus: {
@@ -176,17 +175,6 @@ export const stepsMachine = createMachine<
         console.log("In progress  event handled, transitioned to ");
       },
       on: {
-
-        // next: "FEEDBACK",
-        // SubmitAnswer: {
-        //   actions: (context: StepsContext, event) => {
-        //     event.onSubmit();
-        //   }
-        // },
-
-        next: {
-          actions: 'submitAnswer'
-        },
         CallFeedback: "FEEDBACK",
         CallStart: "START",
         CallResult: "RESULTS",
@@ -198,7 +186,6 @@ export const stepsMachine = createMachine<
         console.log("CallFeedback event handled, transitioned to FEEDBACK");
       },
       on: {
-      
         next: [
           {
             target: "LOCKED",
@@ -212,8 +199,8 @@ export const stepsMachine = createMachine<
           },
           { target: "RESULTS" },
           {
-            actions: 'SubmitFeedback'
-          }
+            actions: "SubmitFeedback",
+          },
         ],
       },
     },
@@ -233,5 +220,5 @@ export const stepsMachine = createMachine<
       type: "final",
     },
   },
-  
 });
+ 

@@ -3,20 +3,27 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import parse from "html-react-parser";
-type  AssessmentData = {
+type AssessmentData = {
   firstName: string;
   jobName: string;
   introVideo: string;
+  packs: Pack[];
   estimatedTime: number;
   webcamScreenshots: boolean;
   numberOfVideoQuestions: number;
   enableExtraTime: boolean;
   testDescription: string;
-}
+};
+type Pack = {
+  description: string;
+  // Add other properties as needed
+};
 export default function START({
   assessmentData,
+  currentPackIndex,
 }: {
   assessmentData: AssessmentData;
+  currentPackIndex: number;
 }) {
   return (
     <Card
@@ -37,7 +44,10 @@ export default function START({
               width: "100%",
             }}
           >
-            {parse(assessmentData.testDescription)}
+            {typeof assessmentData.packs[currentPackIndex].description ===
+            "string"
+              ? parse(assessmentData.packs[currentPackIndex].description)
+              : "Invalid data"}
           </Typography>
         </Box>
       </CardContent>

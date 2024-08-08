@@ -32,21 +32,27 @@ type AssessmentData = {
 
 const QuestionComponent = ({
   assessmentData,
-  send,
   currentPackIndex,
-  setCurrentPackIndex,
-  // fetchData,
-}: // OnSubmit
+  question,
+  setAnswers,
+  answers
+  
+  
+}: 
 {
   assessmentData: AssessmentData;
   send: any;
   currentPackIndex: number;
   setCurrentPackIndex: any;
+  answers: any;
+  fetchData: (currentPackIndex: number) => void;
+  submitAnswer: () => void;
+  question: Question | null;
+  setAnswers: React.Dispatch<React.SetStateAction<any>>;
   // fetchData: (currentPackIndex: number) => void;
   // OnSubmit:()=>void;
 }) => {
-  const [question, setQuestion] = useState<Question | null>(null);
-  const [answers, setAnswers] = useState<any>([]);
+ 
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [backgroundColor, setBackgroundColor] = useState<string>("#F6F7F6");
   const [textColor, setTextColor] = useState<string>("#3A923E");
@@ -55,119 +61,119 @@ const QuestionComponent = ({
   const { t } = useTranslation("progress");
   const selectedValue = localStorage.getItem("selectedValue");
 
-  const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/answer`;
+  // const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/answer`;
 
   const handleAnswerChange = (answers: any) => {
     setAnswers(answers);
   };
 
-  const fetchData =   async (currentPackIndex: number) => {
-    if (!assessmentData || currentPackIndex >= assessmentData.packs.length) {
-      console.log("No more packs to process or assessmentData is missing");
-      return;
-    }
-    const currentPack = assessmentData.packs[currentPackIndex];
-    console.log("current pack", currentPackIndex);
-    const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/start/${currentPack.id}`;
-    try {
-      const response = await axios.patch(API_BASE_URL, {
-        hasHandicap: selectedValue,
-      });
+  // const fetchData =   async (currentPackIndex: number) => {
+  //   if (!assessmentData || currentPackIndex >= assessmentData.packs.length) {
+  //     console.log("No more packs to process or assessmentData is missing");
+  //     return;
+  //   }
+  //   const currentPack = assessmentData.packs[currentPackIndex];
+  //   console.log("current pack", currentPackIndex);
+  //   const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/start/${currentPack.id}`;
+  //   try {
+  //     const response = await axios.patch(API_BASE_URL, {
+  //       hasHandicap: selectedValue,
+  //     });
 
-      const data = response.data;
+  //     const data = response.data;
 
-      setQuestion({
-        numberOfQuestions: data?.numberOfQuestions || 0,
-        currentQuestionCount: data?.currentQuestionCount || 0,
-        type: data?.nextQuestion?.type || "",
-        isTrainingQuestion: data?.nextQuestion?.isTrainingQuestion || false,
-        name: data?.nextQuestion?.name || "",
-        description: data?.nextQuestion?.description || "",
-        answers: data?.nextQuestion?.answers || [],
-      });
+  //     setQuestion({
+  //       numberOfQuestions: data?.numberOfQuestions || 0,
+  //       currentQuestionCount: data?.currentQuestionCount || 0,
+  //       type: data?.nextQuestion?.type || "",
+  //       isTrainingQuestion: data?.nextQuestion?.isTrainingQuestion || false,
+  //       name: data?.nextQuestion?.name || "",
+  //       description: data?.nextQuestion?.description || "",
+  //       answers: data?.nextQuestion?.answers || [],
+  //     });
 
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-  };
-  useEffect(() => {
-    console.log("useeffect",currentPackIndex)
-    fetchData(currentPackIndex);
-    if(currentPackIndex === 0) {}
-  }, [currentPackIndex]);
+  //   } catch (error) {
+  //     console.error("Error loading data:", error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   console.log("useeffect",currentPackIndex)
+  //   fetchData(currentPackIndex);
+  //   if(currentPackIndex === 0) {}
+  // }, [currentPackIndex]);
 
 
-  const submitAnswer = async () => {
-    if (answers.length === 0) {
-      setPopupOpen(true);
-    }
+  // const submitAnswer = async () => {
+  //   if (answers.length === 0) {
+  //     setPopupOpen(true);
+  //   }
 
-    try {
-      const response = await axios.patch(POST_EVAL_URL, {
-        answers: answers,
-      });
+  //   try {
+  //     const response = await axios.patch(POST_EVAL_URL, {
+  //       answers: answers,
+  //     });
 
-      console.log("Answer submitted successfully:", response.data);
+  //     console.log("Answer submitted successfully:", response.data);
 
-      if (response.data.hasNext) {
-        setAnswers([]);
-        const deliveredData = response.data;
-        setQuestion({
-          numberOfQuestions: deliveredData?.numberOfQuestions || 0,
+  //     if (response.data.hasNext) {
+  //       setAnswers([]);
+  //       const deliveredData = response.data;
+  //       setQuestion({
+  //         numberOfQuestions: deliveredData?.numberOfQuestions || 0,
 
-          currentQuestionCount: deliveredData?.currentQuestionCount || 0,
-          type: deliveredData?.nextQuestion?.type || "",
-          isTrainingQuestion:
-            deliveredData?.nextQuestion?.isTrainingQuestion || false,
-          name: deliveredData?.nextQuestion?.name || "",
-          description: deliveredData?.nextQuestion?.description || "",
-          answers: deliveredData?.nextQuestion?.answers || [],
-        });
-      }
-      if (
-        !response.data.finished &&
-        response.data.feedback &&
-        response.data.hasNext &&
-        !response.data.nextQuestion
-      ) {
-        send({ type: "CallFeedback" });
-      }
-      if (
-        response.data.finished &&
-        !response.data.feedback &&
-        !response.data.nextQuestion
-      ) {
-        send({ type: "CallResult" });
-      }
-      if (
-        response.data.finished &&
-        response.data.feedback &&
-        !response.data.nextQuestion
-      ) {
-        send({ type: "CallFeedback" });
-      }
-      if (
-        !response.data.feedback &&
-        response.data.hasNext &&
-        !response.data.nextQuestion
-      ) {
-        send({ type: "CallStart" });
-      }
-      if (!response.data.nextQuestion) {
-        console.log(
-          "No next question. Pack index incremented:",
-          currentPackIndex + 1
-        );
-        setCurrentPackIndex(currentPackIndex + 1);
-        fetchData(currentPackIndex + 1);
-      }
-    } catch (error) {
-      console.error("Error submitting answer:", error);
-    }
-  };
+  //         currentQuestionCount: deliveredData?.currentQuestionCount || 0,
+  //         type: deliveredData?.nextQuestion?.type || "",
+  //         isTrainingQuestion:
+  //           deliveredData?.nextQuestion?.isTrainingQuestion || false,
+  //         name: deliveredData?.nextQuestion?.name || "",
+  //         description: deliveredData?.nextQuestion?.description || "",
+  //         answers: deliveredData?.nextQuestion?.answers || [],
+  //       });
+  //     }
+  //     if (
+  //       !response.data.finished &&
+  //       response.data.feedback &&
+  //       response.data.hasNext &&
+  //       !response.data.nextQuestion
+  //     ) {
+  //       send({ type: "CallFeedback" });
+  //     }
+  //     if (
+  //       response.data.finished &&
+  //       !response.data.feedback &&
+  //       !response.data.nextQuestion
+  //     ) {
+  //       send({ type: "CallResult" });
+  //     }
+  //     if (
+  //       response.data.finished &&
+  //       response.data.feedback &&
+  //       !response.data.nextQuestion
+  //     ) {
+  //       send({ type: "CallFeedback" });
+  //     }
+  //     if (
+  //       !response.data.feedback &&
+  //       response.data.hasNext &&
+  //       !response.data.nextQuestion
+  //     ) {
+  //       send({ type: "CallStart" });
+  //     }
+  //     if (!response.data.nextQuestion) {
+  //       console.log(
+  //         "No next question. Pack index incremented:",
+  //         currentPackIndex + 1
+  //       );
+  //       setCurrentPackIndex(currentPackIndex + 1);
+  //       fetchData(currentPackIndex + 1);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error submitting answer:", error);
+  //   }
+  // };
 
   console.log(
-    "allowed time ----------------",
+    "allowed time ----------------", 
     assessmentData.packs[currentPackIndex].allowedTime
   );
 
@@ -298,7 +304,7 @@ const QuestionComponent = ({
             {formatTime(elapsedTime)}
           </Typography>
         </Box>
-        <Button onClick={submitAnswer}>send</Button>
+      {/* <Button onClick={submitAnswer}>send</Button> */}
       </Box>
       {questionComponent}
       {question.isTrainingQuestion && (
