@@ -15,8 +15,8 @@ import {
   Chip,
   GlobalStyles, 
   Typography,
-} from "@mui/material";
-
+} from "@mui/material"; 
+ 
 import axios from "axios"; 
 import Cover from "../assets/cover.png";
 import FEEDBACK from "../component/feedback";
@@ -29,7 +29,7 @@ import IN_PROGRESS from "@/component/inProgress";
 import CheatingPopup from "@/component/popupalet/cheatingPopup";
 import EVALEXPIRED from "@/component/expired";
 import TIMEOUT from "@/component/timeout";
-import ReportPopup from "@/component/report";
+import ReportPopup from "@/component/report"; 
 
 type Question = {
   type: string;
@@ -123,6 +123,7 @@ console.log("current packindex in first class " ,currentPackIndex)
       console.error("Error fetching assessment data:", error);
     }
   };
+  const currentPack = assessment.packs[currentPackIndex];
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
     fetchAssessmentData();
@@ -138,7 +139,7 @@ console.log("current packindex in first class " ,currentPackIndex)
         rating: 5,
       },
     };
-
+ 
     try {
       const response = await axios.patch(
         "http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/feedback/",
@@ -189,9 +190,9 @@ const fetchData =   async (currentPackIndex: number) => {
 
 useEffect(() => {
   console.log("Current pack index is :",currentPackIndex)
-  fetchData(currentPackIndex);
+  currentPack && fetchData(currentPackIndex);
   // if(currentPackIndex === 0) {}
-}, [currentPackIndex]);
+},  [assessment.packs, currentPackIndex]);
 
 const submitAnswer = async () => {
   if (answers.length === 0) {
@@ -435,7 +436,7 @@ const submitAnswer = async () => {
             }
           />
         ); 
-  
+   
 
       case "START":
         return <START assessmentData={assessment} currentPackIndex={currentPackIndex} />;
