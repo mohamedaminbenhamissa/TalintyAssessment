@@ -177,7 +177,7 @@ export const stepsMachine = createMachine<
       on: {
         CallFeedback: "FEEDBACK",
         CallStart: "START",
-        CallResult: "RESULTS",
+        CallResult: "LOCKED",
         evalExpired: "EVALEXPIRED",
       },
     },

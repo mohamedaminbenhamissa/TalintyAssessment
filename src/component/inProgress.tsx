@@ -172,10 +172,7 @@ const QuestionComponent = ({
   //   }
   // };
 
-  console.log(
-    "allowed time ----------------", 
-    assessmentData.packs[currentPackIndex].allowedTime
-  );
+
 
   useEffect(() => {
     if (question) {
@@ -189,7 +186,7 @@ const QuestionComponent = ({
       }
     };
   }, [question]);
-  console.log("object");
+
 
   useEffect(() => {
     if (question) {

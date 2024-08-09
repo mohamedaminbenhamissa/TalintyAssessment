@@ -116,7 +116,7 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
       <CardContent sx={{ flex: 1 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" sx={{ mt: 2 }} gutterBottom>
+            <Typography component="div" variant="body2" sx={{ mt: 2 }} gutterBottom>
               {parse(question.description)}
             </Typography>
           </Grid>

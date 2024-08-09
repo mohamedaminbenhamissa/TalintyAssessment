@@ -11,13 +11,13 @@ import {
   Box,
   Button,
   Card,
-  CardContent, 
+  CardContent,
   Chip,
-  GlobalStyles, 
+  GlobalStyles,
   Typography,
-} from "@mui/material"; 
- 
-import axios from "axios"; 
+} from "@mui/material";
+
+import axios from "axios";
 import Cover from "../assets/cover.png";
 import FEEDBACK from "../component/feedback";
 import CONGRATS from "../component/congratulations";
@@ -29,7 +29,8 @@ import IN_PROGRESS from "@/component/inProgress";
 import CheatingPopup from "@/component/popupalet/cheatingPopup";
 import EVALEXPIRED from "@/component/expired";
 import TIMEOUT from "@/component/timeout";
-import ReportPopup from "@/component/report"; 
+import ReportPopup from "@/component/report";
+import SkipPopup from "@/component/popupalet/skipPopup";
 
 type Question = {
   type: string;
@@ -50,7 +51,8 @@ const Break = () => <div>Break</div>;
 const StepsPage: React.FC = () => {
   const { t, i18n } = useTranslation("button");
   const [state, send] = useMachine(stepsMachine);
-  const [isPopupOpen, setPopupOpen] = useState(false);
+  const [isCheatingPopupOpen, setCheatingPopupOpen] = useState(false);
+  const [isSkipPopupOpen, setSkipPopupOpen] = useState(false);
   const [_cheatingPopupCount, setCheatingPopupCount] = useState(0);
   const ToCaptureRef = useRef(null);
   const [_screenshotCount, _setScreenshotCount] = useState(0);
@@ -77,7 +79,7 @@ const StepsPage: React.FC = () => {
     evaluationStaus: "",
     numberOfQuestionsInCurrentPack: 0,
     allowedTime: 0,
-    packs:[""]
+    packs: [""],
   });
 
   const selectedValue = localStorage.getItem("selectedValue");
@@ -89,14 +91,15 @@ const StepsPage: React.FC = () => {
       const data = response.data;
       const packs = data?.finalEvaluation?.packs || [];
       const currentPack = packs[currentPackIndex];
-console.log("current packindex in first class " ,currentPackIndex)
+      console.log("current packindex in first class ", currentPackIndex);
       setAssessment({
         currentStep: 1,
         jobName: data?.finalEvaluation?.jobName || null,
         packId: currentPack?.id || null,
         packs: data?.finalEvaluation?.packs || null,
         testName: currentPack?.name || null,
-        numberOfQuestionsInCurrentPack:data?.finalEvaluation?.numberOfQuestionsInCurrentPack || null,
+        numberOfQuestionsInCurrentPack:
+          data?.finalEvaluation?.numberOfQuestionsInCurrentPack || null,
         allowedTime: currentPack?.allowedTime || null,
         testDescription: currentPack?.description || null,
         estimatedTime: data?.finalEvaluation?.estimatedTime || null,
@@ -112,13 +115,10 @@ console.log("current packindex in first class " ,currentPackIndex)
         enableFeedBack: data?.finalEvaluation?.enableFeedback || null,
         outroVideo: data?.finalEvaluation?.outroVideo || null,
         evaluationStaus: data?.evaluationStaus || null,
-        
       });
-      
-     
+
       // setCurrentPackIndex(currentPackIndex + 1);
-     console.log("All packs",packs)
-     
+      console.log("All packs", packs);
     } catch (error) {
       console.error("Error fetching assessment data:", error);
     }
@@ -139,7 +139,7 @@ console.log("current packindex in first class " ,currentPackIndex)
         rating: 5,
       },
     };
- 
+
     try {
       const response = await axios.patch(
         "http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/feedback/",
@@ -149,125 +149,112 @@ console.log("current packindex in first class " ,currentPackIndex)
     } catch (error) {
       console.error("Error sending feedback:", error);
     }
-
   };
 
-// ------------------- INPROGRESS -------------------
+  // ------------------- INPROGRESS -------------------
 
-const fetchData =   async (currentPackIndex: number) => {
-  if (!assessment || currentPackIndex >= assessment.packs.length) {
-    console.log("No more packs to process or assessmentData is missing");
-    return;
-  }
-  const currentPack = assessment.packs[currentPackIndex];
-  console.log("current pack", currentPack);
-  console.log("Current Pack ID is :",currentPack.id)
-  
- 
-  const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/start/${currentPack.id}`;
-  
-  try {
-    const response = await axios.patch(API_BASE_URL, {
-      hasHandicap: selectedValue, 
-    });
- 
-    const data = response.data;
+  const fetchData = async (currentPackIndex: number) => {
+    if (!assessment || currentPackIndex >= assessment.packs.length) {
+      console.log("No more packs to process or assessmentData is missing");
+      return;
+    }
+    const currentPack = assessment.packs[currentPackIndex];
+    console.log("current pack", currentPack);
+    console.log("Current Pack ID is :", currentPack.id);
 
-    setQuestion({
-      numberOfQuestions: data?.numberOfQuestions || 0,
-      currentQuestionCount: data?.currentQuestionCount || 0,
-      type: data?.nextQuestion?.type || "",
-      isTrainingQuestion: data?.nextQuestion?.isTrainingQuestion || false,
-      name: data?.nextQuestion?.name || "",
-      description: data?.nextQuestion?.description || "",
-      answers: data?.nextQuestion?.answers || [],
-    });
+    const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/start/${currentPack.id}`;
 
-  } catch (error) {
-    console.error("Error loading data:", error);
-  }
-};
-
-useEffect(() => {
-  console.log("Current pack index is :",currentPackIndex)
-  currentPack && fetchData(currentPackIndex);
-  // if(currentPackIndex === 0) {}
-},  [assessment.packs, currentPackIndex]);
-
-const submitAnswer = async () => {
-  if (answers.length === 0) {
-    setPopupOpen(true);
-  }
-
-  try {
-    const response = await axios.patch(POST_EVAL_URL, {
-      answers: answers,
-    });
-
-    console.log("Answer submitted successfully:", response.data);
-
-    if (response.data.hasNext) {
-      setAnswers([]);
-      const deliveredData = response.data;
-      setQuestion({
-        numberOfQuestions: deliveredData?.numberOfQuestions || 0,
-
-        currentQuestionCount: deliveredData?.currentQuestionCount || 0,
-        type: deliveredData?.nextQuestion?.type || "",
-        isTrainingQuestion:
-          deliveredData?.nextQuestion?.isTrainingQuestion || false,
-        name: deliveredData?.nextQuestion?.name || "",
-        description: deliveredData?.nextQuestion?.description || "",
-        answers: deliveredData?.nextQuestion?.answers || [],
+    try {
+      const response = await axios.patch(API_BASE_URL, {
+        hasHandicap: selectedValue,
       });
-    }
-    if (
-      !response.data.finished &&
-      response.data.feedback &&
-      response.data.hasNext &&
-      !response.data.nextQuestion
-    ) {
-      send({ type: "CallFeedback" });
-    }
-    if (
-      response.data.finished &&
-      !response.data.feedback &&
-      !response.data.nextQuestion
-    ) {
-      send({ type: "CallResult" });
-    }
-    if (
-      response.data.finished &&
-      response.data.feedback &&
-      !response.data.nextQuestion
-    ) {
-      send({ type: "CallFeedback" });
-    }
-    if (
-      !response.data.feedback &&
-      response.data.hasNext &&
-      !response.data.nextQuestion
-    ) {
-      send({ type: "CallStart" });
-    }
-    if (!response.data.nextQuestion) {
-      console.log(
-        "No next question. Pack index incremented:",
-        currentPackIndex + 1
-      );
-      setCurrentPackIndex(currentPackIndex + 1);
-      fetchData(currentPackIndex + 1);
-    }
-  } catch (error) {
-    console.error("Error submitting answer:", error);
-  }
-};
 
+      const data = response.data;
 
- 
+      setQuestion({
+        numberOfQuestions: data?.numberOfQuestions || 0,
+        currentQuestionCount: data?.currentQuestionCount || 0,
+        type: data?.nextQuestion?.type || "",
+        isTrainingQuestion: data?.nextQuestion?.isTrainingQuestion || false,
+        name: data?.nextQuestion?.name || "",
+        description: data?.nextQuestion?.description || "",
+        answers: data?.nextQuestion?.answers || [],
+      });
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Current pack index is :", currentPackIndex);
+    currentPack && fetchData(currentPackIndex);
+    // if(currentPackIndex === 0) {}
+  }, [assessment.packs, currentPackIndex]);
+
+  const submitAnswer = async () => {
+    if (answers.length === 0) {
+      setSkipPopupOpen(true);
+    }
+
+    try {
+      const response = await axios.patch(POST_EVAL_URL, {
+        answers: answers,
+      });
+
+      console.log("Answer submitted successfully:", response.data);
+
+      if (response.data.hasNext) {
+        setAnswers([]);
+        const deliveredData = response.data;
+        setQuestion({
+          numberOfQuestions: deliveredData?.numberOfQuestions || 0,
+
+          currentQuestionCount: deliveredData?.currentQuestionCount || 0,
+          type: deliveredData?.nextQuestion?.type || "",
+          isTrainingQuestion:
+            deliveredData?.nextQuestion?.isTrainingQuestion || false,
+          name: deliveredData?.nextQuestion?.name || "",
+          description: deliveredData?.nextQuestion?.description || "",
+          answers: deliveredData?.nextQuestion?.answers || [],
+        });
+      }
+      if (response.data.finished) {
+        if (response.data.feedback && !response.data.nextQuestion) {
+          send({ type: "CallFeedback" });
+          send({ type: "CallResult" });
+        } else if (!response.data.feedback && !response.data.nextQuestion) {
+          send({ type: "CallResult" });
+          console.log("result called");
+        }
+      } else if (!response.data.finished) {
+        if (
+          response.data.feedback &&
+          response.data.hasNext &&
+          !response.data.nextQuestion
+        ) {
+          send({ type: "CallFeedback" });
+        } else if (
+          !response.data.feedback &&
+          response.data.hasNext &&
+          !response.data.nextQuestion
+        ) {
+          send({ type: "CallStart" });
+        }
+      }
+      if (!response.data.nextQuestion) {
+        console.log(
+          "No next question. Pack index incremented:",
+          currentPackIndex + 1
+        );
+        setCurrentPackIndex(currentPackIndex + 1);
+        fetchData(currentPackIndex + 1);
+      }
+    } catch (error) {
+      console.error("Error submitting answer:", error);
+    }
+  };
 
   // *-*-*-*-*-*-*-*-*-*-*-* cheaing *-*-*-*-*-*-*-*-*-*-**--*-*-*
-
 
   // useEffect(() => {
   //   const handleFullScreen = () => {
@@ -276,7 +263,7 @@ const submitAnswer = async () => {
   //     } else {
   //       console.log("Exited full-screen mode");
   //       if (state.value === "IN_PROGRESS") {
-  //         setPopupOpen(true);
+  //         setCheatingPopupOpen(true);
   //         setCheatingPopupCount((prevCount) => {
   //           const newCount = prevCount + 1;
   //           if (newCount > 2) {
@@ -291,7 +278,7 @@ const submitAnswer = async () => {
 
   //   const handleKeyDown = (event: KeyboardEvent) => {
   //     if (event.key === "Escape" && state.value === "IN_PROGRESS") {
-  //       setPopupOpen(true);
+  //       setCheatingPopupOpen(true);
   //       setCheatingPopupCount((prevCount) => {
   //         const newCount = prevCount + 1;
   //         if (newCount > 2) {
@@ -305,7 +292,7 @@ const submitAnswer = async () => {
 
   //   const handleBlur = () => {
   //     if (state.value === "IN_PROGRESS") {
-  //       setPopupOpen(true);
+  //       setCheatingPopupOpen(true);
   //       setCheatingPopupCount((prevCount) => {
   //         const newCount = prevCount + 1;
   //         if (newCount > 2) {
@@ -339,11 +326,8 @@ const submitAnswer = async () => {
   // }, [state.value, send]);
 
   const handleStartClick = () => {
-  
-      send({ type: "next" });
-    
+    send({ type: "next" });
   };
-
 
   // const captureScreenshot = () => {
   //   // Ensure ToCaptureRef.current is not null and assert its type to HTMLElement
@@ -413,9 +397,6 @@ const submitAnswer = async () => {
     }
   };
 
-
-
-
   const renderStep = () => {
     switch (state.value) {
       case "INIT":
@@ -435,17 +416,29 @@ const submitAnswer = async () => {
               }))
             }
           />
-        ); 
-   
+        );
 
       case "START":
-        return <START assessmentData={assessment} currentPackIndex={currentPackIndex} />;
+        return (
+          <START
+            assessmentData={assessment}
+            currentPackIndex={currentPackIndex}
+          />
+        );
       case "IN_PROGRESS":
-        return <IN_PROGRESS assessmentData={assessment}   send = {send} currentPackIndex={currentPackIndex} setCurrentPackIndex={setCurrentPackIndex}   fetchData={fetchData} // pass fetchData as prop
-        submitAnswer={submitAnswer} 
-        question={question} 
-        setAnswers={setAnswers} 
-        answers={answers} />;
+        return (
+          <IN_PROGRESS
+            assessmentData={assessment}
+            send={send}
+            currentPackIndex={currentPackIndex}
+            setCurrentPackIndex={setCurrentPackIndex}
+            fetchData={fetchData} // pass fetchData as prop
+            submitAnswer={submitAnswer}
+            question={question}
+            setAnswers={setAnswers}
+            answers={answers}
+          />
+        );
       case "FEEDBACK":
         return <FEEDBACK send={send} sendFeedback={sendFeedback} />;
       case "RESULTS":
@@ -462,7 +455,6 @@ const submitAnswer = async () => {
         return null;
     }
   };
-
 
   const renderHeaderContent = () => {
     if (state.value === "START") {
@@ -483,25 +475,27 @@ const submitAnswer = async () => {
               color: "#fff",
             }}
           >
-            {assessment.packs[currentPackIndex].name} 
+            {assessment.packs[currentPackIndex].name}
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             <Chip
               icon={<AccessAlarmOutlinedIcon />}
-              label={`${t("Duration:")} ${assessment.packs[currentPackIndex].allowedTime/ 60} ${t(
-                "minutes"
-              )}`}
+              label={`${t("Duration:")} ${
+                assessment.packs[currentPackIndex].allowedTime / 60
+              } ${t("minutes")}`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
             <Chip
-              label={`${t("nquest")} ${assessment.numberOfQuestionsInCurrentPack}`}
+              label={`${t("nquest")} ${
+                assessment.numberOfQuestionsInCurrentPack
+              }`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
           </Box>
         </Box>
       );
     }
- 
+
     let title;
     switch (state.value) {
       case "CONFIG_WEBCAM":
@@ -731,17 +725,17 @@ const submitAnswer = async () => {
               disabled={
                 state.value === "CONSENT" && assessment.firstName === ""
               }
-              
               onClick={
                 state.value === "FEEDBACK"
-                  ? () => {sendFeedback() 
-                   send({ type: "next" })}
+                  ? () => {
+                      sendFeedback();
+                      send({ type: "next" });
+                    }
                   : state.value === "IN_PROGRESS"
-                  ?() => submitAnswer()
+                  ? () => submitAnswer()
                   : state.value === "START"
-                    ? handleStartClick
-                    : () => send({ type: "next" })
-                  
+                  ? handleStartClick
+                  : () => send({ type: "next" })
               }
             >
               {state.value === "START" ? t("btnstart") : t("btnNext")}
@@ -749,7 +743,14 @@ const submitAnswer = async () => {
           </Box>
         </CardContent>
       </Card>
-      <CheatingPopup open={isPopupOpen} onClose={() => setPopupOpen(false)} />
+      <CheatingPopup
+        open={isCheatingPopupOpen}
+        onClose={() => setCheatingPopupOpen(false)}
+      />
+      <SkipPopup
+        open={isSkipPopupOpen}
+        onClose={() => setSkipPopupOpen(false)}
+      />
     </>
   );
 };

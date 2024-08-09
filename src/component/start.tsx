@@ -16,7 +16,7 @@ type AssessmentData = {
 };
 type Pack = {
   description: string;
-  // Add other properties as needed
+
 };
 export default function START({
   assessmentData,
@@ -38,6 +38,7 @@ export default function START({
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ width: "90%", mt: 2, mx: "auto" }}>
           <Typography
+              component="div"
             sx={{
               fontSize: { xs: 12, sm: 14 },
               textAlign: "justify",

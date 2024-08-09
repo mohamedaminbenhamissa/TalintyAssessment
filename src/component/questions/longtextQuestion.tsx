@@ -85,6 +85,7 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ width: "100%", mt: 2 }}>
           <Typography
+              component="div"
             sx={{
               fontSize: { xs: 14, sm: 16 },
               textAlign,
@@ -107,6 +108,7 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
             {t("quest")}
           </Typography>
           <Typography
+          component="div"
             sx={{
               fontSize: { xs: 14, sm: 16 },
               textAlign,

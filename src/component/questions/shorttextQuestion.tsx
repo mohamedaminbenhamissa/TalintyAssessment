@@ -74,6 +74,7 @@ const shorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ width: "100%", mt: 2 }}>
           <Typography
+              component="div"
             sx={{
               fontSize: { xs: 14, sm: 16 },
               textAlign: "justify",
@@ -96,6 +97,7 @@ const shorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
             {t("quest")}
           </Typography>
           <Typography
+              component="div"
             sx={{
               fontSize: { xs: 14, sm: 16 },
               textAlign,

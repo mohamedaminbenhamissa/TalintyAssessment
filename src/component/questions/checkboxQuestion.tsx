@@ -72,6 +72,7 @@ const CheckboxQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
         <FormControl component="fieldset">
           <FormLabel component="legend">
             <Typography
+            
               variant="body2"
               sx={{
                 fontSize: "0.875rem",
