@@ -98,7 +98,7 @@ export default function Init({
               >
                 {t("text2")}
               </Typography>
-              {assessmentData.introVideo !== "" && (
+              {assessmentData.introVideo == "" && (
                 <Box sx={{ width: "100%", mt: 2 }} tabIndex={0}>
                   <video width="100%" controls>
                     <source src="your-video-url.mp4" type="video/mp4" />

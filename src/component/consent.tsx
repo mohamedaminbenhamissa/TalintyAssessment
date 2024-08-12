@@ -26,15 +26,17 @@ export default function CONSENT({
   name,
   setName,
 }: {
-  name: string;
+  name: string | null;
   setName: (value: string) => void;
 }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isChecked, setIsChecked] = useState(false);
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
+
   useEffect(() => {
     const handleContextMenu = (event: MouseEvent) => {
       event.preventDefault();
@@ -62,11 +64,13 @@ export default function CONSENT({
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
   }, [i18n.language]);
+
   const currentDate = formatDate(new Date());
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value.toUpperCase());
   };
+
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.checked);
   };
@@ -177,7 +181,7 @@ export default function CONSENT({
               id="outlined-basic"
               label=""
               variant="outlined"
-              value={name}
+              value={name || ""}
               onChange={handleNameChange}
               sx={{ flex: 1 }}
               onCopy={handleCopy}

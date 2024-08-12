@@ -43,8 +43,8 @@ type Question = {
 };
 
 const API_URL =
-  "http://localhost:5002/api/v1/evaluation/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65";
-const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/lockEvaluationFromCandidate/`;
+  "http://localhost:5002/api/v1/evaluation/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c";
+const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c/lockEvaluationFromCandidate/`;
 
 const Break = () => <div>Break</div>;
 
@@ -60,6 +60,8 @@ const StepsPage: React.FC = () => {
   const [currentPackIndex, setCurrentPackIndex] = useState<number>(0);
   const [question, setQuestion] = useState<Question | null>(null);
   const [answers, setAnswers] = useState<any>([]);
+  const [ isFinished, setIsFinished ] = useState(false);
+
   const [assessment, setAssessment] = useState<StepsContext>({
     currentStep: 1,
     jobName: "",
@@ -79,11 +81,12 @@ const StepsPage: React.FC = () => {
     evaluationStaus: "",
     numberOfQuestionsInCurrentPack: 0,
     allowedTime: 0,
+    packsStarted: [],
     packs: [""],
   });
 
   const selectedValue = localStorage.getItem("selectedValue");
-  const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/answer`;
+  const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c/answer`;
 
   const fetchAssessmentData = async () => {
     try {
@@ -115,6 +118,7 @@ const StepsPage: React.FC = () => {
         enableFeedBack: data?.finalEvaluation?.enableFeedback || null,
         outroVideo: data?.finalEvaluation?.outroVideo || null,
         evaluationStaus: data?.evaluationStaus || null,
+        packsStarted: data?.finalEvaluation?.packsStarted || null,
       });
 
       // setCurrentPackIndex(currentPackIndex + 1);
@@ -123,6 +127,7 @@ const StepsPage: React.FC = () => {
       console.error("Error fetching assessment data:", error);
     }
   };
+  
   const currentPack = assessment.packs[currentPackIndex];
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
@@ -142,7 +147,7 @@ const StepsPage: React.FC = () => {
 
     try {
       const response = await axios.patch(
-        "http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/feedback/",
+        "http://localhost:5002/api/v1/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c/feedback/",
         feedbackData
       );
       console.log("Feedback sent successfully:", response.data);
@@ -158,11 +163,13 @@ const StepsPage: React.FC = () => {
       console.log("No more packs to process or assessmentData is missing");
       return;
     }
-    const currentPack = assessment.packs[currentPackIndex];
+    // const currentPack = assessment.packs[currentPackIndex];
     console.log("current pack", currentPack);
     console.log("Current Pack ID is :", currentPack.id);
+    console.log("packs length :", assessment.packs.length);
+    
 
-    const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/6bb17186-0439-479e-a45b-f0cce9ed9b65/start/${currentPack.id}`;
+    const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c/start/${currentPack.id}`;
 
     try {
       const response = await axios.patch(API_BASE_URL, {
@@ -188,12 +195,13 @@ const StepsPage: React.FC = () => {
   useEffect(() => {
     console.log("Current pack index is :", currentPackIndex);
     currentPack && fetchData(currentPackIndex);
-    // if(currentPackIndex === 0) {}
+   
   }, [assessment.packs, currentPackIndex]);
 
   const submitAnswer = async () => {
     if (answers.length === 0) {
       setSkipPopupOpen(true);
+      setAnswers(["ez"]);
     }
 
     try {
@@ -206,26 +214,27 @@ const StepsPage: React.FC = () => {
       if (response.data.hasNext) {
         setAnswers([]);
         const deliveredData = response.data;
-        setQuestion({
-          numberOfQuestions: deliveredData?.numberOfQuestions || 0,
+        setQuestion((prev)=>({
+          numberOfQuestions: prev?.numberOfQuestions || 0,
 
-          currentQuestionCount: deliveredData?.currentQuestionCount || 0,
+          currentQuestionCount: (prev?.currentQuestionCount||0)+ 1 ,
           type: deliveredData?.nextQuestion?.type || "",
           isTrainingQuestion:
             deliveredData?.nextQuestion?.isTrainingQuestion || false,
           name: deliveredData?.nextQuestion?.name || "",
           description: deliveredData?.nextQuestion?.description || "",
           answers: deliveredData?.nextQuestion?.answers || [],
-        });
+        }));
       }
       if (response.data.finished) {
         if (response.data.feedback && !response.data.nextQuestion) {
           send({ type: "CallFeedback" });
-          send({ type: "CallResult" });
+          setIsFinished(true);
+          
         } else if (!response.data.feedback && !response.data.nextQuestion) {
           send({ type: "CallResult" });
-          console.log("result called");
         }
+  
       } else if (!response.data.finished) {
         if (
           response.data.feedback &&
@@ -242,12 +251,14 @@ const StepsPage: React.FC = () => {
         }
       }
       if (!response.data.nextQuestion) {
-        console.log(
-          "No next question. Pack index incremented:",
-          currentPackIndex + 1
-        );
-        setCurrentPackIndex(currentPackIndex + 1);
-        fetchData(currentPackIndex + 1);
+       
+          console.log("No next question. Pack index incremented:", currentPackIndex + 1);
+          setCurrentPackIndex(currentPackIndex + 1);
+          fetchData(currentPackIndex + 1);
+        
+      }
+      if(assessment.packsStarted.length >= assessment.packs.length){
+        send({ type: "CallResult" });
       }
     } catch (error) {
       console.error("Error submitting answer:", error);
@@ -432,7 +443,7 @@ const StepsPage: React.FC = () => {
             send={send}
             currentPackIndex={currentPackIndex}
             setCurrentPackIndex={setCurrentPackIndex}
-            fetchData={fetchData} // pass fetchData as prop
+            fetchData={fetchData} 
             submitAnswer={submitAnswer}
             question={question}
             setAnswers={setAnswers}
@@ -704,7 +715,7 @@ const StepsPage: React.FC = () => {
             <Button
               sx={{
                 background:
-                  state.value === "CONSENT" && assessment.firstName === ""
+                  state.value === "CONSENT" && assessment.firstName === "" 
                     ? "#E8E8F0"
                     : "#023651",
 
@@ -723,13 +734,18 @@ const StepsPage: React.FC = () => {
               }}
               size="small"
               disabled={
-                state.value === "CONSENT" && assessment.firstName === ""
+                state.value === "CONSENT" && assessment.firstName === "" 
               }
               onClick={
                 state.value === "FEEDBACK"
                   ? () => {
                       sendFeedback();
-                      send({ type: "next" });
+                      if(isFinished) {
+                        send({ type: "CallResult" });
+                        console.log("fenished")
+                      } else{
+                        send({ type: "next" });
+                      }
                     }
                   : state.value === "IN_PROGRESS"
                   ? () => submitAnswer()

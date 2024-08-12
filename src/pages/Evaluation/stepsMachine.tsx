@@ -20,6 +20,7 @@ export type StepsContext = {
   allowedTime: number;
   evaluationStaus: string;
   packs: any;
+  packsStarted?: any;
 };
 
 const initialContext: StepsContext = {
@@ -42,6 +43,7 @@ const initialContext: StepsContext = {
   allowedTime: 0,
   evaluationStaus: "",
   packs: [],
+  packsStarted: [],
 };
 
 type StepsEvent =
@@ -109,7 +111,7 @@ export const stepsMachine = createMachine<
             context.evaluationStaus === "Locked",
         },
         {
-          target: "LOCKED",
+          target: "RESULTS",
           guard: ({ context }: { context: StepsContext }) =>
             context.evaluationStaus === "Finished",
         },
@@ -201,7 +203,9 @@ export const stepsMachine = createMachine<
           {
             actions: "SubmitFeedback",
           },
+         
         ],
+        CallResult: "LOCKED",
       },
     },
     RESULTS: {

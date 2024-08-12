@@ -1,6 +1,5 @@
 import React from "react";
-import axios from "axios";
-import { Box, Card, CardContent, Stack, Typography, Button } from "@mui/material";
+import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 import Happy from "../assets/happy.png";
 import Normal from "../assets/normal.png";
 import Sad from "../assets/sad.png";
