@@ -6,8 +6,8 @@ import LongTextQuestion from "@/component/questions/longtextQuestion";
 import ListQuestion from "@/component/questions/listQuestion";
 import VideoQuestion from "@/component/questions/videoQuestion";
 import { Alert, Box, Typography } from "@mui/material";
-import TIMEOUT from "./timeout";
 import { useTranslation } from "@/hooks/useTranslation";
+
 
 type Question = {
   type: string;
@@ -26,6 +26,7 @@ type AssessmentData = {
   allowedTime: number;
   packId: string;
   packs: any[];
+  
 };
 
 const QuestionComponent = ({
@@ -34,7 +35,7 @@ const QuestionComponent = ({
   question,
   setAnswers,
   answers,
-
+  send,
 }: 
 {
   assessmentData: AssessmentData;
@@ -46,6 +47,8 @@ const QuestionComponent = ({
   submitAnswer: () => void;
   question: Question | null;
   setAnswers: React.Dispatch<React.SetStateAction<any>>;
+  lockEvaluation: (reason: string) => void
+  
 }) => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [backgroundColor, setBackgroundColor] = useState<string>("#F6F7F6");
@@ -88,7 +91,7 @@ const QuestionComponent = ({
     }
 
   }, [elapsedTime, question, assessmentData.packs, currentPackIndex]);
-console.log("this the all question : ",question)
+
   // Handle the format of the elapsed time
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -102,7 +105,8 @@ console.log("this the all question : ",question)
   }
 
   if (elapsedTime >= assessmentData.packs[currentPackIndex].allowedTime) {
-    return <TIMEOUT />;
+    send({ type: "CallTimeout" });
+
   }
 
   // Dynamically render the appropriate question component based on the question type
@@ -115,7 +119,7 @@ console.log("this the all question : ",question)
       questionComponent = <CheckBoxQuestion question={question} onChange={setAnswers} />;
       break;
     case "shortText":
-      questionComponent = <ShortTextQuestion question={question} onChange={setAnswers} />;
+      questionComponent = <ShortTextQuestion question={question} answers={answers} onChange={setAnswers} />;
       break;
     case "text":
       questionComponent = <LongTextQuestion question={question} answers={answers} onChange={setAnswers} />;

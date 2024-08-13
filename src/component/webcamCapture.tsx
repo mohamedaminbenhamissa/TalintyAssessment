@@ -1,76 +1,35 @@
 import React, { useEffect, useRef } from "react";
-import Webcam from "react-webcam";
+import html2canvas from "html2canvas";
 
-interface WebcamCaptureProps {
-  startTime: Date;
-  expireTime: Date;
-  saveScreenshot: (formData: FormData) => Promise<void>;
+interface WebcamComponentProps {
+  screenshotInterval: number; 
 }
 
-const WebcamCapture: React.FC<WebcamCaptureProps> = ({
-  startTime,
-  expireTime,
-  saveScreenshot,
-}) => {
-  const webcamRef = useRef<Webcam>(null);
-  const numberOfScreenshots = 3;
-  const intervalMinutes = 10;
+const WebcamComponent: React.FC<WebcamComponentProps> = ({ screenshotInterval }) => {
+const webcamRef = useRef<HTMLDivElement>(null);
 
-  // Function to calculate the times for the screenshots
-  const calculateScreenshotTimes = () => {
-    const times: Date[] = [];
-    const startTimestamp = startTime.getTime();
-    for (let i = 0; i < numberOfScreenshots; i++) {
-      times.push(new Date(startTimestamp + i * intervalMinutes * 60000));
-    }
-    return times;
-  };
-
-  // Function to take a screenshot from the webcam at specified intervals
-  const takeScreenshots = async (times: Date[]) => {
-    for (let i = 0; i < times.length; i++) {
-      const screenshotTime = times[i];
-      const timeDifference = screenshotTime.getTime() - new Date().getTime();
-
-      if (timeDifference > 0) {
-        await new Promise((resolve) => setTimeout(resolve, timeDifference));
-      }
-
-      const imageSrc = webcamRef.current?.getScreenshot();
-
-      if (imageSrc) {
-        // Type guard to ensure imageSrc is not undefined
-        const formData = new FormData();
-        const blob = await fetch(imageSrc).then((res) => res.blob());
-        formData.append("screenshot", blob, `screenshot-${i + 1}.png`);
-
-        try {
-          await saveScreenshot(formData);
-        } catch (err) {
-          console.error("Something went wrong!", err);
-        }
-      }
+  const captureScreenshot = () => {
+    if (webcamRef.current) {
+      html2canvas(webcamRef.current).then((canvas) => {
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = `screenshot_${Date.now()}.png`;
+        link.href = image;
+        link.click();
+      });
     }
   };
 
   useEffect(() => {
-    if (webcamRef.current && startTime && expireTime) {
-      const times = calculateScreenshotTimes();
-      takeScreenshots(times);
-    }
-  }, [webcamRef, startTime, expireTime]);
+    const intervalId = setInterval(() => {
+      captureScreenshot();
+      console.log("screen captured")
+    }, screenshotInterval);
 
-  return (
-    <div>
-      <Webcam
-        audio={false}
-        height={1000}
-        width={1000}
-        ref={webcamRef}
-        screenshotFormat="image/jpeg"
-      />
-    </div>
-  );
+    return () => clearInterval(intervalId);
+  }, [screenshotInterval]);
+
+  return <div ref={webcamRef} style={{ width: "100%", height: "100%" }}></div>;
 };
 
-export default WebcamCapture;
+export default WebcamComponent;

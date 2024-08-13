@@ -13,6 +13,7 @@ type QuestionProps = {
     description: string;
     answers: string[];
   };
+  answers?: string[];
   onChange: (answers: string[]) => void;
 };
 const arabicCharPattern = /[\u0600-\u06FF\u0750-\u077F]/;
@@ -21,8 +22,9 @@ const isArabicText = (text: string): boolean => {
   return arabicCharPattern.test(text) && text.length > 30;
 };
 
-const shorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
-  const [, setText] = useState("");
+const shorttextQuestion: React.FC<QuestionProps> = ({ question , answers,
+  onChange, }) => {
+
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const { t } = useTranslation("progress");
@@ -133,10 +135,11 @@ const shorttextQuestion: React.FC<QuestionProps> = ({ question }) => {
           }}
         >
           <TextField
-            onChange={(e) => setText(e.target.value)}
             id="outlined-basic"
             label=""
             variant="outlined"
+            onChange={(e) => onChange([e.target.value])}
+            value={answers?.[0] || ""}
             onCopy={handleCopy}
             onPaste={handlePaste}
           />

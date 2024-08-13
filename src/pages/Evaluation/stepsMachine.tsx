@@ -18,6 +18,7 @@ export type StepsContext = {
   numberOfQuestionsInCurrentPack: number;
   testDescription: string;
   allowedTime: number;
+  startDate: Date;
   evaluationStaus: string;
   packs: any;
   packsStarted?: any;
@@ -32,6 +33,7 @@ const initialContext: StepsContext = {
   numberOfQuestionsInCurrentPack: 0,
   estimatedTime: 0,
   numberTotalOfQuestions: 0,
+  startDate: new Date(),
   firstName: "",
   webcamScreenshots: false,
   numberOfVideoQuestions: 0,
@@ -55,6 +57,7 @@ type StepsEvent =
   | { type: "CallResult" }
   | { type: "CallStart" }
   | { type: "CallFeedback" }
+  | { type: "CallTimeout" }
   | { type: "SubmitFeedback" };
 
 export const stepsMachine = createMachine<
@@ -181,6 +184,8 @@ export const stepsMachine = createMachine<
         CallStart: "START",
         CallResult: "LOCKED",
         evalExpired: "EVALEXPIRED",
+        CallTimeout: "TIMEOUT",
+
       },
     },
     FEEDBACK: {
@@ -219,7 +224,11 @@ export const stepsMachine = createMachine<
         next: "FEEDBACK",
       },
     },
-    TIMEOUT: {},
+    TIMEOUT: {
+on: {
+  next: "FEEDBACK",
+}
+    },
     LOCKED: {
       type: "final",
     },

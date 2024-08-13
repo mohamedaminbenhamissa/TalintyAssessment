@@ -31,6 +31,9 @@ import EVALEXPIRED from "@/component/expired";
 import TIMEOUT from "@/component/timeout";
 import ReportPopup from "@/component/report";
 import SkipPopup from "@/component/popupalet/skipPopup";
+import { useParams } from "react-router-dom";
+import WebcamCapture from "@/component/webcamCapture";
+import WebcamComponent from "@/component/webcamCapture";
 
 type Question = {
   type: string;
@@ -42,13 +45,10 @@ type Question = {
   numberOfQuestions: number;
 };
 
-const API_URL =
-  "http://localhost:5002/api/v1/evaluation/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c";
-const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c/lockEvaluationFromCandidate/`;
-
 const Break = () => <div>Break</div>;
 
 const StepsPage: React.FC = () => {
+  const { id } = useParams();
   const { t, i18n } = useTranslation("button");
   const [state, send] = useMachine(stepsMachine);
   const [isCheatingPopupOpen, setCheatingPopupOpen] = useState(false);
@@ -60,11 +60,12 @@ const StepsPage: React.FC = () => {
   const [currentPackIndex, setCurrentPackIndex] = useState<number>(0);
   const [question, setQuestion] = useState<Question | null>(null);
   const [answers, setAnswers] = useState<any>([]);
-  const [ isFinished, setIsFinished ] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
 
   const [assessment, setAssessment] = useState<StepsContext>({
     currentStep: 1,
     jobName: "",
+    startDate: new Date(),
     testName: "",
     packId: "",
     estimatedTime: 0,
@@ -85,8 +86,12 @@ const StepsPage: React.FC = () => {
     packs: [""],
   });
 
+  const API_URL = `http://localhost:5002/api/v1/evaluation/evaluation/${id}`;
+  const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/${id}/lockEvaluationFromCandidate/`;
+  const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/${id}/answer`;
+  const FEEDBACK_URL = `http://localhost:5002/api/v1/evaluation/${id}/feedback/`;
+
   const selectedValue = localStorage.getItem("selectedValue");
-  const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c/answer`;
 
   const fetchAssessmentData = async () => {
     try {
@@ -101,6 +106,7 @@ const StepsPage: React.FC = () => {
         packId: currentPack?.id || null,
         packs: data?.finalEvaluation?.packs || null,
         testName: currentPack?.name || null,
+        startDate: data?.finalEvaluation?.startDate || null,
         numberOfQuestionsInCurrentPack:
           data?.finalEvaluation?.numberOfQuestionsInCurrentPack || null,
         allowedTime: currentPack?.allowedTime || null,
@@ -127,7 +133,7 @@ const StepsPage: React.FC = () => {
       console.error("Error fetching assessment data:", error);
     }
   };
-  
+
   const currentPack = assessment.packs[currentPackIndex];
   useEffect(() => {
     document.dir = i18n.language === "ar" ? "rtl" : "ltr";
@@ -146,10 +152,7 @@ const StepsPage: React.FC = () => {
     };
 
     try {
-      const response = await axios.patch(
-        "http://localhost:5002/api/v1/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c/feedback/",
-        feedbackData
-      );
+      const response = await axios.patch(FEEDBACK_URL, feedbackData);
       console.log("Feedback sent successfully:", response.data);
     } catch (error) {
       console.error("Error sending feedback:", error);
@@ -167,10 +170,8 @@ const StepsPage: React.FC = () => {
     console.log("current pack", currentPack);
     console.log("Current Pack ID is :", currentPack.id);
     console.log("packs length :", assessment.packs.length);
-    
 
-    const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/57883c6f-e9e1-457f-bde5-4d4d0136e85c/start/${currentPack.id}`;
-
+    const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/${id}/start/${currentPack.id}`;
     try {
       const response = await axios.patch(API_BASE_URL, {
         hasHandicap: selectedValue,
@@ -195,7 +196,6 @@ const StepsPage: React.FC = () => {
   useEffect(() => {
     console.log("Current pack index is :", currentPackIndex);
     currentPack && fetchData(currentPackIndex);
-   
   }, [assessment.packs, currentPackIndex]);
 
   const submitAnswer = async () => {
@@ -214,10 +214,11 @@ const StepsPage: React.FC = () => {
       if (response.data.hasNext) {
         setAnswers([]);
         const deliveredData = response.data;
-        setQuestion((prev)=>({
+        setQuestion((prev) => ({
           numberOfQuestions: prev?.numberOfQuestions || 0,
 
-          currentQuestionCount: (prev?.currentQuestionCount||0)+ 1 ,
+          currentQuestionCount: (prev?.currentQuestionCount || 0) + 1,
+
           type: deliveredData?.nextQuestion?.type || "",
           isTrainingQuestion:
             deliveredData?.nextQuestion?.isTrainingQuestion || false,
@@ -230,11 +231,9 @@ const StepsPage: React.FC = () => {
         if (response.data.feedback && !response.data.nextQuestion) {
           send({ type: "CallFeedback" });
           setIsFinished(true);
-          
         } else if (!response.data.feedback && !response.data.nextQuestion) {
           send({ type: "CallResult" });
         }
-  
       } else if (!response.data.finished) {
         if (
           response.data.feedback &&
@@ -251,19 +250,21 @@ const StepsPage: React.FC = () => {
         }
       }
       if (!response.data.nextQuestion) {
-       
-          console.log("No next question. Pack index incremented:", currentPackIndex + 1);
-          setCurrentPackIndex(currentPackIndex + 1);
-          fetchData(currentPackIndex + 1);
-        
+        console.log(
+          "No next question. Pack index incremented:",
+          currentPackIndex + 1
+        );
+        setCurrentPackIndex(currentPackIndex + 1);
+        fetchData(currentPackIndex + 1);
       }
-      if(assessment.packsStarted.length >= assessment.packs.length){
+      if (assessment.packsStarted.length >= assessment.packs.length) {
         send({ type: "CallResult" });
       }
     } catch (error) {
       console.error("Error submitting answer:", error);
     }
   };
+  console.error=()=>{}
 
   // *-*-*-*-*-*-*-*-*-*-*-* cheaing *-*-*-*-*-*-*-*-*-*-**--*-*-*
 
@@ -407,7 +408,17 @@ const StepsPage: React.FC = () => {
       console.error("Error locking evaluation:", error);
     }
   };
-
+  const determineScreenshotInterval = () => {
+    const totalTime =  assessment.packs[currentPackIndex].allowedTime  * 1000; // Convert to milliseconds
+  
+    if (totalTime < 10 * 60 * 1000) {
+      return totalTime / 3; // 3 screenshots
+    } else if (totalTime < 20 * 60 * 1000) {
+      return totalTime / 6; // 6 screenshots
+    } else {
+      return totalTime / 9; // 9 screenshots
+    }
+  };
   const renderStep = () => {
     switch (state.value) {
       case "INIT":
@@ -437,18 +448,24 @@ const StepsPage: React.FC = () => {
           />
         );
       case "IN_PROGRESS":
+        const screenshotInterval = determineScreenshotInterval();
         return (
-          <IN_PROGRESS
+          <>
+          <WebcamComponent screenshotInterval={screenshotInterval} />
+               <IN_PROGRESS
             assessmentData={assessment}
             send={send}
             currentPackIndex={currentPackIndex}
             setCurrentPackIndex={setCurrentPackIndex}
-            fetchData={fetchData} 
+            fetchData={fetchData}
             submitAnswer={submitAnswer}
             question={question}
             setAnswers={setAnswers}
             answers={answers}
+            lockEvaluation={lockEvaluation}
           />
+          </>
+     
         );
       case "FEEDBACK":
         return <FEEDBACK send={send} sendFeedback={sendFeedback} />;
@@ -459,7 +476,7 @@ const StepsPage: React.FC = () => {
       case "EVALEXPIRED":
         return <EVALEXPIRED />;
       case "TIMEOUT":
-        return <TIMEOUT />;
+        return <TIMEOUT  />;
       case "BREAK":
         return <Break />;
       default:
@@ -497,9 +514,7 @@ const StepsPage: React.FC = () => {
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
             <Chip
-              label={`${t("nquest")} ${
-                assessment.numberOfQuestionsInCurrentPack
-              }`}
+              label={`${t("nquest")} ${question?.numberOfQuestions}`}
               sx={{ backgroundColor: "#fff", color: "#023651" }}
             />
           </Box>
@@ -715,7 +730,7 @@ const StepsPage: React.FC = () => {
             <Button
               sx={{
                 background:
-                  state.value === "CONSENT" && assessment.firstName === "" 
+                  state.value === "CONSENT" && assessment.firstName === ""
                     ? "#E8E8F0"
                     : "#023651",
 
@@ -734,16 +749,16 @@ const StepsPage: React.FC = () => {
               }}
               size="small"
               disabled={
-                state.value === "CONSENT" && assessment.firstName === "" 
+                state.value === "CONSENT" && assessment.firstName === ""
               }
               onClick={
                 state.value === "FEEDBACK"
                   ? () => {
                       sendFeedback();
-                      if(isFinished) {
+                      if (isFinished) {
                         send({ type: "CallResult" });
-                        console.log("fenished")
-                      } else{
+                        console.log("fenished");
+                      } else {
                         send({ type: "next" });
                       }
                     }

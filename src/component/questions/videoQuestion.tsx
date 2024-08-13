@@ -52,6 +52,7 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
       mediaRecorderRef.current.ondataavailable = handleDataAvailable;
       mediaRecorderRef.current.start();
       setIsRecording(true);
+      console.log("recording")
     }
   }, [webcamRef, mediaRecorderRef, setIsRecording]);
 
@@ -92,8 +93,12 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
       videoPlayerRef.current.pause();
       videoPlayerRef.current.currentTime = 0;
       setIsPlaying(false);
+      setVideoBlob(null); 
+      setVideoUrl(null); 
+      setIsRecording(false); 
     }
   };
+  
 
   const handleSend = () => {
     if (videoUrl) {
