@@ -79,6 +79,7 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
         minWidth: 320,
         boxShadow: 0,
         minHeight: 500,
+   
         userSelect: "none",
       }}
     >
@@ -101,7 +102,7 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
               fontSize: { xs: 14, sm: 16 },
               textAlign: "justify",
               width: "100%",
-              mt: 2,
+              mt: 1,
               fontWeight: "bold",
             }}
           >
@@ -124,7 +125,7 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
               fontSize: { xs: 14, sm: 16 },
               textAlign: "justify",
               width: "100%",
-              mt: 3,
+              mt: 2,
               fontWeight: "bold",
             }}
           >

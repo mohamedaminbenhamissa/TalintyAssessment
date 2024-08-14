@@ -52,29 +52,26 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
       mediaRecorderRef.current.ondataavailable = handleDataAvailable;
       mediaRecorderRef.current.start();
       setIsRecording(true);
-      console.log("recording")
+      console.log("recording");
     }
-  }, [webcamRef, mediaRecorderRef, setIsRecording]);
+  }, []);
 
-  const handleDataAvailable = useCallback(
-    ({ data }: BlobEvent) => {
-      if (data.size > 0) {
-        setVideoBlob(data);
-        const videoURL = URL.createObjectURL(data);
-        setVideoUrl(videoURL);
-        setSnackbarMessage("Recording saved successfully!");
-        setSnackbarOpen(true);
-      }
-    },
-    [setVideoBlob, setVideoUrl, setSnackbarMessage, setSnackbarOpen]
-  );
+  const handleDataAvailable = useCallback(({ data }: BlobEvent) => {
+    if (data.size > 0) {
+      setVideoBlob(data);
+      const videoURL = URL.createObjectURL(data);
+      setVideoUrl(videoURL);
+      setSnackbarMessage("Recording saved successfully!");
+      setSnackbarOpen(true);
+    }
+  }, []);
 
   const handleStopRecording = useCallback(() => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
-  }, [mediaRecorderRef, setIsRecording]);
+  }, []);
 
   const handlePlayPause = () => {
     if (videoPlayerRef.current) {
@@ -98,7 +95,6 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
       setIsRecording(false); 
     }
   };
-  
 
   const handleSend = () => {
     if (videoUrl) {
@@ -136,11 +132,15 @@ const VideoQuestion: React.FC<QuestionProps> = ({ question, onChange }) => {
               }}
             >
               {videoBlob && videoUrl !== null ? (
-                <video ref={videoPlayerRef} width="100%" height="100%" controls>
+                <video ref={videoPlayerRef} style={{ width: "100%", height: "100%" }} controls>
                   <source src={videoUrl} type="video/webm" />
                 </video>
               ) : (
-                <Webcam audio={true} ref={webcamRef} />
+                <Webcam
+                  audio={true}
+                  ref={webcamRef}
+                  style={{ width: "100%", height: "100%", borderRadius: "10px" }}
+                />
               )}
             </Box>
             <ButtonGroup sx={{ borderColor: "#C1986C", mt: 2 }}>

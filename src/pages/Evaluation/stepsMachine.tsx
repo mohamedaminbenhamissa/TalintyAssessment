@@ -185,7 +185,6 @@ export const stepsMachine = createMachine<
         CallResult: "LOCKED",
         evalExpired: "EVALEXPIRED",
         CallTimeout: "TIMEOUT",
-
       },
     },
     FEEDBACK: {
@@ -208,7 +207,6 @@ export const stepsMachine = createMachine<
           {
             actions: "SubmitFeedback",
           },
-         
         ],
         CallResult: "LOCKED",
       },
@@ -225,13 +223,12 @@ export const stepsMachine = createMachine<
       },
     },
     TIMEOUT: {
-on: {
-  next: "FEEDBACK",
-}
+      on: {
+        next: "FEEDBACK",
+      },
     },
     LOCKED: {
       type: "final",
     },
   },
 });
- 

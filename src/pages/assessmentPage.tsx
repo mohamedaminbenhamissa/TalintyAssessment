@@ -32,8 +32,8 @@ import TIMEOUT from "@/component/timeout";
 import ReportPopup from "@/component/report";
 import SkipPopup from "@/component/popupalet/skipPopup";
 import { useParams } from "react-router-dom";
-import WebcamCapture from "@/component/webcamCapture";
 import WebcamComponent from "@/component/webcamCapture";
+import { API_ENDPOINT } from "@/utils/constants";
 
 type Question = {
   type: string;
@@ -86,10 +86,10 @@ const StepsPage: React.FC = () => {
     packs: [""],
   });
 
-  const API_URL = `http://localhost:5002/api/v1/evaluation/evaluation/${id}`;
-  const LOCKED_API_URL = `http://localhost:5002/api/v1/evaluation/${id}/lockEvaluationFromCandidate/`;
-  const POST_EVAL_URL = `http://localhost:5002/api/v1/evaluation/${id}/answer`;
-  const FEEDBACK_URL = `http://localhost:5002/api/v1/evaluation/${id}/feedback/`;
+  const API_URL = `${API_ENDPOINT}evaluation/${id}`;
+  const LOCKED_API_URL = `${API_ENDPOINT}${id}/lockEvaluationFromCandidate/`;
+  const POST_EVAL_URL = `${API_ENDPOINT}${id}/answer`;
+  const FEEDBACK_URL = `${API_ENDPOINT}${id}/feedback/`;
 
   const selectedValue = localStorage.getItem("selectedValue");
 
@@ -171,7 +171,7 @@ const StepsPage: React.FC = () => {
     console.log("Current Pack ID is :", currentPack.id);
     console.log("packs length :", assessment.packs.length);
 
-    const API_BASE_URL = `http://localhost:5002/api/v1/evaluation/${id}/start/${currentPack.id}`;
+    const API_BASE_URL = `${API_ENDPOINT}${id}/start/${currentPack.id}`;
     try {
       const response = await axios.patch(API_BASE_URL, {
         hasHandicap: selectedValue,
@@ -264,7 +264,7 @@ const StepsPage: React.FC = () => {
       console.error("Error submitting answer:", error);
     }
   };
-  console.error=()=>{}
+  console.error = () => {};
 
   // *-*-*-*-*-*-*-*-*-*-*-* cheaing *-*-*-*-*-*-*-*-*-*-**--*-*-*
 
@@ -409,8 +409,8 @@ const StepsPage: React.FC = () => {
     }
   };
   const determineScreenshotInterval = () => {
-    const totalTime =  assessment.packs[currentPackIndex].allowedTime  * 1000; // Convert to milliseconds
-  
+    const totalTime = assessment.packs[currentPackIndex].allowedTime * 1000;
+
     if (totalTime < 10 * 60 * 1000) {
       return totalTime / 3; // 3 screenshots
     } else if (totalTime < 20 * 60 * 1000) {
@@ -451,21 +451,20 @@ const StepsPage: React.FC = () => {
         const screenshotInterval = determineScreenshotInterval();
         return (
           <>
-          <WebcamComponent screenshotInterval={screenshotInterval} />
-               <IN_PROGRESS
-            assessmentData={assessment}
-            send={send}
-            currentPackIndex={currentPackIndex}
-            setCurrentPackIndex={setCurrentPackIndex}
-            fetchData={fetchData}
-            submitAnswer={submitAnswer}
-            question={question}
-            setAnswers={setAnswers}
-            answers={answers}
-            lockEvaluation={lockEvaluation}
-          />
+            <WebcamComponent screenshotInterval={screenshotInterval} />
+            <IN_PROGRESS
+              assessmentData={assessment}
+              send={send}
+              currentPackIndex={currentPackIndex}
+              setCurrentPackIndex={setCurrentPackIndex}
+              fetchData={fetchData}
+              submitAnswer={submitAnswer}
+              question={question}
+              setAnswers={setAnswers}
+              answers={answers}
+              lockEvaluation={lockEvaluation}
+            />
           </>
-     
         );
       case "FEEDBACK":
         return <FEEDBACK send={send} sendFeedback={sendFeedback} />;
@@ -476,7 +475,7 @@ const StepsPage: React.FC = () => {
       case "EVALEXPIRED":
         return <EVALEXPIRED />;
       case "TIMEOUT":
-        return <TIMEOUT  />;
+        return <TIMEOUT />;
       case "BREAK":
         return <Break />;
       default:
@@ -687,14 +686,14 @@ const StepsPage: React.FC = () => {
             </Box>
           </Box>
         )}
-        <CardContent ref={ToCaptureRef} sx={{ minWidth: "60vw" }}>
+        <CardContent sx={{ minWidth: "60vw", maxWidth: "60vw" }}>
           {renderStep()}
 
           <Box
             sx={{
               display: "flex",
               justifyContent: "flex-end",
-              marginTop: "6px",
+              marginTop: "2px",
               zIndex: 1,
               width: "100%",
             }}
