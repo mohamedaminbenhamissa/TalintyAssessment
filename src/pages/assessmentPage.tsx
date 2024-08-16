@@ -583,7 +583,7 @@ const StepsPage: React.FC = () => {
 
       <Box
         sx={{
-          width: "100%",
+          width: "100vw",
           display: "flex",
           justifyContent: "flex-end",
           alignItems: "center",
@@ -659,7 +659,15 @@ const StepsPage: React.FC = () => {
           <LangSelect />
         </Box>
       </Box>
-      <Card sx={{ marginTop: "20px" }}>
+      <Card
+        sx={{
+          marginTop: "20px",
+          width: "80vw",
+          maxWidth: "1600px",
+          minWidth: "350px",
+       
+        }}
+      >
         {state.value !== "LOCKED" && (
           <Box
             sx={{
@@ -686,7 +694,7 @@ const StepsPage: React.FC = () => {
             </Box>
           </Box>
         )}
-        <CardContent sx={{ minWidth: "60vw", maxWidth: "60vw" }}>
+        <CardContent>
           {renderStep()}
 
           <Box

@@ -64,7 +64,7 @@ export default function CONGRATS() {
             {t("congratsmsg")}
           </Typography>
         </Box>
-        <Stack
+        {/* <Stack
           direction={{ xs: "column", sm: "row" }}
           gap={3}
           sx={{ justifyContent: "center", alignItems: "center", mt: 5 }}
@@ -104,7 +104,7 @@ export default function CONGRATS() {
           >
             Suivi candidature
           </Button>
-        </Stack>
+        </Stack> */}
       </CardContent>
     </Card>
   );

@@ -8,7 +8,6 @@ import VideoQuestion from "@/component/questions/videoQuestion";
 import { Alert, Box, Typography } from "@mui/material";
 import { useTranslation } from "@/hooks/useTranslation";
 
-
 type Question = {
   type: string;
   isTrainingQuestion: boolean;
@@ -26,7 +25,6 @@ type AssessmentData = {
   allowedTime: number;
   packId: string;
   packs: any[];
-  
 };
 
 const QuestionComponent = ({
@@ -36,8 +34,7 @@ const QuestionComponent = ({
   setAnswers,
   answers,
   send,
-}: 
-{
+}: {
   assessmentData: AssessmentData;
   send: any;
   currentPackIndex: number;
@@ -47,8 +44,7 @@ const QuestionComponent = ({
   submitAnswer: () => void;
   question: Question | null;
   setAnswers: React.Dispatch<React.SetStateAction<any>>;
-  lockEvaluation: (reason: string) => void
-  
+  lockEvaluation: (reason: string) => void;
 }) => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [backgroundColor, setBackgroundColor] = useState<string>("#F6F7F6");
@@ -56,21 +52,43 @@ const QuestionComponent = ({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const { t } = useTranslation("progress");
 
-  // Start the timer 
+  const remainingTime = assessmentData.packs[currentPackIndex].allowedTime - elapsedTime;
+
+  // Initialize and manage the timer
   useEffect(() => {
-    if (question) {
-      timerRef.current = setInterval(() => {
-        setElapsedTime((prevTime) => prevTime + 1);
-      }, 1000);
-  
+    const startTimeKey = `startTime_${currentPackIndex}`;
+    const storedAllowedTime = localStorage.getItem("allowedTime");
+    
+    if (storedAllowedTime !== assessmentData.packs[currentPackIndex].allowedTime.toString()) {
+      localStorage.setItem("allowedTime", assessmentData.packs[currentPackIndex].allowedTime.toString());
+      localStorage.setItem(startTimeKey, Date.now().toString());
+      setElapsedTime(0);
+    } else {
+      const startTime = localStorage.getItem(startTimeKey);
+      if (startTime) {
+        const now = Date.now();
+        const savedStartTime = parseInt(startTime, 10);
+        const timeElapsed = Math.floor((now - savedStartTime) / 1000);
+        setElapsedTime(timeElapsed);
+      }
     }
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    timerRef.current = setInterval(() => {
+      setElapsedTime((prevTime) => prevTime + 1);
+    }, 1000);
+    
+
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
-   
-  }, [question]);
+  }, [assessmentData.packs[currentPackIndex].allowedTime, currentPackIndex]);
+  
 
   // Update background and text color based on the elapsed time
   useEffect(() => {
@@ -78,10 +96,10 @@ const QuestionComponent = ({
       const oneThirdTime = assessmentData.packs[currentPackIndex].allowedTime / 3;
       const twoThirdsTime = (assessmentData.packs[currentPackIndex].allowedTime / 3) * 2;
 
-      if (elapsedTime < oneThirdTime) {
+      if (remainingTime > twoThirdsTime) {
         setBackgroundColor("#F6F7F6");
         setTextColor("#3A923E");
-      } else if (elapsedTime >= oneThirdTime && elapsedTime < twoThirdsTime) {
+      } else if (remainingTime <= twoThirdsTime && remainingTime > oneThirdTime) {
         setBackgroundColor("#FBF4E2");
         setTextColor("#C1986C");
       } else {
@@ -89,10 +107,9 @@ const QuestionComponent = ({
         setTextColor("#D15050");
       }
     }
+  }, [remainingTime, question, assessmentData.packs, currentPackIndex]);
 
-  }, [elapsedTime, question, assessmentData.packs, currentPackIndex]);
-
-  // Handle the format of the elapsed time
+  // format remaining time
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -104,12 +121,11 @@ const QuestionComponent = ({
     return <div>Loading...</div>;
   }
 
-  if (elapsedTime >= assessmentData.packs[currentPackIndex].allowedTime) {
+  if (remainingTime <= 0) {
     send({ type: "CallTimeout" });
-
   }
 
-  // Dynamically render the appropriate question component based on the question type
+  // render question component based on the question type
   let questionComponent;
   switch (question.type) {
     case "radio":
@@ -163,7 +179,7 @@ const QuestionComponent = ({
             {t("tspent")}
           </Typography>
           <Typography variant="body1" sx={{ color: "#000" }}>
-            {formatTime(elapsedTime)}
+            {formatTime(remainingTime)}
           </Typography>
         </Box>
       </Box>

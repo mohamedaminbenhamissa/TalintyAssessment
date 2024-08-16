@@ -203,10 +203,8 @@ export const stepsMachine = createMachine<
             guard: ({ context }: { context: StepsContext }) =>
               context.evaluationStaus === "InProgress",
           },
-          { target: "RESULTS" },
-          {
-            actions: "SubmitFeedback",
-          },
+          { target: "START" },
+        
         ],
         CallResult: "LOCKED",
       },
@@ -219,12 +217,15 @@ export const stepsMachine = createMachine<
     },
     EVALEXPIRED: {
       on: {
-        next: "FEEDBACK",
+        next: "LOCKED",
       },
     },
     TIMEOUT: {
       on: {
-        next: "FEEDBACK",
+        next: [
+          { target: "FEEDBACK", guard: ({ context} : { context: StepsContext }) => context.enableFeedBack },
+          { target: "START" },
+        ],
       },
     },
     LOCKED: {

@@ -6,6 +6,8 @@ import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 import parse from "html-react-parser";
 import { useTranslation } from "@/hooks/useTranslation";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 type QuestionProps = {
   question: {
@@ -46,27 +48,38 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
     };
   }, []);
 
-  // useEffect(() => {
-  //   console.log("Answer:", answer);
-  // }, [answer]);
-  const handleCopy = (event: React.ClipboardEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setSnackbarMessage("Copying is disabled!");
-    setSnackbarOpen(true);
+  const handleQuillChange = (content: string) => {
+    onChange([content]);
   };
 
-  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setSnackbarMessage("Pasting is disabled!");
-    setSnackbarOpen(true);
-  };
+  useEffect(() => {
+    const quill = document.querySelector(".ql-editor");
+    if (quill) {
+      quill.addEventListener("copy", (event) => {
+        event.preventDefault();
+        setSnackbarMessage("Copying is disabled!");
+        setSnackbarOpen(true);
+      });
+      quill.addEventListener("cut", (event) => {
+        event.preventDefault();
+        setSnackbarMessage("Cutting is disabled!");
+        setSnackbarOpen(true);
+      });
+      quill.addEventListener("paste", (event) => {
+        event.preventDefault();
+        setSnackbarMessage("Pasting is disabled!");
+        setSnackbarOpen(true);
+      });
+    }
 
-  // const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const newAnswer = event.target.value;
-  //   const newAnswerArray = [newAnswer];
-  //   setAnswer(newAnswerArray);
-  //   onChange(newAnswerArray);
-  // };
+    return () => {
+      if (quill) {
+        quill.removeEventListener("copy", (event) => event.preventDefault());
+        quill.removeEventListener("cut", (event) => event.preventDefault());
+        quill.removeEventListener("paste", (event) => event.preventDefault());
+      }
+    };
+  }, []);
 
   const textAlign = isArabicText(question.description) ? "right" : "left";
   const direction = isArabicText(question.description) ? "rtl" : "ltr";
@@ -79,14 +92,13 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
         minWidth: 320,
         boxShadow: 0,
         minHeight: 500,
-   
         userSelect: "none",
       }}
     >
       <CardContent sx={{ flex: 1 }}>
         <Box sx={{ width: "100%", mt: 2 }}>
           <Typography
-              component="div"
+            component="div"
             sx={{
               fontSize: { xs: 14, sm: 16 },
               textAlign,
@@ -102,20 +114,20 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
               fontSize: { xs: 14, sm: 16 },
               textAlign: "justify",
               width: "100%",
-              mt: 1,
+              // mt: 1,
               fontWeight: "bold",
             }}
           >
             {t("quest")}
           </Typography>
           <Typography
-          component="div"
+            component="div"
             sx={{
               fontSize: { xs: 14, sm: 16 },
               textAlign,
               direction,
               width: "100%",
-              mt: 1,
+              // mt: 1,
             }}
           >
             {parse(question.name)}
@@ -125,7 +137,7 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
               fontSize: { xs: 14, sm: 16 },
               textAlign: "justify",
               width: "100%",
-              mt: 2,
+              mt: 1,
               fontWeight: "bold",
             }}
           >
@@ -138,26 +150,47 @@ const LongTextQuestion: React.FC<QuestionProps> = ({
             display: "flex",
             justifyContent: "center",
             flexDirection: "column",
-            width: "60%",
+            width: "80%",
+
             mx: "auto",
-            mt: 2,
+            mt: 1,
             gap: 1,
           }}
         >
-          <TextField
-            id="outlined-basic"
-            label=""
-            variant="outlined"
-            multiline
-            minRows={10}
-            maxRows={15}
-            onCopy={handleCopy}
-            onPaste={handlePaste}
-            onChange={(e) => onChange([e.target.value])}
+          <ReactQuill
             value={answers?.[0] || ""}
-            sx={{
-              width: "100%",
+            onChange={handleQuillChange}
+            modules={{
+              toolbar: [
+                [{ font: [] }],
+                [{ size: [] }],
+                ["bold", "italic", "underline", "strike", "blockquote"],
+                [
+                  { list: "ordered" },
+                  { list: "bullet" },
+                  { indent: "-1" },
+                  { indent: "+1" },
+                ],
+
+                ["clean"],
+              ],
             }}
+            formats={[
+              "header",
+              "font",
+              "size",
+              "bold",
+              "italic",
+              "underline",
+              "strike",
+              "blockquote",
+              "list",
+              "bullet",
+              "indent",
+              "link",
+              "image",
+            ]}
+            style={{ height: "200px", width: "100%" }}
           />
         </Box>
       </CardContent>
